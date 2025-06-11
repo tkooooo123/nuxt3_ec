@@ -15,6 +15,11 @@ export default defineNuxtConfig({
       }),
     ]
   },
+   nitro: {
+    plugins: [
+      '@/server/index'
+    ]
+  },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true }
 })
