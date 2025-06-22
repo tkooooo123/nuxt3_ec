@@ -1,0 +1,33 @@
+import Category from "@/server/models/Category";
+import { H3Event } from "h3";
+
+export default defineEventHandler(async (event: H3Event) => {
+  try {
+    const body = await readBody(event);
+   
+    const { name, description } = body;
+
+    if (!name) {
+      return createError({ statusCode: 400, statusMessage: '請輸入分類名稱' });
+    }
+
+    if (!description) {
+      return  createError({ statusCode: 400, statusMessage: '請輸入分類描述' });
+    }
+
+    const category = await Category.create({
+      name,
+      description,
+    });
+    if (category) {
+      return {
+           message: "新增成功!",
+      }
+    }
+  } catch (error: any) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || "伺服器錯誤",
+    });
+  }
+});
