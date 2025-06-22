@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
+import { FetchError } from 'ofetch'
 
 definePageMeta({
     layout: 'admin'
@@ -33,10 +34,29 @@ const rules: FormRules<CatrgoryRuleForm> = {
     ]
 }
 
+const addCategory = async () => {
+    try {
+        const data = await $fetch('/api/admin/category', {
+            method: 'POST',
+            body: {
+                name: ruleform.name,
+                description: ruleform.description
+            }
+        })
+        if(data) {
+            createDialogVisible.value = false
+        }
+    } catch (error) {
+        if (error instanceof FetchError) {
+        }
+        console.log(error)
+    }
+}
+
 const handleSubmit = () => {
     formRef.value?.validate((valid) => {
         if (valid) {
-           console.log(valid)
+           addCategory()
         }
     })
 }
@@ -67,10 +87,10 @@ const handleSubmit = () => {
             <div>
                 <el-form ref="formRef" :model="ruleform" :rules="rules">
                     <el-form-item label="名稱" prop="name" class="flex flex-col items-start">
-                        <el-input></el-input>
+                        <el-input v-model="ruleform.name"></el-input>
                     </el-form-item>
                     <el-form-item label="描述" prop="description" class="flex flex-col items-start">
-                        <el-input type="textarea"></el-input>
+                        <el-input type="textarea" v-model="ruleform.description"></el-input>
                     </el-form-item>
                 </el-form>
                 <div class="flex justify-end">
