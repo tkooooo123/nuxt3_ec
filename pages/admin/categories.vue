@@ -14,13 +14,13 @@ interface CatrgoryRuleForm {
     name: string
     description: string
 }
-const categoryList = ref<category[]>([
-
-])
+const categoryList = ref<category[]>([])
 
 const createDialogVisible = ref<boolean>(false)
+const deleteDialogVisible = ref<boolean>(false)
 const type = ref<string>('')
 const selectedCategoryId = ref<string>('')
+const selectToDelete = ref<category | null>(null)
 
 const formRef = ref<FormInstance>()
 const ruleform = reactive<CatrgoryRuleForm>({
@@ -57,7 +57,7 @@ const addCategory = async () => {
             body: {
                 name: ruleform.name,
                 description: ruleform.description,
-                id:type.value === 'edit' ? selectedCategoryId.value : null
+                id: type.value === 'edit' ? selectedCategoryId.value : null
             }
         })
         if (data) {
@@ -84,12 +84,34 @@ const handleSubmit = () => {
     })
 }
 
-const handleEdit = (item:category) => {
-   createDialogVisible.value = true
-   type.value = 'edit'
-   ruleform.name = item.name
-   ruleform.description = item.description
-   selectedCategoryId.value = item.id
+const handleEdit = (item: category) => {
+    createDialogVisible.value = true
+    type.value = 'edit'
+    ruleform.name = item.name
+    ruleform.description = item.description
+    selectedCategoryId.value = item.id
+}
+
+const handleDelete = async () => {
+    try {
+        const res = await $fetch(`/api/admin/category`, {
+            method: 'DELETE',
+            body: {
+                id: selectToDelete.value?.id
+            }
+
+        });
+
+
+        ElMessage.success(res.message || '刪除成功');
+
+        // 關閉 dialog 並重置選擇
+        await getCategories()
+        console.log(deleteDialogVisible.value)
+        deleteDialogVisible.value = false;
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 onMounted(() => {
@@ -103,11 +125,10 @@ onMounted(() => {
             <div class="px-8 py-6 ">
                 <h1>分類管理</h1>
                 <div class="flex justify-end">
-                    <button class="bg-blue rounded-2 h-10 px-4 text-white font-600 cursor-pointer"
-                        @click="() => {
-                            createDialogVisible = true
-                            type = 'create'
-                        }">新增</button>
+                    <button class="bg-blue rounded-2 h-10 px-4 text-white font-600 cursor-pointer" @click="() => {
+                        createDialogVisible = true
+                        type = 'create'
+                    }">新增</button>
                 </div>
                 <el-table class="mt-8" :data="categoryList"
                     :headerCellStyle="{ background: '#60A5FA', color: 'white' }">
@@ -118,9 +139,12 @@ onMounted(() => {
                         <template #default="scope">
                             <div class="flex">
                                 <button class="bg-yellow h-10 px-4 rounded-2 font-600  cursor-pointer"
-                                @click="handleEdit(scope.row)"
-                                >編輯</button>
-                                <button class="bg-red h-10 px-4 rounded-2 ml-2 text-white font-600  cursor-pointer">刪除</button>
+                                    @click="handleEdit(scope.row)">編輯</button>
+                                <button class="bg-red h-10 px-4 rounded-2 ml-2 text-white font-600  cursor-pointer"
+                                    @click="() => {
+                                        deleteDialogVisible = true
+                                        selectToDelete = scope.row
+                                    }">刪除</button>
                             </div>
                         </template></el-table-column>
                 </el-table>
@@ -128,8 +152,8 @@ onMounted(() => {
         </div>
 
         <!--新增彈窗-->
-        <el-dialog :title="`${type === 'edit' ? '編輯': '新增'}分類`" v-model="createDialogVisible" width="600">
-            
+        <el-dialog :title="`${type === 'edit' ? '編輯' : '新增'}分類`" v-model="createDialogVisible" width="600">
+
             <div>
                 <el-form ref="formRef" :model="ruleform" :rules="rules">
                     <el-form-item label="名稱" prop="name" class="flex flex-col items-start">
@@ -145,6 +169,19 @@ onMounted(() => {
                         @click="createDialogVisible = false">取消</button>
                     <button class="bg-blue text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
                         @click="handleSubmit">確定</button>
+                </div>
+            </div>
+        </el-dialog>
+        <!--刪除彈窗-->
+        <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
+            <div>
+                <p v-if="selectToDelete">分類「{{ selectToDelete.name }}」刪除後將無法復原，你確定要刪除嗎？</p>
+                <div class="flex justify-end">
+                    <button
+                        class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+                        @click="deleteDialogVisible = false">取消</button>
+                    <button class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+                        @click="handleDelete">確定</button>
                 </div>
             </div>
         </el-dialog>
