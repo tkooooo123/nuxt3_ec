@@ -26,6 +26,14 @@ export default defineNuxtConfig({
       '@/server/index'
     ]
   },
+  runtimeConfig: {
+    public: {
+      cloudinary: {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      uploadReset: process.env.CLOUDINARY_UPLOAD_PRESET 
+    }
+    }
+  },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true }
 })
