@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { UploadFilled } from '@element-plus/icons-vue'
-import type { UploadRawFile } from 'element-plus'
+import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
+
 definePageMeta({
   layout: 'admin'
 })
@@ -9,48 +10,77 @@ interface tagItem {
   name: string
 }
 interface article {
+  id:string
   title: string
   author: string
   is_public: boolean
   tags: string[]
   content: string
   date: string
+  imageUrl: string
 }
-interface RuleForm {
+interface articleRuleForm {
   title: string
   author: string
   is_public: boolean
   tags: tagItem[]
   content: string
   date: string
+  imageUrl: string
 }
 const articleDialogVisible = ref<boolean>(false)
 const type = ref<'edit' | 'create'>('create')
 const articleList = ref<article[]>([
   {
-    title: 'test',
-    author: 'test',
-    content: 'test123',
-    tags: ['ss'],
+    id: '',
+    title: '',
+    author: '',
+    content: '',
+    tags: [],
     is_public: true,
-    date: ''
+    date: '',
+    imageUrl: ''
   }
 ])
-const uploadImg = ref<string>('')
+const rules: FormRules<articleRuleForm> = {
+  title: [
+    { required: true, message: '請輸入標題', trigger: 'blur' }
+  ],
+  author: [
+    { required: true, message: '請輸入作者', trigger: 'blur' }
+  ],
+  content: [
+    { required: true, message: '請輸入內容', trigger: 'blur' }
+  ],
+  is_public: [
+    { required: true, message: '請選擇是否公開', trigger: 'blur' }
+  ],
+  date: [
+    { required: true, message: '請選擇公告日期', trigger: 'blur' }
+  ],
+   imageUrl: [
+    { required: true, message: '請選擇圖片', trigger: 'blur' }
+  ],
+  tags: [
+    { required: true, message: '請新增標籤', trigger: 'blur' }
+  ],
+}
+const formRef = ref<FormInstance>()
 const uploadFile = ref<UploadRawFile | null>(null)
-
-const ruleForm = reactive<RuleForm>({
+const loading = ref<boolean>(false)
+const ruleForm = reactive<articleRuleForm>({
   title: '',
   author: '',
   content: '',
   tags: [],
   is_public: true,
-  date: ''
+  date: new Date().toString(),
+  imageUrl: ''
 })
 
 const inputTag = ref<string>('')
 
-const checkFileType = async(file: UploadRawFile) => {
+const checkFileType = async (file: UploadRawFile) => {
   const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png'
 
   if (!isJPGorPNG) {
@@ -62,52 +92,22 @@ const checkFileType = async(file: UploadRawFile) => {
     return
   }
   uploadFile.value = file
-
-  // ✅ 正確在這裡宣告 reader
-  const reader = new FileReader()
-
-  reader.onload = () => {
-    const base64Data = reader.result as string
-    // console.log(base64Data)
-
-    // 這裡你可以處理圖片，例如顯示
-    uploadImg.value = base64Data
-
-  }
-
-  reader.onerror = () => {
-    ElMessage({
-      message: '讀取圖片失敗',
-      type: 'error',
-      duration: 3000
-    })
-  }
   await getImgUrl(file)
-
-
-  reader.readAsDataURL(file as Blob) // 👈 放在最後，觸發讀取
 }
 
 const getImgUrl = async (file: File) => {
- 
-
-
+  loading.value = true
   try {
     const uploadResult = await useCloudinaryUpload(file)
-    ElMessage({
-      message: '圖片上傳成功！',
-      type: 'success',
-      duration: 3000
-    })
-   
-    return uploadResult
+    ruleForm.imageUrl = uploadResult
+    loading.value = false
   } catch (error: any) {
     ElMessage({
       message: error.message || '圖片上傳失敗',
       type: 'error',
       duration: 3000
     })
-  
+    loading.value = false
   }
 }
 
@@ -127,6 +127,30 @@ const addTag = () => {
 const removeTag = (id: string) => {
   ruleForm.tags = ruleForm.tags.filter((tag) => tag.id !== id)
 }
+const formatDateString = (dateStr: string): string => {
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0') // 月份從 0 開始
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}${month}${day}`
+}
+const handleSubmit = () => {
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      createArticle()
+    }
+  })
+}
+const getArticles = async() => {
+  try {
+       const { data } = await $fetch<{ data: article[] }>('/api/admin/articles')
+       if(data) {
+        articleList.value = data
+       }
+  } catch (error) {
+    console.log(error)
+  }
+}
 const createArticle = async () => {
   try {
     const params = {
@@ -135,7 +159,8 @@ const createArticle = async () => {
       tags: ruleForm.tags.map((item: tagItem) => item.name),
       content: ruleForm.content,
       is_public: ruleForm.is_public,
-      date: ruleForm.date
+      date: formatDateString(ruleForm.date),
+      imageUrl: ruleForm.imageUrl
     }
     const data = await $fetch('/api/admin/article',
       {
@@ -146,10 +171,15 @@ const createArticle = async () => {
       type: 'success',
       message: data?.message
     })
+    articleDialogVisible.value = false
   } catch (error) {
     console.log(error)
+     articleDialogVisible.value = false
   }
 }
+ onMounted(() => {
+getArticles()
+  })
 </script>
 
 <template>
@@ -177,15 +207,25 @@ const createArticle = async () => {
         </el-table-column>
         <el-table-column label="標題" prop="title" width="180"></el-table-column>
         <el-table-column label="作者" prop="author" width="120"></el-table-column>
-        <el-table-column label="標籤" width="120"></el-table-column>
+        <el-table-column label="標籤" width="120">
+          <template #default="scope">
+            <div class="flex" ><span v-for="tag in scope.row.tags" class="mx-1">
+              {{ tag }}
+            </span></div>
+          </template>
+        </el-table-column>
         <el-table-column label="內容" prop="content"></el-table-column>
-        <el-table-column label="發布日期" width="120"></el-table-column>
-        <el-table-column label="是否啟用" width="90"></el-table-column>
+        <el-table-column label="發布日期" width="120" prop="date"></el-table-column>
+        <el-table-column label="是否公開" width="90">
+          <template #default="scope">
+            <span v-if="scope.row.is_public">已公開</span> <span v-else>未公開</span>
+          </template>
+        </el-table-column>
         <el-table-column label="動作">
           <template #default="scope">
             <div class="flex">
-              <button class="h-10 px-4 bg-yellow" @click="articleDialogVisible = true">編輯</button>
-              <button class="h-10 px-4 bg-red text-white">刪除</button>
+              <button class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer" @click="articleDialogVisible = true">編輯</button>
+              <button class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2">刪除</button>
             </div>
           </template>
         </el-table-column>
@@ -194,24 +234,38 @@ const createArticle = async () => {
       <el-dialog :title="`${type === 'edit' ? '編輯' : '新增'}文章`" v-model="articleDialogVisible" width="700"
         :modal="false">
         <div>
-          <el-form :model="ruleForm">
+          <el-form ref="formRef" :model="ruleForm" :rules="rules">
             <div class="grid md:grid-cols-2 gap-4 flex-1">
-              <el-form-item label="標題" class="col-span-2 flex flex-col items-start">
+              <el-form-item label="標題" prop="title" class="col-span-2 flex flex-col items-start">
                 <el-input v-model="ruleForm.title"></el-input>
               </el-form-item>
               <div>
-                <el-form-item label="作者" class="flex flex-col items-start">
+                <el-form-item label="作者" prop="author" class="flex flex-col items-start">
                   <el-input v-model="ruleForm.author"></el-input>
                 </el-form-item>
               </div>
-              <el-form-item label="圖片" class="flex flex-col items-start">
-                <el-upload v-if="!uploadImg" class="w-full" drag multiple :before-upload="checkFileType" action="#">
+              <el-form-item label="圖片" prop="imageUrl" class="flex flex-col items-start">
+                <el-upload v-loading="loading" v-if="ruleForm.imageUrl === ''" class="w-full" drag multiple
+                  :before-upload="checkFileType" action="#">
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">
                     將圖片拖曳到此處，<em>或點擊以上傳</em>
                   </div>
+
                 </el-upload>
-                <img v-else :src="uploadImg" alt="" />
+                <div v-else v-loading="loading" class="flex flex-col">
+                  <img class="max-w-full block" :src="ruleForm.imageUrl" alt="文章圖片" />
+                  <div class="flex justify-end">
+                    <el-upload  multiple
+                      :before-upload="checkFileType" action="#" class="mt-4">
+
+                      <button @click.prevent="" class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer">選擇其他圖片</button>
+
+                    </el-upload>
+
+                  </div>
+                </div>
+
               </el-form-item>
               <el-form-item label="標籤" class="flex flex-col items-start">
                 <div class="flex items-center justify-between w-full">
@@ -222,23 +276,23 @@ const createArticle = async () => {
                   </button>
                 </div>
               </el-form-item>
-              <el-form-item label="標籤清單" class="flex flex-col items-start">
+              <el-form-item label="標籤清單" prop="tags" class="flex flex-col items-start">
                 <div class="flex">
                   <el-tag v-for="tag in ruleForm.tags" closable @close="removeTag(tag.id)" :key="tag.id" class="px-2">{{
                     tag.name }}</el-tag>
                 </div>
               </el-form-item>
-              <el-form-item label="是否公開" class="flex flex-col items-start">
+              <el-form-item label="是否公開" prop="is_public" class="flex flex-col items-start">
                 <el-radio-group v-model="ruleForm.is_public">
                   <el-radio :value="true">是</el-radio>
                   <el-radio :value="false">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="公告日期" class="flex flex-col items-start">
+              <el-form-item label="公告日期" prop="date" class="flex flex-col items-start">
                 <el-date-picker v-model="ruleForm.date"></el-date-picker>
               </el-form-item>
 
-              <el-form-item label="內容" class="flex flex-col items-start col-span-2">
+              <el-form-item label="內容" prop="" class="flex flex-col items-start col-span-2">
                 <el-input type="textarea" :rows="5" placeholder="請輸入內容" class="textarea"
                   v-model="ruleForm.content"></el-input>
               </el-form-item>
@@ -248,7 +302,7 @@ const createArticle = async () => {
             <button class="h-10 px-4" @click="articleDialogVisible = false">
               取消
             </button>
-            <button class="h-10 px-4 ml-2" @click="createArticle">確定</button>
+            <button class="h-10 px-4 ml-2" @click="handleSubmit">確定</button>
           </div>
         </div>
       </el-dialog>
@@ -277,6 +331,10 @@ const createArticle = async () => {
 
   .textarea.el-textarea {
     height: 115px;
+  }
+
+  .el-upload-list__item{
+    display: none;
   }
 }
 </style>

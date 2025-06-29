@@ -1,14 +1,15 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IArticle extends Document {
-  title: string
-  author: string
-  is_public: boolean
-  tags: string[]
-  content: string
-  date: string
-  createdAt: Date
-  updatedAt: Date
+  title: string;
+  author: string;
+  is_public: boolean;
+  tags: string[];
+  content: string;
+  date: string;
+  imageUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // 建立 Article 的 Schema
@@ -19,10 +20,11 @@ const ArticleSchema: Schema<IArticle> = new Schema<IArticle>(
     is_public: { type: Boolean, default: false },
     tags: { type: [String], default: [] },
     content: { type: String, required: true },
-    date: {  type: String, required: true }
+    date: { type: String, required: true },
+    imageUrl: { type: String, required: true },
   },
   {
-    timestamps: { createdAt: true, updatedAt: true } // 自動維護 createdAt 和 updatedAt
+    timestamps: { createdAt: true, updatedAt: true }, // 自動維護 createdAt 和 updatedAt
   }
 );
 

@@ -4,8 +4,8 @@ import { H3Event } from "h3";
 export default defineEventHandler(async (event: H3Event) => {
 try {
     const body = await readBody(event);
-    console.log(body)
-    const { title, author, tags, content, is_public, date } = body
+console.log(body)
+    const { title, author, tags, content, is_public, date, imageUrl } = body
     if (!title) {
       return createError({ statusCode: 400, statusMessage: '請輸入文章標題' });
     }
@@ -18,11 +18,14 @@ try {
      if (!content) {
       return createError({ statusCode: 400, statusMessage: '請輸入文章標籤' });
     }
-     if (!is_public) {
+     if (typeof is_public !== 'boolean') {
       return createError({ statusCode: 400, statusMessage: '請選擇是否公開' });
     }
        if (!date) {
       return createError({ statusCode: 400, statusMessage: '請選擇公告日期' });
+    }
+     if (!imageUrl) {
+      return createError({ statusCode: 400, statusMessage: '請先取得圖片網址' });
     }
 
      const article = await Article.create(body);
