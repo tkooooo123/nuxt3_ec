@@ -29,6 +29,7 @@ interface articleRuleForm {
   imageUrl: string
 }
 const articleDialogVisible = ref<boolean>(false)
+const deleteDialogVisible = ref<boolean>(false)
 const type = ref<'edit' | 'create'>('create')
 const articleList = ref<article[]>([
   {
@@ -69,6 +70,7 @@ const formRef = ref<FormInstance>()
 const uploadFile = ref<UploadRawFile | null>(null)
 const loading = ref<boolean>(false)
 const selectedArticleId = ref<string>('')
+const selectToDelete = ref<article | null>(null)
 const ruleForm = reactive<articleRuleForm>({
   title: '',
   author: '',
@@ -184,7 +186,7 @@ const createArticle = async () => {
       type: 'success',
       message: data?.message
     })
-     getArticles()
+    getArticles()
     articleDialogVisible.value = false
   } catch (error) {
     console.log(error)
@@ -209,6 +211,28 @@ const editArticle = (item: article) => {
   articleDialogVisible.value = true
 
 }
+
+const handleDelete = async () => {
+    try {
+        const res = await $fetch(`/api/admin/article`, {
+            method: 'DELETE',
+            body: {
+                id: selectToDelete.value?.id
+            }
+
+        });
+
+         ElMessage.success(res.message || '刪除成功');
+
+        // 關閉 dialog 並重置選擇
+        await getArticles()
+
+        deleteDialogVisible.value = false;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 onMounted(() => {
   getArticles()
 })
@@ -258,7 +282,10 @@ onMounted(() => {
             <div class="flex">
               <button class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
                 @click="editArticle(scope.row)">編輯</button>
-              <button class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2">刪除</button>
+              <button class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2" @click="() => {
+                deleteDialogVisible = true
+                selectToDelete = scope.row
+              }">刪除</button>
             </div>
           </template>
         </el-table-column>
@@ -336,6 +363,17 @@ onMounted(() => {
               取消
             </button>
             <button class="h-10 px-4 ml-2" @click="handleSubmit">確定</button>
+          </div>
+        </div>
+      </el-dialog>
+      <!--刪除彈窗-->
+      <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
+        <div>
+          <p v-if="selectToDelete">分類「{{ selectToDelete.title }}」刪除後將無法復原，你確定要刪除嗎？</p>
+          <div class="flex justify-end">
+            <button class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+              @click="deleteDialogVisible = false">取消</button>
+            <button class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer" @click="handleDelete">確定</button>
           </div>
         </div>
       </el-dialog>
