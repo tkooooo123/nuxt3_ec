@@ -10,7 +10,7 @@ interface tagItem {
   name: string
 }
 interface article {
-  id:string
+  id: string
   title: string
   author: string
   is_public: boolean
@@ -58,7 +58,7 @@ const rules: FormRules<articleRuleForm> = {
   date: [
     { required: true, message: '請選擇公告日期', trigger: 'blur' }
   ],
-   imageUrl: [
+  imageUrl: [
     { required: true, message: '請選擇圖片', trigger: 'blur' }
   ],
   tags: [
@@ -68,6 +68,7 @@ const rules: FormRules<articleRuleForm> = {
 const formRef = ref<FormInstance>()
 const uploadFile = ref<UploadRawFile | null>(null)
 const loading = ref<boolean>(false)
+const selectedArticleId = ref<string>('')
 const ruleForm = reactive<articleRuleForm>({
   title: '',
   author: '',
@@ -134,6 +135,17 @@ const formatDateString = (dateStr: string): string => {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}${month}${day}`
 }
+
+const parseDateString = (str: string): string => {
+
+
+  const year = parseInt(str.slice(0, 4), 10)
+  const month = parseInt(str.slice(4, 6), 10) - 1 // 月份從 0 開始
+  const day = parseInt(str.slice(6, 8), 10)
+
+  const date = new Date(year, month, day)
+  return date.toString()
+}
 const handleSubmit = () => {
   formRef.value?.validate((valid) => {
     if (valid) {
@@ -141,12 +153,12 @@ const handleSubmit = () => {
     }
   })
 }
-const getArticles = async() => {
+const getArticles = async () => {
   try {
-       const { data } = await $fetch<{ data: article[] }>('/api/admin/articles')
-       if(data) {
-        articleList.value = data
-       }
+    const { data } = await $fetch<{ data: article[] }>('/api/admin/articles')
+    if (data) {
+      articleList.value = data
+    }
   } catch (error) {
     console.log(error)
   }
@@ -160,26 +172,46 @@ const createArticle = async () => {
       content: ruleForm.content,
       is_public: ruleForm.is_public,
       date: formatDateString(ruleForm.date),
-      imageUrl: ruleForm.imageUrl
+      imageUrl: ruleForm.imageUrl,
+      id: type.value === 'edit' ? selectedArticleId.value : null
     }
     const data = await $fetch('/api/admin/article',
       {
-        method: 'POST',
+        method: type.value === 'edit' ? 'PUT' : 'POST',
         body: params
       })
     ElMessage({
       type: 'success',
       message: data?.message
     })
+     getArticles()
     articleDialogVisible.value = false
   } catch (error) {
     console.log(error)
-     articleDialogVisible.value = false
+    articleDialogVisible.value = false
   }
 }
- onMounted(() => {
-getArticles()
+const editArticle = (item: article) => {
+  type.value = 'edit'
+  selectedArticleId.value = item.id
+  ruleForm.title = item.title
+  ruleForm.author = item.author
+  ruleForm.imageUrl = item.imageUrl
+  ruleForm.is_public = item.is_public
+  ruleForm.content = item.content
+  ruleForm.tags = item.tags.map((item: string) => {
+    return {
+      id: generateId(),
+      name: item
+    }
   })
+  ruleForm.date = parseDateString(item.date)
+  articleDialogVisible.value = true
+
+}
+onMounted(() => {
+  getArticles()
+})
 </script>
 
 <template>
@@ -209,9 +241,9 @@ getArticles()
         <el-table-column label="作者" prop="author" width="120"></el-table-column>
         <el-table-column label="標籤" width="120">
           <template #default="scope">
-            <div class="flex" ><span v-for="tag in scope.row.tags" class="mx-1">
-              {{ tag }}
-            </span></div>
+            <div class="flex"><span v-for="tag in scope.row.tags" class="mx-1">
+                {{ tag }}
+              </span></div>
           </template>
         </el-table-column>
         <el-table-column label="內容" prop="content"></el-table-column>
@@ -224,7 +256,8 @@ getArticles()
         <el-table-column label="動作">
           <template #default="scope">
             <div class="flex">
-              <button class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer" @click="articleDialogVisible = true">編輯</button>
+              <button class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
+                @click="editArticle(scope.row)">編輯</button>
               <button class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2">刪除</button>
             </div>
           </template>
@@ -256,10 +289,10 @@ getArticles()
                 <div v-else v-loading="loading" class="flex flex-col">
                   <img class="max-w-full block" :src="ruleForm.imageUrl" alt="文章圖片" />
                   <div class="flex justify-end">
-                    <el-upload  multiple
-                      :before-upload="checkFileType" action="#" class="mt-4">
+                    <el-upload multiple :before-upload="checkFileType" action="#" class="mt-4">
 
-                      <button @click.prevent="" class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer">選擇其他圖片</button>
+                      <button @click.prevent=""
+                        class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer">選擇其他圖片</button>
 
                     </el-upload>
 
@@ -333,7 +366,7 @@ getArticles()
     height: 115px;
   }
 
-  .el-upload-list__item{
+  .el-upload-list__item {
     display: none;
   }
 }
