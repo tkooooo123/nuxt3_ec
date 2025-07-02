@@ -4,6 +4,7 @@ import { H3Event } from "h3";
 export default defineEventHandler(async (event: H3Event) => {
   try {
     const body = await readBody(event);
+    console.log(body);
     const {
       name,
       price,
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event: H3Event) => {
       imagesUrl,
       unit
     } = body;
-
+    console.log(typeof quantity);
     if (!name) {
       return createError({ statusCode: 400, statusMessage: '請輸入商品名稱' });
     }
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event: H3Event) => {
     if (!description) {
       return createError({ statusCode: 400, statusMessage: '請輸入商品描述' });
     }
-    if (quantity || quantity < 0) {
+    if (!quantity || quantity < 0) {
       return createError({ statusCode: 400, statusMessage: '請輸入商品數量' });
     }
     if (typeof isEnabled !== 'boolean') {
