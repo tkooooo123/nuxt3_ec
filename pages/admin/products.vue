@@ -16,7 +16,7 @@ interface product {
   content: string
   isEnabled: boolean
   unit: string
-  category: string
+  category: string | { id: string; name: string; description: string }
 }
 
 interface category {
@@ -26,6 +26,8 @@ interface category {
 }
 
 const productDialogVisible = ref<boolean>(false)
+const deleteDialogVisible = ref<boolean>(false)
+const selectToDelete = ref<product | null>(null)
 const type = ref<'edit' | 'create'>('create')
 const productList = ref<product[]>([
   {
@@ -226,6 +228,37 @@ const fetchProducts = async () => {
   productList.value = res.data
 }
 
+const editProduct = (row: product) => {
+  type.value = 'edit'
+  selectedProductId.value = row.id
+  ruleForm.name = row.name
+  ruleForm.description = row.description
+  ruleForm.image = row.image
+  ruleForm.imagesUrl = [...row.imagesUrl] // 使用展開運算符複製陣列
+  ruleForm.quantity = row.quantity
+  ruleForm.price = row.price
+  ruleForm.category =
+    typeof row.category === 'object' ? row.category.id : row.category
+  ruleForm.unit = row.unit
+  ruleForm.isEnabled = row.isEnabled
+  ruleForm.content = row.content
+  productDialogVisible.value = true
+}
+// 重置表單
+const resetForm = () => {
+  ruleForm.id = ''
+  ruleForm.name = ''
+  ruleForm.description = ''
+  ruleForm.image = ''
+  ruleForm.imagesUrl = []
+  ruleForm.quantity = 1
+  ruleForm.price = 1
+  ruleForm.category = ''
+  ruleForm.unit = ''
+  ruleForm.isEnabled = true
+  ruleForm.content = ''
+}
+
 // 頁面載入時取得分類資料
 onMounted(() => {
   fetchCategories()
@@ -234,13 +267,17 @@ onMounted(() => {
 
 const handleSubmit = () => {
   formRef.value?.validate((valid) => {
-        if (valid) {
-           console.log(123,ruleForm)
-           addProduct()
-        }
-    })
+    if (valid) {
+      if (type.value === 'edit') {
+        updateProduct()
+      } else {
+        addProduct()
+      }
+    }
+  })
 }
-const addProduct = async()=>{
+
+const addProduct = async () => {
   try {
     const res = await $fetch<{ message: string; data: any[] }>(
       '/api/admin/product',
@@ -251,16 +288,88 @@ const addProduct = async()=>{
         }
       }
     )
-   if(res) {
-    productDialogVisible.value = false
-    ElMessage({
-      message: res.message,
-      type: 'success',
-      duration: 2000
-    })
-   }
+    if (res) {
+      productDialogVisible.value = false
+      resetForm()
+      ElMessage({
+        message: res.message,
+        type: 'success',
+        duration: 2000
+      })
+      // 重新取得產品列表
+      await fetchProducts()
+    }
   } catch (error) {
     console.error('新增產品失敗:', error)
+  }
+}
+
+const updateProduct = async () => {
+  try {
+    const res = await $fetch<{ message: string; data: any }>(
+      '/api/admin/product',
+      {
+        method: 'PUT',
+        body: {
+          id: selectedProductId.value,
+          name: ruleForm.name,
+          description: ruleForm.description,
+          image: ruleForm.image,
+          imagesUrl: ruleForm.imagesUrl,
+          quantity: ruleForm.quantity,
+          price: ruleForm.price,
+          category: ruleForm.category,
+          unit: ruleForm.unit,
+          isEnabled: ruleForm.isEnabled,
+          content: ruleForm.content
+        }
+      }
+    )
+    if (res) {
+      productDialogVisible.value = false
+      resetForm()
+      ElMessage({
+        message: res.message,
+        type: 'success',
+        duration: 2000
+      })
+      // 重新取得產品列表
+      await fetchProducts()
+    }
+  } catch (error) {
+    console.error('更新產品失敗:', error)
+  }
+}
+
+// 刪除產品
+const deleteProduct = async () => {
+  if (!selectToDelete.value) return
+
+  try {
+    const res = await $fetch<{ message: string }>('/api/admin/product', {
+      method: 'DELETE',
+      body: {
+        id: selectToDelete.value.id
+      }
+    })
+
+    if (res) {
+      deleteDialogVisible.value = false
+      selectToDelete.value = null
+      ElMessage({
+        message: res.message,
+        type: 'success',
+        duration: 2000
+      })
+      // 重新取得產品列表
+      await fetchProducts()
+    }
+  } catch (error: any) {
+    ElMessage({
+      message: error.message || '刪除產品失敗',
+      type: 'error',
+      duration: 3000
+    })
   }
 }
 </script>
@@ -274,6 +383,7 @@ const addProduct = async()=>{
           class="h-10 px-4 rounded-2 border-0 cursor-pointer"
           @click="
             () => {
+              resetForm()
               productDialogVisible = true
               type = 'create'
             }
@@ -283,7 +393,41 @@ const addProduct = async()=>{
         </button>
       </div>
       <el-table :data="productList" class="mt-6">
+        <el-table-column label="圖片">
+          <template #default="scope">
+            <img
+              :src="scope.row.image"
+              alt="商品圖片"
+              class="w-20 h-20 object-cover"
+            />
+          </template>
+        </el-table-column>
         <el-table-column label="名稱" prop="name"></el-table-column>
+        <el-table-column label="售價" prop="price"></el-table-column>
+        <el-table-column label="數量" prop="quantity"></el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <div class="flex">
+              <button
+                class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
+                @click="editProduct(scope.row)"
+              >
+                編輯
+              </button>
+              <button
+                class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2"
+                @click="
+                  () => {
+                    deleteDialogVisible = true
+                    selectToDelete = scope.row
+                  }
+                "
+              >
+                刪除
+              </button>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
 
       <el-dialog
@@ -351,49 +495,49 @@ const addProduct = async()=>{
               >
                 <div class="w-full">
                   <!-- 已上傳的圖片列表 -->
-                   <div class="flex flex-col w-full"
-                   v-if="
+                  <div
+                    class="flex flex-col w-full"
+                    v-if="
                       ruleForm.imagesUrl.length > 0 && !multipleUploadLoading
                     "
-                        v-loading="multipleUploadLoading"
-                   >
-                   <div
-                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                    v-loading="multipleUploadLoading"
                   >
                     <div
-                      v-for="(imageUrl, index) in ruleForm.imagesUrl"
-                      :key="index"
-                      class="relative group"
+                      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                     >
-                      <img
-                        :src="imageUrl"
-                        :alt="`產品圖片 ${index + 1}`"
-                        class="w-full h-32 object-cover rounded-lg border border-gray-200"
-                      />
                       <div
-                        class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center"
+                        v-for="(imageUrl, index) in ruleForm.imagesUrl"
+                        :key="index"
+                        class="relative group"
                       >
-                        <el-button
-                          type="danger"
-                          size="small"
-                          circle
-                          class="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          @click="removeImage(index)"
+                        <img
+                          :src="imageUrl"
+                          :alt="`產品圖片 ${index + 1}`"
+                          class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        />
+                        <div
+                          class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center"
                         >
-                          <el-icon><delete /></el-icon>
-                        </el-button>
+                          <el-button
+                            type="danger"
+                            size="small"
+                            circle
+                            class="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            @click="removeImage(index)"
+                          >
+                            <el-icon><delete /></el-icon>
+                          </el-button>
+                        </div>
                       </div>
                     </div>
-                   
+                    <button
+                      @click.prevent=""
+                      class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
+                    >
+                      上傳更多圖片
+                    </button>
                   </div>
-                  <button
-                        @click.prevent=""
-                        class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
-                      >
-                        上傳更多圖片
-                      </button>
-                  </div>
-                  
+
                   <!-- 多張圖片上傳區域 -->
                   <el-upload
                     v-else
@@ -454,11 +598,17 @@ const addProduct = async()=>{
               >
                 <el-input v-model="ruleForm.price"></el-input>
               </el-form-item>
-              <el-form-item  label="數量"
+              <el-form-item
+                label="數量"
                 prop="quantity"
-                class="flex flex-col items-start">
-                <el-input-number v-model="ruleForm.quantity" :min="1" :max="10000" :step="1" />
-
+                class="flex flex-col items-start"
+              >
+                <el-input-number
+                  v-model="ruleForm.quantity"
+                  :min="1"
+                  :max="10000"
+                  :step="1"
+                />
               </el-form-item>
               <el-form-item
                 label="描述"
@@ -489,12 +639,46 @@ const addProduct = async()=>{
             </div>
           </el-form>
           <div class="flex justify-end mt-4">
-            <button class="h-10 px-4 cursor-pointer" @click="productDialogVisible = false">
+            <button
+              class="h-10 px-4 cursor-pointer"
+              @click="productDialogVisible = false"
+            >
               取消
             </button>
-            <button class="h-10 px-4 ml-2 cursor-pointer" @click="handleSubmit">確定</button>
+            <button class="h-10 px-4 ml-2 cursor-pointer" @click="handleSubmit">
+              確定
+            </button>
           </div>
         </div>
+      </el-dialog>
+
+      <!-- 刪除確認對話框 -->
+      <el-dialog
+        title="確認刪除"
+        v-model="deleteDialogVisible"
+        width="400"
+        :modal="false"
+      >
+        <div>
+          <p>確定要刪除產品「{{ selectToDelete?.name }}」嗎？</p>
+          <p class="text-red-500 text-sm mt-2">此操作無法復原</p>
+        </div>
+        <template #footer>
+          <div class="flex justify-end">
+            <button
+              class="h-10 px-4 cursor-pointer"
+              @click="deleteDialogVisible = false"
+            >
+              取消
+            </button>
+            <button
+              class="h-10 px-4 ml-2 bg-red text-white font-600 cursor-pointer"
+              @click="deleteProduct"
+            >
+              確定刪除
+            </button>
+          </div>
+        </template>
       </el-dialog>
     </div>
   </el-container>
