@@ -8,10 +8,17 @@ export interface IProduct extends Document {
   description?: string;
   quantity?: number;
   price: number;
+  origin_price?: number;
   isEnabled?: boolean;
   content?: string;
   imagesUrl?: string[]; // 改為陣列
   unit?: string;
+  is_hottest?: boolean;
+  is_newest?: boolean;
+  notice?: string;
+  material?: string;
+  size?: string;
+  style?: string;
   category: mongoose.Types.ObjectId | ICategory;
   createdAt: Date;
 }
@@ -43,6 +50,11 @@ const ProductSchema: Schema<IProduct> = new Schema<IProduct>({
     required: true,
     min: 0,
   },
+  origin_price: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
   isEnabled: {
     type: Boolean,
     default: true,
@@ -57,6 +69,34 @@ const ProductSchema: Schema<IProduct> = new Schema<IProduct>({
     default: [],
   },
   unit: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  is_hottest: {
+    type: Boolean,
+    default: false,
+  },
+  is_newest: {
+    type: Boolean,
+    default: false,
+  },
+  notice: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  material: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  size: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  style: {
     type: String,
     default: '',
     trim: true,

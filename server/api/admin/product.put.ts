@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
       id,
       name,
       price,
+      origin_price,
       category,
       image,
       description,
@@ -15,7 +16,13 @@ export default defineEventHandler(async (event: H3Event) => {
       isEnabled,
       content,
       imagesUrl,
-      unit
+      unit,
+      is_hottest,
+      is_newest,
+      notice,
+      material,
+      size,
+      style
     } = body
 
     // 驗證必要欄位
@@ -75,6 +82,7 @@ export default defineEventHandler(async (event: H3Event) => {
       {
         name,
         price,
+        origin_price: origin_price || 0,
         category,
         image,
         description,
@@ -82,7 +90,13 @@ export default defineEventHandler(async (event: H3Event) => {
         isEnabled,
         content,
         imagesUrl,
-        unit
+        unit,
+        is_hottest: is_hottest || false,
+        is_newest: is_newest || false,
+        notice: notice || '',
+        material: material || '',
+        size: size || '',
+        style: style || ''
       },
       { new: true } // 回傳更新後的資料
     )

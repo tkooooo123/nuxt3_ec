@@ -13,9 +13,16 @@ interface product {
   imagesUrl: string[]
   quantity: number
   price: number
+  origin_price: number
   content: string
   isEnabled: boolean
   unit: string
+  is_hottest: boolean
+  is_newest: boolean
+  notice: string
+  material: string
+  size: string
+  style: string
   category: string | { id: string; name: string; description: string }
 }
 
@@ -38,9 +45,16 @@ const productList = ref<product[]>([
     imagesUrl: [],
     quantity: 1,
     price: 1,
+    origin_price: 0,
     content: '',
     isEnabled: true,
     unit: '',
+    is_hottest: false,
+    is_newest: false,
+    notice: '',
+    material: '',
+    size: '',
+    style: '',
     category: ''
   }
 ])
@@ -74,10 +88,17 @@ const ruleForm = reactive<product>({
   imagesUrl: [],
   quantity: 1,
   price: 1,
+  origin_price: 0,
   content: '',
   category: '',
   unit: '',
-  isEnabled: true
+  isEnabled: true,
+  is_hottest: false,
+  is_newest: false,
+  notice: '',
+  material: '',
+  size: '',
+  style: ''
 })
 
 const checkFileType = async (file: UploadRawFile) => {
@@ -237,11 +258,18 @@ const editProduct = (row: product) => {
   ruleForm.imagesUrl = [...row.imagesUrl] // 使用展開運算符複製陣列
   ruleForm.quantity = row.quantity
   ruleForm.price = row.price
+  ruleForm.origin_price = row.origin_price
   ruleForm.category =
     typeof row.category === 'object' ? row.category.id : row.category
   ruleForm.unit = row.unit
   ruleForm.isEnabled = row.isEnabled
   ruleForm.content = row.content
+  ruleForm.is_hottest = row.is_hottest
+  ruleForm.is_newest = row.is_newest
+  ruleForm.notice = row.notice
+  ruleForm.material = row.material
+  ruleForm.size = row.size
+  ruleForm.style = row.style
   productDialogVisible.value = true
 }
 // 重置表單
@@ -253,10 +281,17 @@ const resetForm = () => {
   ruleForm.imagesUrl = []
   ruleForm.quantity = 1
   ruleForm.price = 1
+  ruleForm.origin_price = 0
   ruleForm.category = ''
   ruleForm.unit = ''
   ruleForm.isEnabled = true
   ruleForm.content = ''
+  ruleForm.is_hottest = false
+  ruleForm.is_newest = false
+  ruleForm.notice = ''
+  ruleForm.material = ''
+  ruleForm.size = ''
+  ruleForm.style = ''
 }
 
 // 頁面載入時取得分類資料
@@ -284,7 +319,23 @@ const addProduct = async () => {
       {
         method: 'POST',
         body: {
-          ...ruleForm
+          name: ruleForm.name,
+          description: ruleForm.description,
+          image: ruleForm.image,
+          imagesUrl: ruleForm.imagesUrl,
+          quantity: ruleForm.quantity,
+          price: ruleForm.price,
+          origin_price: ruleForm.origin_price,
+          category: ruleForm.category,
+          unit: ruleForm.unit,
+          isEnabled: ruleForm.isEnabled,
+          content: ruleForm.content,
+          is_hottest: ruleForm.is_hottest,
+          is_newest: ruleForm.is_newest,
+          notice: ruleForm.notice,
+          material: ruleForm.material,
+          size: ruleForm.size,
+          style: ruleForm.style
         }
       }
     )
@@ -318,10 +369,17 @@ const updateProduct = async () => {
           imagesUrl: ruleForm.imagesUrl,
           quantity: ruleForm.quantity,
           price: ruleForm.price,
+          origin_price: ruleForm.origin_price,
           category: ruleForm.category,
           unit: ruleForm.unit,
           isEnabled: ruleForm.isEnabled,
-          content: ruleForm.content
+          content: ruleForm.content,
+          is_hottest: ruleForm.is_hottest,
+          is_newest: ruleForm.is_newest,
+          notice: ruleForm.notice,
+          material: ruleForm.material,
+          size: ruleForm.size,
+          style: ruleForm.style
         }
       }
     )
@@ -403,8 +461,19 @@ const deleteProduct = async () => {
           </template>
         </el-table-column>
         <el-table-column label="名稱" prop="name"></el-table-column>
+        <el-table-column label="原價" prop="origin_price"></el-table-column>
         <el-table-column label="售價" prop="price"></el-table-column>
         <el-table-column label="數量" prop="quantity"></el-table-column>
+        <el-table-column label="狀態">
+          <template #default="scope">
+            <div class="flex flex-col gap-1">
+              <el-tag v-if="scope.row.is_hottest" type="danger" size="small">最熱門</el-tag>
+              <el-tag v-if="scope.row.is_newest" type="success" size="small">最新</el-tag>
+              <el-tag v-if="scope.row.isEnabled" type="primary" size="small">啟用</el-tag>
+              <el-tag v-else type="info" size="small">停用</el-tag>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
             <div class="flex">
@@ -588,15 +657,28 @@ const deleteProduct = async () => {
               >
                 <el-input v-model="ruleForm.unit"></el-input>
               </el-form-item>
-              <el-form-item label="原價" class="flex flex-col items-start">
-                <el-input></el-input>
+              <el-form-item
+                label="原價"
+                class="flex flex-col items-start"
+              >
+                <el-input-number
+                  v-model="ruleForm.origin_price"
+                  :min="0"
+                  :max="100000"
+                  :step="1"
+                />
               </el-form-item>
               <el-form-item
                 label="售價"
                 prop="price"
                 class="flex flex-col items-start"
               >
-                <el-input v-model="ruleForm.price"></el-input>
+                <el-input-number
+                  v-model="ruleForm.price"
+                  :min="0"
+                  :max="100000"
+                  :step="1"
+                />
               </el-form-item>
               <el-form-item
                 label="數量"
@@ -609,6 +691,24 @@ const deleteProduct = async () => {
                   :max="10000"
                   :step="1"
                 />
+              </el-form-item>
+              <el-form-item
+                label="最熱門"
+                class="flex flex-col items-start"
+              >
+                <el-switch v-model="ruleForm.is_hottest" />
+              </el-form-item>
+              <el-form-item
+                label="最新"
+                class="flex flex-col items-start"
+              >
+                <el-switch v-model="ruleForm.is_newest" />
+              </el-form-item>
+              <el-form-item
+                label="啟用"
+                class="flex flex-col items-start"
+              >
+                <el-switch v-model="ruleForm.isEnabled" />
               </el-form-item>
               <el-form-item
                 label="描述"
@@ -634,6 +734,45 @@ const deleteProduct = async () => {
                   placeholder="請輸入內容"
                   class="textarea"
                   v-model="ruleForm.content"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="注意事項"
+                class="flex flex-col items-start col-span-2"
+              >
+                <el-input
+                  type="textarea"
+                  :rows="3"
+                  placeholder="請輸入注意事項"
+                  class="textarea"
+                  v-model="ruleForm.notice"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="材質"
+                class="flex flex-col items-start"
+              >
+                <el-input
+                  v-model="ruleForm.material"
+                  placeholder="請輸入材質"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="尺寸"
+                class="flex flex-col items-start"
+              >
+                <el-input
+                  v-model="ruleForm.size"
+                  placeholder="請輸入尺寸"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="風格"
+                class="flex flex-col items-start"
+              >
+                <el-input
+                  v-model="ruleForm.style"
+                  placeholder="請輸入風格"
                 ></el-input>
               </el-form-item>
             </div>

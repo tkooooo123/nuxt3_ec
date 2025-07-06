@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
     const {
       name,
       price,
+      origin_price,
       category,
       image,
       description,
@@ -15,7 +16,13 @@ export default defineEventHandler(async (event: H3Event) => {
       isEnabled,
       content,
       imagesUrl,
-      unit
+      unit,
+      is_hottest,
+      is_newest,
+      notice,
+      material,
+      size,
+      style
     } = body;
     console.log(typeof quantity);
     if (!name) {
@@ -52,6 +59,7 @@ export default defineEventHandler(async (event: H3Event) => {
     const product = await Product.create({
       name,
       price,
+      origin_price: origin_price || 0,
       category,
       image,
       description,
@@ -59,7 +67,13 @@ export default defineEventHandler(async (event: H3Event) => {
       isEnabled,
       content,
       imagesUrl,
-      unit
+      unit,
+      is_hottest: is_hottest || false,
+      is_newest: is_newest || false,
+      notice: notice || '',
+      material: material || '',
+      size: size || '',
+      style: style || ''
     });
     if (product) {
       return {

@@ -18,8 +18,15 @@ export default defineEventHandler(async (event: H3Event) => {
       content: item.content,
       quantity: item.quantity,
       price: item.price,
+      origin_price: item.origin_price,
       isEnabled: item.isEnabled,
       unit: item.unit,
+      is_hottest: item.is_hottest,
+      is_newest: item.is_newest,
+      notice: item.notice,
+      material: item.material,
+      size: item.size,
+      style: item.style,
       category: item.category
         ? {
             id: item.category._id?.toString?.() || '',
