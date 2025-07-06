@@ -29,6 +29,10 @@ interface ApiResponse<T> {
   message: string
   data: T
 }
+ interface UserInfo {
+  user_id: string
+ }
+
 
 const route = useRoute()
 const product = ref<Product | null>(null)
@@ -39,9 +43,18 @@ const selectedImageIndex = ref(0)
 const quantity = ref(1)
 const detailType = ref<'content' | 'specification' | 'notice'>('content')
 
+const userCookie = useCookie('userInfo')
+const token = useCookie('token')
+const userInfo = userCookie.value as UserInfo | null
+const userId = userInfo?.user_id
+
+
 // 獲取商品詳情
 const getProduct = async () => {
   try {
+
+    console.log(token.value,userId)
+    //console.log(token.value)
     //loading.value = true
     //const res = await $fetch<ApiResponse<Product>>(
       //`/api/product/${route.params.id}`
@@ -101,9 +114,41 @@ const decreaseQuantity = () => {
 }
 
 // 加入購物車
-const addToCart = () => {
-  // TODO: 實作加入購物車功能
-  alert(`已加入購物車：${product.value?.name} x ${quantity.value}`)
+const addToCart = async () => {
+  console.log(userId)
+  if (!userId) {
+    // 如果用戶未登入，導向登入頁面
+    await navigateTo('/login')
+    return
+  }
+
+  if (!product.value) return
+
+  try {
+    const response = await $fetch('/api/cart', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      },
+      body: {
+        productId: product.value.id,
+        quantity: quantity.value
+      }
+    })
+
+    // 顯示成功訊息
+    alert(`已成功加入購物車：${product.value.name} x ${quantity.value}`)
+    
+    // 重置數量為 1
+    quantity.value = 1
+
+  } catch (error: any) {
+    console.error('加入購物車失敗:', error)
+    
+    // 顯示錯誤訊息
+    const errorMessage = error.data?.message || '加入購物車失敗，請稍後再試'
+    alert(errorMessage)
+  }
 }
 
 // 格式化價格
