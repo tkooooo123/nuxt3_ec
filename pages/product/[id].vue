@@ -52,39 +52,36 @@ const userId = userInfo?.user_id
 // 獲取商品詳情
 const getProduct = async () => {
   try {
-
-    console.log(token.value,userId)
-    //console.log(token.value)
-    //loading.value = true
-    //const res = await $fetch<ApiResponse<Product>>(
-      //`/api/product/${route.params.id}`
-    //)
-    //product.value = res.data
-    product.value = {
-    id: '1',
-    name: '奶油泡芙',
-    image: 'https://res.cloudinary.com/dbfvtcjog/image/upload/v1751192048/ihp5oimbsm9sopxvoi53.jpg',
-    imagesUrl: ['https://res.cloudinary.com/dbfvtcjog/image/upload/v1751191902/jbspz0cvhigxxjegwldq.jpg'],
-    description: '酥脆外皮 × 滑順內餡，奶香四溢的法式享受',
-    content: '1. 外皮酥脆，內餡香濃滑順，層次豐富<br/>\n2. 採用法國進口奶油與天然香草籽製作<br/>\n3. 冷藏食用口感最佳，適合下午茶或送禮',
-    quantity: 100,
-    origin_price: 120,
-    price: 100,
-    isEnabled: true,
-    unit: '顆',
-    is_hottest: true,
-    is_newest: true,
-    notice: '1. 冷藏保存，建議三日內食用完畢<br/>\n2. 含奶製品與蛋製品，過敏者請留意<br/>\n3. 避免陽光直射與高溫環境',
-    material: '法國奶油、雞蛋、麵粉、天然香草籽',
-    size: '單顆裝（約6cm直徑）',
-    origin: '日式匠心 × 法式工藝',
-    category: {
-      id: '1',
-      name: '質感甜點系列',
-      description: '甜點',
-    },
-    createdAt: '2021-01-01',
-  }
+    loading.value = true
+    const res = await $fetch<ApiResponse<Product>>(
+      `/api/product/${route.params.id}`
+    )
+    product.value = res.data
+  //   product.value = {
+  //   id: '1',
+  //   name: '奶油泡芙',
+  //   image: 'https://res.cloudinary.com/dbfvtcjog/image/upload/v1751192048/ihp5oimbsm9sopxvoi53.jpg',
+  //   imagesUrl: ['https://res.cloudinary.com/dbfvtcjog/image/upload/v1751191902/jbspz0cvhigxxjegwldq.jpg'],
+  //   description: '酥脆外皮 × 滑順內餡，奶香四溢的法式享受',
+  //   content: '1. 外皮酥脆，內餡香濃滑順，層次豐富<br/>\n2. 採用法國進口奶油與天然香草籽製作<br/>\n3. 冷藏食用口感最佳，適合下午茶或送禮',
+  //   quantity: 100,
+  //   origin_price: 120,
+  //   price: 100,
+  //   isEnabled: true,
+  //   unit: '顆',
+  //   is_hottest: true,
+  //   is_newest: true,
+  //   notice: '1. 冷藏保存，建議三日內食用完畢<br/>\n2. 含奶製品與蛋製品，過敏者請留意<br/>\n3. 避免陽光直射與高溫環境',
+  //   material: '法國奶油、雞蛋、麵粉、天然香草籽',
+  //   size: '單顆裝（約6cm直徑）',
+  //   origin: '日式匠心 × 法式工藝',
+  //   category: {
+  //     id: '1',
+  //     name: '質感甜點系列',
+  //     description: '甜點',
+  //   },
+  //   createdAt: '2021-01-01',
+  // }
   imgList.value = [product.value.image, ...product.value.imagesUrl]
     //imgList.value = [res.data.image, ...res.data.imagesUrl]
   } catch (err: any) {
@@ -115,7 +112,6 @@ const decreaseQuantity = () => {
 
 // 加入購物車
 const addToCart = async () => {
-  console.log(userId)
   if (!userId) {
     // 如果用戶未登入，導向登入頁面
     await navigateTo('/login')
@@ -407,11 +403,11 @@ onMounted(() => {
         <span class="mr-3  p-3 rounded-2 cursor-pointer transition-all duration-200"
         @click="detailType = 'specification'"
         :class="detailType === 'specification' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'"
-        >產品規格</span>
+        >注意事項</span>
         <span class=" p-3 rounded-2 cursor-pointer transition-all duration-200"
         @click="detailType = 'notice'"
         :class="detailType === 'notice' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'"
-        >注意事項</span>
+        >產品規格</span>
       </div>
       <div class="max-w-none" v-if="detailType === 'content'">
         <div
