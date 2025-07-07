@@ -10,7 +10,8 @@ const ruleForm = ref({
   name: '',
   phone: '',
   address: '',
-  message: ''
+  message: '',
+  payment: 'credit_card'
 })
 const getCart = async () => {
   const { data } = await $fetch('/api/cart', {
@@ -63,6 +64,25 @@ const deleteCartItem = async (id: string) => {
     })
     if (res) {
       getCart()
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+const submitOrder = async () => {
+  try {
+    const res = await $fetch('/api/order', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      },
+      body: {
+        shipping: ruleForm.value,
+        payment: ruleForm.value.payment
+      }
+    })
+    if (res) {
+      router.push('/order')
     }
   } catch (error) {
     console.log(error)
@@ -204,10 +224,17 @@ onMounted(() => {
         <el-form-item label="留言" class="flex flex-col items-start">
           <el-input type="textarea" placeholder="請輸入留言" v-model="ruleForm.message" />
         </el-form-item>
-        <el-form-item label="付款方式" class="flex flex-col items-start"></el-form-item>
+        <el-form-item label="付款方式" class="flex flex-col items-start">
+          <el-radio-group v-model="ruleForm.payment">
+            <el-radio label="credit_card">信用卡</el-radio>
+            <el-radio label="cash_on_delivery">貨到付款</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div class="flex justify-end mt-6">
-        <button class="bg-primary text-white px-4 py-2 rounded-full mt-4 cursor-pointer">
+        <button
+          @click="submitOrder"
+          class="bg-primary text-white px-4 py-2 rounded-full mt-4 cursor-pointer">
           送出訂單
         </button>
       </div>
