@@ -50,6 +50,24 @@ const changeQuantity = async (id: number, quantity: number) => {
     console.log(error)
   }
 }
+const deleteCartItem = async (id: string) => {
+  try {
+    const res = await $fetch<any>('/api/cart/item', {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      },
+      body: {
+        productId: id
+      }
+    })
+    if (res) {
+      getCart()
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 onMounted(() => {
   getCart()
 })
@@ -115,6 +133,7 @@ onMounted(() => {
           <div class="flex justify-between items-center p-2 border-b-2 border-b-solid border-#fafafa">
             <img :src="item.image" class="w-20 h-20 object-cover rounded-3" alt="" />
             <button
+              @click="deleteCartItem(item.id)"
               class="flex items-center gap-1 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary p-2 rounded-full mt-4 cursor-pointer transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="size-4">
