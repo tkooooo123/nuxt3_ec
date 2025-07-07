@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { get } from 'mongoose'
+
 const router = useRouter()
 const token = useCookie('token')
 const cartItemList = ref<any[]>([
@@ -24,8 +26,29 @@ const getCart = async () => {
     unit: item.product.unit,
     name: item.product.name,
     origin_price: item.product.origin_price,
+    stock: item.product.quantity
   })) : []
 
+}
+const changeQuantity = async (id: number, quantity: number) => {
+
+  try {
+    const res = await $fetch('/api/cart/quantity', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      },
+      body: {
+        productId: id,
+        quantity
+      }
+    })
+    if (res) {
+      getCart()
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 onMounted(() => {
   getCart()
@@ -114,7 +137,7 @@ onMounted(() => {
             數量
             <div class="flex items-center">
 
-              <button
+              <button :disabled="item.quantity === 1" @click="changeQuantity(item.id, item.quantity - 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%]  cursor-pointer transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
                   stroke="currentColor" class="size-4 align-middle">
@@ -124,7 +147,7 @@ onMounted(() => {
               <span
                 class="bg-white h-8 w-8 text-center flex items-center justify-center box-border  border-t border-b border-l-0 border-r-0 border-solid border-primary">{{
                   item.quantity }}</span>
-              <button
+              <button :disabled="item.quantity === item.stock" @click="changeQuantity(item.id, item.quantity + 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%]  cursor-pointer transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
                   stroke="currentColor" class="size-4 align-middle">
@@ -141,34 +164,37 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <h1
-      class="mt-15 text-center relative after:content-[''] after:absolute after:z-[2] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
-      收件資料
-    </h1>
-    <el-form class="mt-6">
-      <el-form-item label="Email" class="flex flex-col items-start">
-        <el-input placeholder="請輸入Email" v-model="ruleForm.email" />
-      </el-form-item>
-      <el-form-item label="收件人姓名" class="flex flex-col items-start">
-        <el-input placeholder="請輸入姓名" v-model="ruleForm.name" />
-      </el-form-item>
-      <el-form-item label="收件人電話" class="flex flex-col items-start">
-        <el-input placeholder="請輸入電話" v-model="ruleForm.phone" />
-      </el-form-item>
-      <el-form-item label="收件人地址" class="flex flex-col items-start">
-        <el-input placeholder="請輸入地址" v-model="ruleForm.address" />
-      </el-form-item>
-      <el-form-item label="留言" class="flex flex-col items-start">
-        <el-input type="textarea" placeholder="請輸入留言" v-model="ruleForm.message" />
-      </el-form-item>
-      <el-form-item label="付款方式" class="flex flex-col items-start"></el-form-item>
-    </el-form>
-    <div class="flex justify-end mt-6">
-      <button class="bg-primary text-white px-4 py-2 rounded-full mt-4 cursor-pointer">
-        送出訂單
-      </button>
+    <div v-if="cartItemList.length > 0">
+      <h1
+        class="mt-15 text-center relative after:content-[''] after:absolute after:z-[2] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
+        收件資料
+      </h1>
+      <el-form class="mt-6">
+        <el-form-item label="Email" class="flex flex-col items-start">
+          <el-input placeholder="請輸入Email" v-model="ruleForm.email" />
+        </el-form-item>
+        <el-form-item label="收件人姓名" class="flex flex-col items-start">
+          <el-input placeholder="請輸入姓名" v-model="ruleForm.name" />
+        </el-form-item>
+        <el-form-item label="收件人電話" class="flex flex-col items-start">
+          <el-input placeholder="請輸入電話" v-model="ruleForm.phone" />
+        </el-form-item>
+        <el-form-item label="收件人地址" class="flex flex-col items-start">
+          <el-input placeholder="請輸入地址" v-model="ruleForm.address" />
+        </el-form-item>
+        <el-form-item label="留言" class="flex flex-col items-start">
+          <el-input type="textarea" placeholder="請輸入留言" v-model="ruleForm.message" />
+        </el-form-item>
+        <el-form-item label="付款方式" class="flex flex-col items-start"></el-form-item>
+      </el-form>
+      <div class="flex justify-end mt-6">
+        <button class="bg-primary text-white px-4 py-2 rounded-full mt-4 cursor-pointer">
+          送出訂單
+        </button>
+      </div>
     </div>
+
+
   </div>
 </template>
 
