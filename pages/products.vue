@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+
 interface Product {
   id: string
   name: string
@@ -28,11 +29,20 @@ interface ApiResponse<T> {
   message: string
   data: T[]
 }
+interface UserInfo {
+  user_id: string
+ }
 
+const router = useRouter()
 const productsList = ref<Product[]>([])
 const categoryList = ref<Category[]>([])
 const filteredProducts = ref<Product[]>([])
 const selectedCategoryId = ref<string>('all')
+
+const userCookie = useCookie('userInfo')
+const token = useCookie('token')
+const userInfo = userCookie.value as UserInfo | null
+const userId = userInfo?.user_id
 
 const getProducts = async () => {
   const res = await $fetch<ApiResponse<Product>>('/api/admin/products')
@@ -57,7 +67,25 @@ const filterProducts = () => {
     )
   }
 }
-
+//加入購物車
+const addToCart = async (productId: string) => {
+  try {
+    const response = await $fetch('/api/cart', {
+    headers: {
+      'Authorization': `Bearer ${token.value}`
+    },
+    method: 'POST',
+    body: { productId, quantity: 1 }
+  })
+  
+  console.log(response)
+  // 顯示成功訊息
+  alert(`已成功加入購物車`)
+  } catch (error) {
+    console.error('加入購物車失敗:', error)
+  }
+ 
+}
 // 監聽分類選擇變化
 watch(selectedCategoryId, () => {
   filterProducts()
@@ -106,28 +134,25 @@ onMounted(() => {
 
       <span>全部</span>
     </div>
-    <div class="grid md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="flex flex-col col-span-1">
         <h3>產品分類</h3>
-        <div class="flex sm:block">
-          <div class="mr-2 sm:mr-0" @click="selectedCategoryId = 'all'">
-            <span
-              class="category-item hover:bg-red-100 text-red block w-full my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
-              :class="{ active: selectedCategoryId === 'all' }"
-              >全部產品</span
-            >
+        <div class="flex md:block ">
+          <div
+            class="category-item hover:bg-red-100 text-red md:w-full mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
+            :class="{ active: selectedCategoryId === 'all' }"
+            @click="selectedCategoryId = 'all'"
+          >
+          全部產品
           </div>
           <div
             v-for="category in categoryList"
             :key="category.id"
-            class="mr-4 sm:mr-0"
+            class="category-item hover:bg-red-100 text-red md:w-full mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
+            :class="{ active: selectedCategoryId === category.id }"
             @click="selectedCategoryId = category.id"
           >
-            <span
-              class="category-item hover:bg-red-100 text-red block w-full my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
-              :class="{ active: selectedCategoryId === category.id }"
-              >{{ category.name }}</span
-            >
+            {{ category.name }}
           </div>
         </div>
       </div>
@@ -136,18 +161,22 @@ onMounted(() => {
           <div
             v-for="product in filteredProducts"
             :key="product.id"
-            class="product-card border border-solid border-gray-200 rounded-md overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+            @click="router.push(`/product/${product.id}`)"
+            class="product-card border border-solid border-gray-200 rounded-md overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
           >
+           <div class="overflow-hidden">
             <img
               class="product-card-image w-full object-cover block"
               :src="product.image"
               alt="商品圖片"
             />
+           </div>
             <div class="flex flex-col p-4">
               <span class="text-5 font-bold">{{ product.name }}</span>
               <p class="text-primary">$ {{ product.price }}</p>
               <button
                 class="flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 text-primary bg-transparent border border-solid border-primary px-4 py-2 rounded-2 cursor-pointer"
+                @click.stop="addToCart(product.id)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
