@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { get } from 'mongoose'
-
+import type { FormInstance, FormRules } from 'element-plus'
 const router = useRouter()
 const token = useCookie('token')
 const cartItemList = ref<any[]>([
 ])
+const formRef = ref<FormInstance>()
 const ruleForm = ref({
   email: '',
   name: '',
@@ -12,6 +12,13 @@ const ruleForm = ref({
   address: '',
   message: '',
   payment: 'credit_card'
+})
+const rules = ref<FormRules>({
+  email: [{ required: true, message: '請輸入Email', trigger: 'blur' }],
+  name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
+  phone: [{ required: true, message: '請輸入電話', trigger: 'blur' }],
+  address: [{ required: true, message: '請輸入地址', trigger: 'blur' }],
+  payment: [{ required: true, message: '請選擇付款方式', trigger: 'blur' }]
 })
 const getCart = async () => {
   const { data } = await $fetch('/api/cart', {
@@ -70,6 +77,13 @@ const deleteCartItem = async (id: string) => {
   }
 }
 const submitOrder = async () => {
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      postOrder()
+    }
+  })
+}
+const postOrder = async () => {
   try {
     const res = await $fetch('/api/order', {
       method: 'POST',
@@ -130,7 +144,31 @@ onMounted(() => {
             <span>$ {{ scope.row.price }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="數量/單位"> </el-table-column>
+        <el-table-column prop="quantity" label="數量/單位" width="150">
+          <template #default="scope">
+            <div class="flex items-center">
+
+<button :disabled="scope.row.quantity === 1" @click="changeQuantity(scope.row.id, scope.row.quantity - 1)"
+  class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%]  cursor-pointer transition-all duration-200">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+    stroke="currentColor" class="size-4 align-middle">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+  </svg>
+</button>
+<span
+  class="bg-white h-8 w-8 text-center flex items-center justify-center box-border  border-t border-b border-l-0 border-r-0 border-solid border-primary">{{
+    scope.row.quantity }}</span>
+<button :disabled="scope.row.quantity === scope.row.stock" @click="changeQuantity(scope.row.id, scope.row.quantity + 1)"
+  class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%]  cursor-pointer transition-all duration-200">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+    stroke="currentColor" class="size-4 align-middle">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+</button>
+<span class="ml-1">/ {{ scope.row.unit }}</span>
+</div>
+          </template>
+        </el-table-column>
         <el-table-column label="小計">
           <template #default="scope">
             <span>$ {{ scope.row.price * scope.row.quantity }}</span>
@@ -208,23 +246,23 @@ onMounted(() => {
         class="mt-15 text-center relative after:content-[''] after:absolute after:z-[2] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
         收件資料
       </h1>
-      <el-form class="mt-6">
-        <el-form-item label="Email" class="flex flex-col items-start">
-          <el-input placeholder="請輸入Email" v-model="ruleForm.email" />
+      <el-form class="mt-6" ref="formRef" :rules="rules" :model="ruleForm">
+        <el-form-item label="Email" prop="email" class="flex flex-col items-start">
+          <el-input type="email" placeholder="請輸入Email" v-model="ruleForm.email" />
         </el-form-item>
-        <el-form-item label="收件人姓名" class="flex flex-col items-start">
+        <el-form-item label="收件人姓名" prop="name" class="flex flex-col items-start">
           <el-input placeholder="請輸入姓名" v-model="ruleForm.name" />
         </el-form-item>
-        <el-form-item label="收件人電話" class="flex flex-col items-start">
+        <el-form-item label="收件人電話" prop="phone" class="flex flex-col items-start">
           <el-input placeholder="請輸入電話" v-model="ruleForm.phone" />
         </el-form-item>
-        <el-form-item label="收件人地址" class="flex flex-col items-start">
+        <el-form-item label="收件人地址" prop="address" class="flex flex-col items-start">
           <el-input placeholder="請輸入地址" v-model="ruleForm.address" />
         </el-form-item>
-        <el-form-item label="留言" class="flex flex-col items-start">
+        <el-form-item label="留言"  class="flex flex-col items-start">
           <el-input type="textarea" placeholder="請輸入留言" v-model="ruleForm.message" />
         </el-form-item>
-        <el-form-item label="付款方式" class="flex flex-col items-start">
+        <el-form-item label="付款方式" prop="payment" class="flex flex-col items-start">
           <el-radio-group v-model="ruleForm.payment">
             <el-radio label="credit_card">信用卡</el-radio>
             <el-radio label="cash_on_delivery">貨到付款</el-radio>
@@ -251,7 +289,7 @@ onMounted(() => {
   }
 
   .el-form-item {
-    margin: 0;
+    margin: 0 0 16px;
   }
 
   .el-input,
