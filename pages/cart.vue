@@ -96,7 +96,7 @@ const postOrder = async () => {
       }
     })
     if (res) {
-      router.push('/order')
+      router.push(`/createOrderSuccess/${res.data.orderId}`)
     }
   } catch (error) {
     console.log(error)
