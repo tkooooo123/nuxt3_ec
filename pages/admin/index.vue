@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import adminAuth from '~/middleware/adminAuth';
+
 definePageMeta({
-    layout: 'admin'
+  layout: 'admin',
+  middleware: adminAuth
 })
 </script>
 <template>
