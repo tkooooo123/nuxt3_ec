@@ -5,6 +5,7 @@ interface navItem {
   link: string
 }
 
+const { isLoggedIn, logout } = useAuth()
 const isToggled = ref<boolean>(false)
 const navList = ref<navItem[]>([
   {
@@ -18,6 +19,10 @@ const navList = ref<navItem[]>([
     link: 'news'
   }
 ])
+
+const handleLogout = async () => {
+  await logout()
+}
 </script>
 
 <template>
@@ -72,7 +77,7 @@ const navList = ref<navItem[]>([
         </li>
       </ul>
       <RouterLink
-        to=""
+        to="/cart"
         class="flex items-center ml-4 hover:scale-120 transition duration-300"
       >
         <svg
@@ -90,30 +95,52 @@ const navList = ref<navItem[]>([
           />
         </svg>
       </RouterLink>
+      <RouterLink
+        v-if="!isLoggedIn()"
+        to="/login"
+        class="flex items-center ml-4 hover:scale-120 transition duration-300"
+      >
+        <span>登入</span>
+      </RouterLink>
+      <RouterLink
+        v-else
+        to=""
+        @click="handleLogout"
+        class="flex items-center ml-4 hover:scale-120 transition duration-300"
+      >
+        <span>登出</span>
+      </RouterLink>
     </div>
     <!--手機板 toggle 清單-->
   </div>
   <div
     v-if="isToggled"
-    class="fixed left-0 right-0 top-17 z-0 bg-white md:hidden"
+    class="fixed left-0 right-0 top-17 z-1 bg-white md:hidden"
   >
     <ul class="px-5">
-      
-      <li>
-         <RouterLink
-            to=""
-            class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300  after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
-            ><span class="text-center">登出</span></RouterLink
-          >
+      <li v-if="isLoggedIn()">
+        <RouterLink
+          to=""
+          @click="handleLogout"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          ><span class="text-center">登出</span></RouterLink
+        >
       </li>
-      <hr class="my-4">
-       <li class="mx-1" v-for="item in navList" :key="item.id">
-          <RouterLink
-            to=""
-            class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300  after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
-            ><span class="text-center">{{ item.name }}</span></RouterLink
-          >
-        </li>
+      <li v-else>
+        <RouterLink
+          to="/login"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          ><span class="text-center">登入</span></RouterLink
+        >
+      </li>
+      <hr class="my-4" />
+      <li class="mx-1" v-for="item in navList" :key="item.id">
+        <RouterLink
+          to=""
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          ><span class="text-center">{{ item.name }}</span></RouterLink
+        >
+      </li>
     </ul>
   </div>
 </template>

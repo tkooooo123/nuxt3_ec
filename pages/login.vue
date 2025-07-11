@@ -31,9 +31,13 @@ const ruleform = reactive<RuleForm>({
 
 const rules: FormRules<RuleForm> = {
   email: [
-        { required: true, message: '請輸入帳號', trigger: 'blur' },
-        { type: 'email', message: '請輸入正確的 Email 格式', trigger: ['blur', 'change'] }
-    ],
+    { required: true, message: '請輸入帳號', trigger: 'blur' },
+    {
+      type: 'email',
+      message: '請輸入正確的 Email 格式',
+      trigger: ['blur', 'change']
+    }
+  ],
   password: [{ required: true, message: '請輸入密碼', trigger: 'blur' }]
 }
 
@@ -44,6 +48,8 @@ const handleSubmit = () => {
     }
   })
 }
+const { clearAuth } = useAuth()
+
 const handleLogin = async () => {
   try {
     const { data, error } = await useFetch<LoginResponse>('/api/user/login', {
@@ -92,6 +98,8 @@ const handleLogin = async () => {
     }
   } catch (error) {
     console.error('登入失敗:', error)
+    // 登入失敗時清除認證狀態
+    clearAuth()
   }
 }
 </script>
