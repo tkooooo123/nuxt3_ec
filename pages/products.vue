@@ -29,9 +29,7 @@ interface ApiResponse<T> {
   message: string
   data: T[]
 }
-interface UserInfo {
-  user_id: string
- }
+
 
 const router = useRouter()
 const productsList = ref<Product[]>([])
@@ -39,10 +37,8 @@ const categoryList = ref<Category[]>([])
 const filteredProducts = ref<Product[]>([])
 const selectedCategoryId = ref<string>('all')
 
-const userCookie = useCookie('userInfo')
-const token = useCookie('token')
-const userInfo = userCookie.value as UserInfo | null
-const userId = userInfo?.user_id
+
+const { addToCart } = useCart()
 
 const getProducts = async () => {
   const res = await $fetch<ApiResponse<Product>>('/api/admin/products')
@@ -68,24 +64,24 @@ const filterProducts = () => {
   }
 }
 //加入購物車
-const addToCart = async (productId: string) => {
-  try {
-    const response = await $fetch('/api/cart', {
-    headers: {
-      'Authorization': `Bearer ${token.value}`
-    },
-    method: 'POST',
-    body: { productId, quantity: 1 }
-  })
+// const addToCart = async (productId: string) => {
+//   try {
+//     const response = await $fetch('/api/cart', {
+//     headers: {
+//       'Authorization': `Bearer ${token.value}`
+//     },
+//     method: 'POST',
+//     body: { productId, quantity: 1 }
+//   })
   
-  console.log(response)
-  // 顯示成功訊息
-  alert(`已成功加入購物車`)
-  } catch (error) {
-    console.error('加入購物車失敗:', error)
-  }
+//   console.log(response)
+//   // 顯示成功訊息
+//   alert(`已成功加入購物車`)
+//   } catch (error) {
+//     console.error('加入購物車失敗:', error)
+//   }
  
-}
+// }
 // 監聽分類選擇變化
 watch(selectedCategoryId, () => {
   filterProducts()
@@ -176,7 +172,7 @@ onMounted(() => {
               <p class="text-primary">$ {{ product.price }}</p>
               <button
                 class="flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 text-primary bg-transparent border border-solid border-primary px-4 py-2 rounded-2 cursor-pointer"
-                @click.stop="addToCart(product.id)"
+                @click.stop="addToCart(product.id, 1)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -29,10 +29,9 @@ interface ApiResponse<T> {
   message: string
   data: T
 }
- interface UserInfo {
+interface UserInfo {
   user_id: string
- }
-
+}
 
 const route = useRoute()
 const product = ref<Product | null>(null)
@@ -48,6 +47,8 @@ const token = useCookie('token')
 const userInfo = userCookie.value as UserInfo | null
 const userId = userInfo?.user_id
 
+// 使用 useCart composable
+const { addToCart: addToCartComposable } = useCart()
 
 // 獲取商品詳情
 const getProduct = async () => {
@@ -57,32 +58,32 @@ const getProduct = async () => {
       `/api/product/${route.params.id}`
     )
     product.value = res.data
-  //   product.value = {
-  //   id: '1',
-  //   name: '奶油泡芙',
-  //   image: 'https://res.cloudinary.com/dbfvtcjog/image/upload/v1751192048/ihp5oimbsm9sopxvoi53.jpg',
-  //   imagesUrl: ['https://res.cloudinary.com/dbfvtcjog/image/upload/v1751191902/jbspz0cvhigxxjegwldq.jpg'],
-  //   description: '酥脆外皮 × 滑順內餡，奶香四溢的法式享受',
-  //   content: '1. 外皮酥脆，內餡香濃滑順，層次豐富<br/>\n2. 採用法國進口奶油與天然香草籽製作<br/>\n3. 冷藏食用口感最佳，適合下午茶或送禮',
-  //   quantity: 100,
-  //   origin_price: 120,
-  //   price: 100,
-  //   isEnabled: true,
-  //   unit: '顆',
-  //   is_hottest: true,
-  //   is_newest: true,
-  //   notice: '1. 冷藏保存，建議三日內食用完畢<br/>\n2. 含奶製品與蛋製品，過敏者請留意<br/>\n3. 避免陽光直射與高溫環境',
-  //   material: '法國奶油、雞蛋、麵粉、天然香草籽',
-  //   size: '單顆裝（約6cm直徑）',
-  //   origin: '日式匠心 × 法式工藝',
-  //   category: {
-  //     id: '1',
-  //     name: '質感甜點系列',
-  //     description: '甜點',
-  //   },
-  //   createdAt: '2021-01-01',
-  // }
-  imgList.value = [product.value.image, ...product.value.imagesUrl]
+    //   product.value = {
+    //   id: '1',
+    //   name: '奶油泡芙',
+    //   image: 'https://res.cloudinary.com/dbfvtcjog/image/upload/v1751192048/ihp5oimbsm9sopxvoi53.jpg',
+    //   imagesUrl: ['https://res.cloudinary.com/dbfvtcjog/image/upload/v1751191902/jbspz0cvhigxxjegwldq.jpg'],
+    //   description: '酥脆外皮 × 滑順內餡，奶香四溢的法式享受',
+    //   content: '1. 外皮酥脆，內餡香濃滑順，層次豐富<br/>\n2. 採用法國進口奶油與天然香草籽製作<br/>\n3. 冷藏食用口感最佳，適合下午茶或送禮',
+    //   quantity: 100,
+    //   origin_price: 120,
+    //   price: 100,
+    //   isEnabled: true,
+    //   unit: '顆',
+    //   is_hottest: true,
+    //   is_newest: true,
+    //   notice: '1. 冷藏保存，建議三日內食用完畢<br/>\n2. 含奶製品與蛋製品，過敏者請留意<br/>\n3. 避免陽光直射與高溫環境',
+    //   material: '法國奶油、雞蛋、麵粉、天然香草籽',
+    //   size: '單顆裝（約6cm直徑）',
+    //   origin: '日式匠心 × 法式工藝',
+    //   category: {
+    //     id: '1',
+    //     name: '質感甜點系列',
+    //     description: '甜點',
+    //   },
+    //   createdAt: '2021-01-01',
+    // }
+    imgList.value = [product.value.image, ...product.value.imagesUrl]
     //imgList.value = [res.data.image, ...res.data.imagesUrl]
   } catch (err: any) {
     error.value = err.data?.message || '無法載入商品資訊'
@@ -121,26 +122,22 @@ const addToCart = async () => {
   if (!product.value) return
 
   try {
-    const response = await $fetch('/api/cart', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token.value}`
-      },
-      body: {
-        productId: product.value.id,
-        quantity: quantity.value
-      }
-    })
+    // 使用 useCart composable 的 addToCart 方法
+    const result = await addToCartComposable(product.value.id, quantity.value)
 
-    // 顯示成功訊息
-    alert(`已成功加入購物車：${product.value.name} x ${quantity.value}`)
-    
-    // 重置數量為 1
-    quantity.value = 1
+    if (result.success) {
+      // 顯示成功訊息
+      alert(`已成功加入購物車：${product.value.name} x ${quantity.value}`)
 
+      // 重置數量為 1
+      quantity.value = 1
+    } else {
+      // 顯示錯誤訊息
+      alert(result.error || '加入購物車失敗，請稍後再試')
+    }
   } catch (error: any) {
     console.error('加入購物車失敗:', error)
-    
+
     // 顯示錯誤訊息
     const errorMessage = error.data?.message || '加入購物車失敗，請稍後再試'
     alert(errorMessage)
@@ -154,7 +151,6 @@ const formatPrice = (price: number) => {
 
 onMounted(() => {
   getProduct()
-  
 })
 </script>
 
@@ -396,18 +392,32 @@ onMounted(() => {
     <!-- 商品詳細內容 -->
     <div v-if="product && product.content" class="mt-16">
       <div class="flex mb-3">
-        <span class="mr-3 p-3 rounded-2 cursor-pointer transition-all duration-200"
-        @click="detailType = 'content'"
-        :class="detailType === 'content' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'"
-        >產品說明</span>
-        <span class="mr-3  p-3 rounded-2 cursor-pointer transition-all duration-200"
-        @click="detailType = 'specification'"
-        :class="detailType === 'specification' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'"
-        >注意事項</span>
-        <span class=" p-3 rounded-2 cursor-pointer transition-all duration-200"
-        @click="detailType = 'notice'"
-        :class="detailType === 'notice' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'"
-        >產品規格</span>
+        <span
+          class="mr-3 p-3 rounded-2 cursor-pointer transition-all duration-200"
+          @click="detailType = 'content'"
+          :class="
+            detailType === 'content' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'
+          "
+          >產品說明</span
+        >
+        <span
+          class="mr-3 p-3 rounded-2 cursor-pointer transition-all duration-200"
+          @click="detailType = 'specification'"
+          :class="
+            detailType === 'specification'
+              ? 'bg-#fee2e2 text-primary'
+              : 'bg-#ECECEC'
+          "
+          >注意事項</span
+        >
+        <span
+          class="p-3 rounded-2 cursor-pointer transition-all duration-200"
+          @click="detailType = 'notice'"
+          :class="
+            detailType === 'notice' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'
+          "
+          >產品規格</span
+        >
       </div>
       <div class="max-w-none" v-if="detailType === 'content'">
         <div
@@ -416,7 +426,6 @@ onMounted(() => {
         ></div>
       </div>
       <div class="max-w-none" v-if="detailType === 'specification'">
-
         <div
           v-html="product.notice"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
@@ -426,6 +435,4 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

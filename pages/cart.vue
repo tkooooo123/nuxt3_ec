@@ -4,14 +4,17 @@ import type { FormInstance, FormRules } from 'element-plus'
 // 使用 useAuth 檢查登入狀態
 const { isLoggedIn } = useAuth()
 
+//使用 useCart 獲取購物車資料
+const { cartItems, removeFromCart,updateCartItemQuantity, clearCart } = useCart()
+
 // 如果未登入，重定向到登入頁面
 if (!isLoggedIn()) {
   await navigateTo('/login')
 }
 
+
 const router = useRouter()
 const token = useCookie('token')
-const cartItemList = ref<any[]>([])
 const formRef = ref<FormInstance>()
 const ruleForm = ref({
   email: '',
@@ -22,69 +25,20 @@ const ruleForm = ref({
   payment: 'credit_card'
 })
 const rules = ref<FormRules>({
-  email: [{ required: true, message: '請輸入Email', trigger: 'blur' }],
+  email: [
+    { required: true, message: '請輸入帳號', trigger: 'blur' },
+    {
+      type: 'email',
+      message: '請輸入正確的 Email 格式',
+      trigger: ['blur', 'change']
+    }
+  ],
   name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
   phone: [{ required: true, message: '請輸入電話', trigger: 'blur' }],
   address: [{ required: true, message: '請輸入地址', trigger: 'blur' }],
   payment: [{ required: true, message: '請選擇付款方式', trigger: 'blur' }]
 })
-const getCart = async () => {
-  const { data } = await $fetch('/api/cart', {
-    headers: {
-      Authorization: `Bearer ${token.value}`
-    }
-  })
-  cartItemList.value =
-    data.items.length > 0
-      ? data.items.map((item: any) => ({
-          id: item.product.id,
-          quantity: item.quantity,
-          price: item.price,
-          image: item.product.image,
-          unit: item.product.unit,
-          name: item.product.name,
-          origin_price: item.product.origin_price,
-          stock: item.product.quantity
-        }))
-      : []
-}
-const changeQuantity = async (id: number, quantity: number) => {
-  try {
-    const res = await $fetch('/api/cart/quantity', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: {
-        productId: id,
-        quantity
-      }
-    })
-    if (res) {
-      getCart()
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
-const deleteCartItem = async (id: string) => {
-  try {
-    const res = await $fetch<any>('/api/cart/item', {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: {
-        productId: id
-      }
-    })
-    if (res) {
-      getCart()
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
+
 const submitOrder = async () => {
   formRef.value?.validate((valid) => {
     if (valid) {
@@ -111,9 +65,7 @@ const postOrder = async () => {
     console.log(error)
   }
 }
-onMounted(() => {
-  getCart()
-})
+
 </script>
 
 <template>
@@ -125,7 +77,7 @@ onMounted(() => {
     </h1>
     <div
       class="mt-8 flex flex-col items-center justify-center"
-      v-if="cartItemList.length === 0"
+      v-if="cartItems.length === 0"
     >
       <p class="font-bold">購物車還沒有任何商品喔！趕快去逛逛吧！！</p>
       <button
@@ -157,7 +109,7 @@ onMounted(() => {
           清空購物車
         </button>
       </div>
-      <el-table :data="cartItemList" class="mt-6 hidden md:block" width="100%">
+      <el-table :data="cartItems" class="mt-6 hidden md:block" width="100%">
         <el-table-column label="圖示" width="100">
           <template #default="scope">
             <img
@@ -178,7 +130,7 @@ onMounted(() => {
             <div class="flex items-center">
               <button
                 :disabled="scope.row.quantity === 1"
-                @click="changeQuantity(scope.row.id, scope.row.quantity - 1)"
+                @click="updateCartItemQuantity(scope.row.id, scope.row.quantity - 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200"
               >
                 <svg
@@ -202,7 +154,7 @@ onMounted(() => {
               >
               <button
                 :disabled="scope.row.quantity === scope.row.stock"
-                @click="changeQuantity(scope.row.id, scope.row.quantity + 1)"
+                @click="updateCartItemQuantity(scope.row.id, scope.row.quantity + 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200"
               >
                 <svg
@@ -232,7 +184,7 @@ onMounted(() => {
         <el-table-column>
           <template #default="scope" width="80">
             <div
-              @click="deleteCartItem(scope.row.id)"
+              @click="removeFromCart(scope.row.id)"
               class="cursor-pointer text-primary hover:bg-primary hover:text-white transition-all duration-150 border border-solid border-primary rounded-50% flex items-center justify-center w-9 h-9"
             >
               <svg
@@ -255,7 +207,7 @@ onMounted(() => {
       </el-table>
       <div class="mt-6 flex flex-col md:hidden">
         <div
-          v-for="item in cartItemList"
+          v-for="item in cartItems"
           :key="item.id"
           class="bg-primary/10 rounded-3 p-2 pb-5 mb-5"
         >
@@ -268,7 +220,7 @@ onMounted(() => {
               alt=""
             />
             <button
-              @click="deleteCartItem(item.id)"
+              @click="removeFromCart(item.id)"
               class="flex items-center gap-1 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary p-2 rounded-full mt-4 cursor-pointer transition-all duration-200"
             >
               <svg
@@ -311,7 +263,7 @@ onMounted(() => {
             <div class="flex items-center">
               <button
                 :disabled="item.quantity === 1"
-                @click="changeQuantity(item.id, item.quantity - 1)"
+                @click="updateCartItemQuantity(item.id, item.quantity - 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200"
               >
                 <svg
@@ -335,7 +287,7 @@ onMounted(() => {
               >
               <button
                 :disabled="item.quantity === item.stock"
-                @click="changeQuantity(item.id, item.quantity + 1)"
+                @click="updateCartItemQuantity(item.id, item.quantity + 1)"
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200"
               >
                 <svg
@@ -367,7 +319,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div v-if="cartItemList.length > 0">
+    <div v-if="cartItems.length > 0">
       <h1
         class="mt-15 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
       >
