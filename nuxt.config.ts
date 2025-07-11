@@ -37,7 +37,7 @@ export default defineNuxtConfig({
   },
   ngrok: {
     authtoken: process.env.NGROK_AUTHTOKEN,
-    production: true,
+    production: false,
   },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true }
