@@ -4,10 +4,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
-   modules: [
-    '@unocss/nuxt',
-    '@element-plus/nuxt',
-  ],
+   modules: ['@unocss/nuxt', '@element-plus/nuxt', '@nuxtjs/ngrok'],
    css: [
     '@/assets/scss/all.scss',
     'vue3-toastify/dist/index.css'
@@ -20,7 +17,10 @@ export default defineNuxtConfig({
       Components({
         resolvers: [ElementPlusResolver()],
       }),
-    ]
+    ],
+    server: {
+      allowedHosts: ['.ngrok-free.app'] // 允許所有 ngrok 子網域
+    },
   },
    nitro: {
     plugins: [
@@ -34,6 +34,10 @@ export default defineNuxtConfig({
       uploadReset: process.env.CLOUDINARY_UPLOAD_PRESET 
     }
     }
+  },
+  ngrok: {
+    authtoken: process.env.NGROK_AUTHTOKEN,
+    production: true,
   },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true }
