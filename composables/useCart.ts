@@ -1,3 +1,5 @@
+import { toast } from 'vue3-toastify'
+
 export const useCart = () => {
   // 使用 useState 確保全局狀態共享
   const cartCount = useState('cartCount', () => 0)
@@ -30,8 +32,8 @@ export const useCart = () => {
             : []
         cartCount.value = data.itemCount || 0
       }
-    } catch (error) {
-      console.error('獲取購物車失敗:', error)
+    } catch (error: any) {
+      toast.error(`${error.data?.statusMessage}`)
       // 如果未登入，清空購物車狀態
       cartItems.value = []
       cartCount.value = 0
@@ -41,6 +43,11 @@ export const useCart = () => {
   // 加入購物車
   const addToCart = async (productId: string, quantity: number = 1) => {
     try {
+      if (!token.value) {
+        toast.error('請先登入')
+        return
+      }
+
       const { data } = await $fetch('/api/cart', {
         method: 'POST',
         headers: {
@@ -55,11 +62,11 @@ export const useCart = () => {
       // 更新購物車狀態
       if (data) {
         await fetchCart()
+        toast.success('已成功加入購物車')
       }
 
-      return { success: true }
     } catch (error: any) {
-      console.error('加入購物車失敗:', error)
+      toast.error(`${error.data?.statusMessage}`)
       return {
         success: false,
         error: error.data?.statusMessage || '加入購物車失敗'
@@ -84,9 +91,8 @@ export const useCart = () => {
       // 重新獲取購物車資料
       await fetchCart()
 
-      return { success: true }
     } catch (error: any) {
-      console.error('更新購物車數量失敗:', error)
+      toast.error(`${error.data?.statusMessage}`)
       return {
         success: false,
         error: error.data?.statusMessage || '更新數量失敗'
@@ -109,10 +115,10 @@ export const useCart = () => {
 
       // 重新獲取購物車資料
       await fetchCart()
+      toast.success('移除商品成功')
 
-      return { success: true }
     } catch (error: any) {
-      console.error('移除購物車商品失敗:', error)
+      toast.error(`${error.data?.statusMessage}`)
       return {
         success: false,
         error: error.data?.statusMessage || '移除商品失敗'

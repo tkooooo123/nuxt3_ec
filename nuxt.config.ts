@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
   ],
    css: [
-    '@/assets/scss/all.scss'
+    '@/assets/scss/all.scss',
+    'vue3-toastify/dist/index.css'
   ],
    vite: {
     plugins: [

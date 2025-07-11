@@ -125,7 +125,7 @@ const postOrder = async () => {
             <span>$ {{ scope.row.price }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="數量/單位" width="150">
+        <el-table-column prop="quantity" label="數量/單位" width="180">
           <template #default="scope">
             <div class="flex items-center">
               <button
