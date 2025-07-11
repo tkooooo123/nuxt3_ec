@@ -5,7 +5,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 const { isLoggedIn } = useAuth()
 
 //使用 useCart 獲取購物車資料
-const { cartItems, removeFromCart,updateCartItemQuantity, clearCart } = useCart()
+const { cartItems, removeFromCart,updateCartItemQuantity } = useCart()
 
 // 如果未登入，重定向到登入頁面
 if (!isLoggedIn()) {

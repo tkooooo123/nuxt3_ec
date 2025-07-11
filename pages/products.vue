@@ -42,14 +42,12 @@ const { addToCart } = useCart()
 
 const getProducts = async () => {
   const res = await $fetch<ApiResponse<Product>>('/api/admin/products')
-  console.log(res)
   productsList.value = res.data
   filterProducts()
 }
 
 const getCategories = async () => {
   const res = await $fetch<ApiResponse<Category>>('/api/admin/categories')
-  console.log(res)
   categoryList.value = res.data
 }
 
