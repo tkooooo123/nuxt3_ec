@@ -1,12 +1,59 @@
 <script setup lang="ts">
-const getProducts = async () => {
-  try {
-    const  data  = await $fetch('/api/product/all')
-    console.log(data)
-  } catch (error) {
-    console.log(error)
+interface Product {
+  id: string
+  name: string
+  image: string
+  imagesUrl: string[]
+  description: string
+  content: string
+  quantity: number
+  price: number
+  origin_price: number
+  unit: string
+  is_hottest: boolean
+  is_newest: boolean
+  notice: string
+  material: string
+  size: string
+  style: string
+  category: {
+    id: string
+    name: string
+    description: string
+  } | null
+  createdAt: string
+}
+
+interface ApiResponse {
+  message: string
+  data: {
+    products: Product[]
+    pagination: {
+      currentPage: number
+      totalPages: number
+      totalItems: number
+      itemsPerPage: number
+      hasNextPage: boolean
+      hasPrevPage: boolean
+    }
   }
 }
+
+const products = ref<Product[]>([])
+const newestProduct = ref<Product>()
+const hottestProduct = ref<Product>()
+
+const getProducts = async () => {
+  try {
+    const response: ApiResponse = await $fetch('/api/product/all')
+    products.value = response.data.products
+    newestProduct.value = response.data.products[0]
+    hottestProduct.value = response.data.products.filter((product) => product.is_hottest)[0]
+  } catch (err: any) {
+    console.error('取得商品失敗:', err)
+  }
+}
+
 onMounted(() => {
   getProducts()
 })
@@ -15,12 +62,62 @@ onMounted(() => {
 <template>
   <div class="pt-17">
     <div class="banner">
-        <img class="w-full block object-cover" src="/images/home_banner.jpg" alt="banner">
+      <img class="w-full block object-cover" src="/images/home_banner.jpg" alt="banner">
     </div>
-    <div class="px-12 pt-10">
-        <h2 class="text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-28 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
-        >最新商品</h2>
-    </div>
-  </div>
 
+    <div class="px-12 md:px-40 pt-10 pb-30">
+      <h2
+        class="mt-30 mb-10 text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
+        熱門商品</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="w-full h-full rounded-4 overflow-hidden">
+          <img :src="hottestProduct?.image" alt="newestProduct" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <h2 class="text-primary my-3  text-12 font-bold">{{ hottestProduct?.name }}</h2>
+          <p class="text-8 font-600 m-0"> {{ hottestProduct?.description }}</p>
+          <p class="text-6 font-500 lh-9 mt-8" v-html="hottestProduct?.content"></p>
+          <div class="mt-6 flex justify-end">
+            <button
+              class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid  border-primary text-primary rounded-30px">
+              <span>更多熱門 </span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+              </svg>
+
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <h2
+        class="mt-30 mb-10 text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
+        最新商品</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <div>
+          <h2 class="text-primary my-3 text-10 font-bold">{{ newestProduct?.name }}</h2>
+          <p class="text-10 font-600 m-0"> {{ newestProduct?.style }}</p>
+          <p class="text-6 font-500 mt-8"> {{ newestProduct?.description }}</p>
+          <div class="mt-6 flex justify-end">
+            <button
+              class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid  border-primary text-primary rounded-30px">
+              <span>更多新品 </span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+              </svg>
+
+            </button>
+          </div>
+        </div>
+        <div class="w-full h-full rounded-4 overflow-hidden">
+          <img :src="newestProduct?.image" alt="newestProduct" class="w-full h-full object-cover">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </template>
