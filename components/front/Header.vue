@@ -73,7 +73,14 @@ const handleLogout = async () => {
       </svg>
     </div>
 
-    <div class="text-red">Test</div>
+    <div class="max-w-25">
+      <img
+        @click="navigateTo('/')"
+        src="/images/logo.png"
+        alt="logo"
+        class="w-full block cursor-pointer"
+      />
+    </div>
     <div class="flex">
       <ul class="hidden md:flex">
         <li class="mx-1" v-for="item in navList" :key="item.id">
