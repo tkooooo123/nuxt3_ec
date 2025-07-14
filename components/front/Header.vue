@@ -8,6 +8,7 @@ interface navItem {
 const { isLoggedIn, logout } = useAuth()
 const { cartCount, fetchCart } = useCart()
 const isToggled = ref<boolean>(false)
+const arrowToggled = ref<boolean>(false)
 const navList = ref<navItem[]>([
   {
     id: 1,
@@ -124,14 +125,30 @@ const handleLogout = async () => {
       >
         <span>登入</span>
       </RouterLink>
-      <RouterLink
-        v-else
-        to=""
-        @click="handleLogout"
-        class="hidden md:flex items-center ml-4 hover:scale-120 transition duration-300"
-      >
-        <span>登出</span>
-      </RouterLink>
+      <div v-else class="hidden md:flex items-center ml-4 relative" @click="arrowToggled = !arrowToggled">
+        <img class="rounded-50% block h-12 w-12" src="https://i.imgur.com/ZgnOsNJ.png" alt="avatar" />
+        <div
+          class="arrow-down"
+          :class="{ rotated: arrowToggled }"
+        ></div>
+        <div
+          class="absolute top-full right-0 w-40 bg-white rounded-b-[8px] pt-1 z-5"
+          v-if="arrowToggled"
+          style="box-shadow: 0px 4px 4px 0px #00000040"
+        >
+          <div class="flex justify-center items-center py-1.5">
+          
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+           
+
+            <span class="ml-2 font-600">訂單</span>
+          </div>
+          
+          <div class="border-t-1 border-t-#E7E7E7 border-t-solid h-12 flex justify-center items-center  cursor-pointer" @click="handleLogout">
+            <span class="font-600">登出</span>
+          </div>
+        </div>
+      </div>
     </div>
     <!--手機板 toggle 清單-->
   </div>
@@ -166,3 +183,15 @@ const handleLogout = async () => {
     </ul>
   </div>
 </template>
+<style lang="scss" scoped>
+.arrow-down {
+  border-left: 7.5px solid transparent;
+  border-right: 7.5px solid transparent;
+  border-top: 8px solid black;
+  margin: 0 4.5px;
+  cursor: pointer;
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+</style>
