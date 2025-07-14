@@ -79,21 +79,16 @@ onMounted(() => {
       <img class="w-full h-150 block object-cover" src="/images/home_banner.jpg" alt="banner">
     </div>
 
-    <div class="px-[clamp(20px,10vw,80px)] md:px-[clamp(40px,5vw,120px)] pt-10 pb-30">
+    <div class="px-[clamp(20px,10vw,80px)] md:px-[clamp(40px,5vw,120px)] max-w-1320px mx-auto pt-10 pb-30">
       <h2
         class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
         熱門商品</h2>
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="">
-          <img :src="hottestProductImages[selectedHottestImageIndex]" alt="newestProduct" class="w-full block rounded-4 object-cover">
-          <div class="flex gap-2 overflow-x-auto mt-4">
-            <div v-for="(image, index) in hottestProductImages" :key="index"
-              @click="selectHottestImage(index)"
-              class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden cursor-pointer border-2 transition-colors"
-              :class="selectedHottestImageIndex === index ? 'border-primary' : 'border-transparent'">
-              <img :src="image" alt="hottestProduct" class="w-full h-full object-cover">
-          </div>
-          </div>
+      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
+        <div class="xl:flex xl:gap-4">
+         <div class="xl:flex-1">
+          <img :src="hottestProductImages[selectedHottestImageIndex]" alt="newestProduct" class="w-full max-h-408px block rounded-4 object-cover">
+         </div>
+          <HomeImgSwiper :images="hottestProductImages" v-model:selectedImageIndex="selectedHottestImageIndex"/>
         </div>
         <div>
           <h2 class="text-primary my-3 text-7 md:text-10 font-bold">{{ hottestProduct?.name }}</h2>
@@ -134,16 +129,12 @@ onMounted(() => {
             </button>
           </div>
         </div>
-        <div class="">
-          <img :src="newestProductImages[selectedNewestImageIndex]" alt="newestProduct" class="w-full block rounded-4 object-cover">
-          <div class="flex gap-2 overflow-x-auto mt-4">
-            <div v-for="(image, index) in newestProductImages" :key="index"
-              @click="selectNewestImage(index)"
-              class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden cursor-pointer border-2 transition-colors"
-              :class="selectedNewestImageIndex === index ? 'border-primary' : 'border-transparent'">
-              <img :src="image" alt="newestProduct" class="w-full h-full object-cover">
-            </div>
+        <div class="xl:flex xl:gap-4">
+          <div class="xl:flex-1">
+            <img :src="newestProductImages[selectedNewestImageIndex]" alt="newestProduct" class="w-full max-h-408px block rounded-4 object-cover">
           </div>
+          <HomeImgSwiper :images="newestProductImages"   v-model:selectedImageIndex="selectedNewestImageIndex"/>
+
         </div>
       </div>
 
