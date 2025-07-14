@@ -42,13 +42,27 @@ interface ApiResponse {
 const products = ref<Product[]>([])
 const newestProduct = ref<Product>()
 const hottestProduct = ref<Product>()
+const newestProductImages = ref<string[]>([])
+const hottestProductImages = ref<string[]>([])
+const selectedNewestImageIndex = ref(0)
+const selectedHottestImageIndex = ref(0)
+
+// 選擇圖片
+const selectNewestImage = (index: number) => {
+  selectedNewestImageIndex.value = index
+}
+const selectHottestImage = (index: number) => {
+  selectedHottestImageIndex.value = index
+}
 
 const getProducts = async () => {
   try {
-    const response: ApiResponse = await $fetch('/api/product/all')
-    products.value = response.data.products
-    newestProduct.value = response.data.products[0]
-    hottestProduct.value = response.data.products.filter((product) => product.is_hottest)[0]
+    const res: ApiResponse = await $fetch('/api/product/all')
+    products.value = res.data.products
+    newestProduct.value = res.data.products[0]
+    hottestProduct.value = res.data.products.filter((product) => product.is_hottest)[0]
+    newestProductImages.value = [res.data.products[0].image, ...res.data.products[0].imagesUrl]
+    hottestProductImages.value = [res.data.products.filter((product) => product.is_hottest)[0].image, ...res.data.products.filter((product) => product.is_hottest)[0].imagesUrl]
   } catch (err: any) {
     console.error('取得商品失敗:', err)
   }
@@ -62,21 +76,29 @@ onMounted(() => {
 <template>
   <div class="pt-17">
     <div class="banner">
-      <img class="w-full block object-cover" src="/images/home_banner.jpg" alt="banner">
+      <img class="w-full h-150 block object-cover" src="/images/home_banner.jpg" alt="banner">
     </div>
 
-    <div class="px-12 md:px-40 pt-10 pb-30">
+    <div class="px-[clamp(20px,10vw,80px)] md:px-[clamp(40px,5vw,120px)] pt-10 pb-30">
       <h2
-        class="mt-30 mb-10 text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
+        class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
         熱門商品</h2>
       <div class="grid md:grid-cols-2 gap-6">
-        <div class="w-full h-full rounded-4 overflow-hidden">
-          <img :src="hottestProduct?.image" alt="newestProduct" class="w-full h-full object-cover">
+        <div class="">
+          <img :src="hottestProductImages[selectedHottestImageIndex]" alt="newestProduct" class="w-full block rounded-4 object-cover">
+          <div class="flex gap-2 overflow-x-auto mt-4">
+            <div v-for="(image, index) in hottestProductImages" :key="index"
+              @click="selectHottestImage(index)"
+              class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden cursor-pointer border-2 transition-colors"
+              :class="selectedHottestImageIndex === index ? 'border-primary' : 'border-transparent'">
+              <img :src="image" alt="hottestProduct" class="w-full h-full object-cover">
+          </div>
+          </div>
         </div>
         <div>
-          <h2 class="text-primary my-3  text-12 font-bold">{{ hottestProduct?.name }}</h2>
-          <p class="text-8 font-600 m-0"> {{ hottestProduct?.description }}</p>
-          <p class="text-6 font-500 lh-9 mt-8" v-html="hottestProduct?.content"></p>
+          <h2 class="text-primary my-3 text-7 md:text-10 font-bold">{{ hottestProduct?.name }}</h2>
+          <p class="text-6 md:text-10 font-600 m-0"> {{ hottestProduct?.description }}</p>
+          <p class="text-3.5 md:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9" v-html="hottestProduct?.content"></p>
           <div class="mt-6 flex justify-end">
             <button
               class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid  border-primary text-primary rounded-30px">
@@ -92,14 +114,14 @@ onMounted(() => {
       </div>
 
       <h2
-        class="mt-30 mb-10 text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
+        class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
         最新商品</h2>
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
 
         <div>
-          <h2 class="text-primary my-3 text-10 font-bold">{{ newestProduct?.name }}</h2>
-          <p class="text-10 font-600 m-0"> {{ newestProduct?.style }}</p>
-          <p class="text-6 font-500 mt-8"> {{ newestProduct?.description }}</p>
+          <h2 class="text-primary my-3 text-7 md:text-10 font-bold">{{ newestProduct?.name }}</h2>
+          <p class="text-6 md:text-10 font-600 m-0"> {{ newestProduct?.description }}</p>
+          <p class="text-3.5 md:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9" v-html="newestProduct?.content"></p>
           <div class="mt-6 flex justify-end">
             <button
               class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid  border-primary text-primary rounded-30px">
@@ -112,8 +134,16 @@ onMounted(() => {
             </button>
           </div>
         </div>
-        <div class="w-full h-full rounded-4 overflow-hidden">
-          <img :src="newestProduct?.image" alt="newestProduct" class="w-full h-full object-cover">
+        <div class="">
+          <img :src="newestProductImages[selectedNewestImageIndex]" alt="newestProduct" class="w-full block rounded-4 object-cover">
+          <div class="flex gap-2 overflow-x-auto mt-4">
+            <div v-for="(image, index) in newestProductImages" :key="index"
+              @click="selectNewestImage(index)"
+              class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden cursor-pointer border-2 transition-colors"
+              :class="selectedNewestImageIndex === index ? 'border-primary' : 'border-transparent'">
+              <img :src="image" alt="newestProduct" class="w-full h-full object-cover">
+            </div>
+          </div>
         </div>
       </div>
 
