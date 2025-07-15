@@ -1,20 +1,24 @@
+// server/utils/mongoose.js
 import mongoose from 'mongoose'
 
-const MONGO_URI = process.env.MONGO_URL || 'mongodb://localhost:27017/testt'
+// 確保所有模型都被載入
+import '../models/User'
+import '../models/Product'
+import '../models/Order'
 
-export async function connectDB() {
-  if (mongoose.connection.readyState >= 1) {
-    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-    return mongoose
+let isConnected = false
+
+export const connectDB = async () => {
+  if (isConnected) {
+    return
   }
 
   try {
-    await mongoose.connect(MONGO_URI)
-    console.log('✅ MongoDB connected')
+    await mongoose.connect(process.env.MONGODB_URI as string)
+    isConnected = true
+    console.log('MongoDB connected successfully')
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error)
+    console.error('MongoDB connection error:', error)
     throw error
   }
-
-  return mongoose
 }

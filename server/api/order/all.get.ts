@@ -1,8 +1,7 @@
 import Order from '~/server/models/Order'
-
 import { verifyJWTToken } from '~/server/utils/auth'
 import { connectDB } from '~/server/utils/mongoose'
-
+import mongoose from 'mongoose'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,6 +14,13 @@ export default defineEventHandler(async (event) => {
     if (userId) {
       filter.user = userId
     }
+      // 檢查模型是否存在
+      if (!mongoose.models.Order) {
+        throw new Error('Order model not found')
+      }
+      if (!mongoose.models.User) {
+        throw new Error('User model not found')
+      }
 
     // 查詢訂單，帶出 user 及商品詳細資料
     const orders = await Order.find(filter)
