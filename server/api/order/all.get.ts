@@ -1,41 +1,37 @@
 import Order from '~/server/models/Order'
+import type { IUser } from '~/server/models/User'
+import type { IOrder } from '~/server/models/Order'
 import { verifyJWTToken } from '~/server/utils/auth'
 import { connectDB } from '~/server/utils/mongoose'
 import mongoose from 'mongoose'
 
+type PopulatedOrder = IOrder & {
+  user: IUser
+}
+
 export default defineEventHandler(async (event) => {
   try {
     await connectDB()
-    // 驗證用戶登入
     const { userId } = verifyJWTToken(event)
-    console.log(userId)
-    // 根據 userId 查詢，若無則查全部
+
     const filter: any = {}
     if (userId) {
       filter.user = userId
     }
-      // 檢查模型是否存在
-      if (!mongoose.models.Order) {
-        throw new Error('Order model not found')
-      }
-      if (!mongoose.models.User) {
-        throw new Error('User model not found')
-      }
 
-    // 查詢訂單，帶出 user 及商品詳細資料
+    // 查詢訂單
     const orders = await Order.find(filter)
-      .populate('user')
-      .populate('items.product')
-
+    .populate<{ user: IUser }>('user')
+    .populate('items.product')
+    .lean()
+    
     const data = orders.map((order) => ({
       id: order._id,
-      user: order.user
-        ? {
-            userId: order.user._id,
-            name: order.user.name,
-            email: order.user.email
-          }
-        : null,
+      user: {
+        userId: order.user._id,
+        name: order.user.name,
+        email: order.user.email
+      },
       items: order.items.map((item: any) => ({
         name: item.product?.name,
         image: item.product?.image,
@@ -49,6 +45,7 @@ export default defineEventHandler(async (event) => {
       sn: order.sn,
       createdAt: order.createdAt
     }))
+
     return {
       message: '取得成功!',
       data

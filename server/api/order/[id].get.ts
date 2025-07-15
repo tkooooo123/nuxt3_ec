@@ -1,11 +1,13 @@
 import Order from '~/server/models/Order'
 import { connectDB } from '~/server/utils/mongoose'
+import type { IUser } from '~/server/models/User'
 
 export default defineEventHandler(async (event) => {
   try {
     await connectDB()
     // 取得訂單 id
-    const { id } = event.context.params
+    const id = event.context.params?.id
+
     if (!id) {
       throw createError({
         statusCode: 400,
@@ -13,35 +15,35 @@ export default defineEventHandler(async (event) => {
       })
     }
     // 查詢訂單，並帶出 user 詳細資料
-    const order = await Order.findById(id).populate('user').populate('items.product')
+    const order = await Order.findById(id)
+      .populate<{ user: IUser }>('user')
+      .populate('items.product')
+      .lean()
     if (!order) {
       throw createError({
         statusCode: 404,
         statusMessage: '找不到訂單'
       })
     }
-    console.log(order)
+ 
     const result = {
       id: order._id,
       user: {
         userId: order.user._id,
         name: order.user.name,
         email: order.user.email,
-        phone: order.user.phone,
-        address: order.user.address,
       },
       items: order.items.map((item: any) => ({
         name: item.product.name,
         quantity: item.quantity,
-        price: item.price,
+        price: item.price
       })),
       total: order.total,
       shipping: order.shipping,
       status: order.status,
       payment: order.payment,
       sn: order.sn,
-      createdAt: order.createdAt,
-      
+      createdAt: order.createdAt
     }
     return {
       message: '取得成功!',
