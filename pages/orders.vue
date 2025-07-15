@@ -10,7 +10,7 @@ const token = useCookie('token')
 
 const getOrders = async () => {
   try {
-    const res: any = await $fetch('http://localhost:3000/api/order/all', {
+    const res: any = await $fetch('/api/order/all', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token.value}`
