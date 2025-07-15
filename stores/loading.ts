@@ -6,7 +6,6 @@ export const useLoadingStore = defineStore('loading', () => {
 
   function show() {
     isLoading.value = true
-    console.log('show')
   }
 
   function hide() {

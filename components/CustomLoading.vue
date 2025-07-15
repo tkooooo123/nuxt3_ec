@@ -15,7 +15,6 @@ import { useLoadingStore } from '@/stores/loading'
 const loadingStore = useLoadingStore()
 
 const isLoading = computed(() => loadingStore.isLoading)
-console.log(isLoading.value)
 
 const props = defineProps({
   throttle: {
