@@ -16,6 +16,7 @@ const submitPayment = async () => {
       amount: order.value.total,
       description: '訂單測試',
       itemName: order.value.items.map((item: any) => item.name).join(','),
+      page: 'createOrderSuccess'
     },
     responseType: 'text' // 回傳 HTML 字串
   })

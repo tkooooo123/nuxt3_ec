@@ -4,7 +4,7 @@ import Order from '~/server/models/Order'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { orderId,  amount, description, itemName } = body    
+    const { orderId, amount, description, itemName, page } = body    
     const ecpay = createECPayment()
     const config = useRuntimeConfig()
 
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       ItemName: itemName,
       ReturnURL: `${process.env.ECPAY_RETURN_URL}/api/ecpay/callback`,
       ClientBackURL: process.env.ECPAY_RETURN_URL,
-      OrderResultURL: `${process.env.ECPAY_RETURN_URL}/createOrderSuccess/${orderId}`,
+      OrderResultURL: page === 'orders' ? `${process.env.ECPAY_RETURN_URL}/orders` : `${process.env.ECPAY_RETURN_URL}/createOrderSuccess/${orderId}`,
       ChoosePayment: 'ALL',
       EncryptType: 1,
     }
