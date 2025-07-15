@@ -1,0 +1,21 @@
+// stores/loading.ts
+import { defineStore } from 'pinia'
+
+export const useLoadingStore = defineStore('loading', () => {
+  const isLoading = ref(true)
+
+  function show() {
+    isLoading.value = true
+    console.log('show')
+  }
+
+  function hide() {
+    isLoading.value = false
+  }
+
+  return {
+    isLoading,
+    show,
+    hide
+  }
+})

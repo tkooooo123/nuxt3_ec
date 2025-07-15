@@ -10,6 +10,12 @@
 
 <script setup>
 import { globalMiddleware } from '#build/middleware'
+import { useLoadingStore } from '@/stores/loading'
+
+const loadingStore = useLoadingStore()
+
+const isLoading = computed(() => loadingStore.isLoading)
+console.log(isLoading.value)
 
 const props = defineProps({
   throttle: {
@@ -22,7 +28,7 @@ const props = defineProps({
   },
 })
 
-const isLoading = ref(true)
+
 
 let _throttleTimer = null
 
@@ -33,22 +39,22 @@ function clear() {
 
 function show() {
   clear()
-  if (process.client) {
+  if (import.meta.client) {
     if (props.throttle > 0) {
       _throttleTimer = setTimeout(() => {
-        isLoading.value = true
+        loadingStore.show()
       }, props.throttle)
     } else {
-      isLoading.value = true
+      loadingStore.show()
     }
   }
 }
 
 function hide() {
   clear()
-  if (process.client) {
+  if (import.meta.client) {
     setTimeout(() => {
-      isLoading.value = false
+      loadingStore.hide()
     }, props.hold)
   }
 }
@@ -79,7 +85,7 @@ router.beforeResolve((to, from) => {
   if (to.fullPath === from.fullPath ) {
     hide()
   } else {
-    isLoading.value = true
+    loadingStore.show()
   }
     
 })
