@@ -1,8 +1,12 @@
 import Order from '~/server/models/Order'
+
 import { verifyJWTToken } from '~/server/utils/auth'
+import { connectDB } from '~/server/utils/mongoose'
+
 
 export default defineEventHandler(async (event) => {
   try {
+    await connectDB()
     // 驗證用戶登入
     const { userId } = verifyJWTToken(event)
     console.log(userId)
