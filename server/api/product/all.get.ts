@@ -2,9 +2,11 @@ import Product from '~/server/models/Product'
 import type { IProduct } from '~/server/models/Product'
 import type { ICategory } from '~/server/models/Category'
 import { H3Event } from 'h3'
+import { connectDB } from '~/server/utils/mongoose'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
+    await connectDB()
     // 從 query 參數取得篩選條件
     const query = getQuery(event)
     const {
