@@ -6,6 +6,8 @@ export const useCart = () => {
   const cartItems = useState('cartItems', () => [] as any[])
   const token = useCookie('token')
 
+  const loadingStore = useLoadingStore()
+
   // 獲取購物車資料
   const fetchCart = async () => {
     try {
@@ -42,6 +44,7 @@ export const useCart = () => {
 
   // 加入購物車
   const addToCart = async (productId: string, quantity: number = 1) => {
+    loadingStore.show()
     try {
       if (!token.value) {
         toast.error('請先登入')
@@ -71,11 +74,17 @@ export const useCart = () => {
         success: false,
         error: error.data?.statusMessage || '加入購物車失敗'
       }
+    } finally {
+      await nextTick()
+      requestAnimationFrame(() => {
+        loadingStore.hide()
+      })
     }
   }
 
   // 更新購物車數量
   const updateCartItemQuantity = async (productId: string, quantity: number) => {
+    loadingStore.show()
     try {
       await $fetch(`/api/cart/quantity`, {
         method: 'PUT',
@@ -97,11 +106,17 @@ export const useCart = () => {
         success: false,
         error: error.data?.statusMessage || '更新數量失敗'
       }
+    } finally {
+      await nextTick()
+      requestAnimationFrame(() => {
+        loadingStore.hide()
+      })
     }
   }
 
   // 移除購物車商品
   const removeFromCart = async (productId: string) => {
+    loadingStore.show()
     try {
       await $fetch(`/api/cart/item`, {
         method: 'DELETE',
@@ -123,6 +138,11 @@ export const useCart = () => {
         success: false,
         error: error.data?.statusMessage || '移除商品失敗'
       }
+    } finally {
+      await nextTick()
+      requestAnimationFrame(() => {
+        loadingStore.hide()
+      })
     }
   }
 
