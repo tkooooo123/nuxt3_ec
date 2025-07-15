@@ -1,8 +1,10 @@
 import Cart from '~/server/models/Cart'
 import { verifyJWTToken } from '~/server/utils/auth'
+import { connectDB } from '~/server/utils/mongoose'
 
 export default defineEventHandler(async (event) => {
   try {
+    await connectDB()
     // 驗證用戶登入狀態並取得 userId
     const { userId } = verifyJWTToken(event)
     // 查找用戶的購物車

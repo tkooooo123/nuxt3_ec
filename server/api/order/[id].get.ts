@@ -1,7 +1,9 @@
 import Order from '~/server/models/Order'
+import { connectDB } from '~/server/utils/mongoose'
 
 export default defineEventHandler(async (event) => {
   try {
+    await connectDB()
     // 取得訂單 id
     const { id } = event.context.params
     if (!id) {
