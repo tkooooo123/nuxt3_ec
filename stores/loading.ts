@@ -2,19 +2,29 @@
 import { defineStore } from 'pinia'
 
 export const useLoadingStore = defineStore('loading', () => {
-  const isLoading = ref(true)
+  const counter = ref(1)
+
+  const isLoading = computed(() => counter.value > 0)
 
   function show() {
-    isLoading.value = true
+    counter.value++
   }
 
   function hide() {
-    isLoading.value = false
+    // 防止變負數
+    if (counter.value > 0) {
+      counter.value--
+    }
+  }
+
+  function reset() {
+    counter.value = 0
   }
 
   return {
     isLoading,
     show,
-    hide
+    hide,
+    reset
   }
 })
