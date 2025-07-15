@@ -60,7 +60,6 @@ const selectHottestImage = (index: number) => {
 const getProducts = async () => {
   loadingStore.show()
   try {
-
     const res: ApiResponse = await $fetch('/api/product/all')
     products.value = res.data.products
     newestProduct.value = res.data.products[0]
@@ -75,11 +74,13 @@ const getProducts = async () => {
       res.data.products.filter((product) => product.is_hottest)[0].image,
       ...res.data.products.filter((product) => product.is_hottest)[0].imagesUrl
     ]
-
   } catch (err: any) {
     console.error('取得商品失敗:', err)
   } finally {
-   loadingStore.hide()
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
