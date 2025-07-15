@@ -28,4 +28,4 @@ const ArticleSchema: Schema<IArticle> = new Schema<IArticle>(
   }
 );
 
-export default mongoose.model<IArticle>("Article", ArticleSchema);
+export default (mongoose.models.Article || mongoose.model<IArticle>("Article", ArticleSchema)) as mongoose.Model<IArticle>;

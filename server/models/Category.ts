@@ -27,4 +27,4 @@ const CategorySchema: Schema<ICategory> = new Schema<ICategory>({
 });
 
 // 匯出 Mongoose model
-export default mongoose.model<ICategory>("Category", CategorySchema);
+export default (mongoose.models.Category as mongoose.Model<ICategory>) || mongoose.model<ICategory>("Category", CategorySchema);

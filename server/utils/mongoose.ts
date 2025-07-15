@@ -5,6 +5,9 @@ import mongoose from 'mongoose'
 import '../models/User'
 import '../models/Product'
 import '../models/Order'
+import '../models/Category'
+import '../models/Cart'
+import '../models/Article'
 
 let isConnected = false
 
@@ -33,11 +36,17 @@ const loadModels = async () => {
     const { default: User } = await import('../models/User')
     const { default: Product } = await import('../models/Product')
     const { default: Order } = await import('../models/Order')
+    const { default: Category } = await import('../models/Category')
+    const { default: Cart } = await import('../models/Cart')
+    const { default: Article } = await import('../models/Article')
     
     console.log('Models loaded:', {
       User: !!User,
       Product: !!Product,
-      Order: !!Order
+      Order: !!Order,
+      Category: !!Category,
+      Cart: !!Cart,
+      Article: !!Article
     })
   } catch (error) {
     console.error('Error loading models:', error)
