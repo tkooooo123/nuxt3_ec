@@ -5,6 +5,18 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
    modules: ['@unocss/nuxt', '@element-plus/nuxt', '@nuxtjs/ngrok', '@pinia/nuxt'],
+   app: {
+    head: {
+      htmlAttrs: {
+        lang: 'zh-TW' // 設定為繁體中文
+      },
+      title: 'Bakery',
+      link: [
+        // 添加其他格式的 favicon 圖標
+        { rel: 'icon', type: 'image/png', href: '/images/logo.png' }
+      ]
+    }
+  },
    css: [
     '@/assets/scss/all.scss',
     'vue3-toastify/dist/index.css'
