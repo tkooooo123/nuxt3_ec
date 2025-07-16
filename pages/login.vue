@@ -21,7 +21,7 @@ interface LoginResponse {
     user_id: string
   }
 }
-
+const loadingStore = useLoadingStore()
 const isShow = ref<boolean>(false)
 const formRef = ref<FormInstance>()
 
@@ -52,6 +52,7 @@ const handleSubmit = () => {
 const { clearAuth } = useAuth()
 
 const handleLogin = async () => {
+  loadingStore.show()
   try {
     const data = await $fetch<LoginResponse>('/api/user/login', {
       method: 'POST',
@@ -60,7 +61,6 @@ const handleLogin = async () => {
         password: ruleform.password
       }
     })
-    console.log(data)
     if (data) {
       // 使用 useCookie 儲存 token
       const token = useCookie('token', {
@@ -95,11 +95,14 @@ const handleLogin = async () => {
     toast.error(`登入失敗: ${msg}`)
     // 登入失敗時清除認證狀態
     clearAuth()
+  } finally {
+    loadingStore.hide()
   }
 }
 </script>
 
 <template>
+  <CustomLoading />
   <div class="px-12">
     <div class="max-w-150 mx-auto mt-20">
       <h2 class="text-center text-primary">會員登入</h2>
