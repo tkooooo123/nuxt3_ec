@@ -83,9 +83,7 @@ router.beforeResolve((to, from) => {
  
   if (to.fullPath === from.fullPath ) {
     hide()
-  } else {
-    loadingStore.show()
-  }
+  } 
     
 })
 
