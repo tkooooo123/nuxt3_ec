@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
 
     // 查詢訂單
     const orders = await Order.find(filter)
+    .sort({ createdAt: -1})
     .populate<{ user: IUser }>('user')
     .populate('items.product')
     .lean()
