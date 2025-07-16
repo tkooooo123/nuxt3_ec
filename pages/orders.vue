@@ -1,14 +1,16 @@
 <script setup lang="ts">
+const loadingStore = useLoadingStore()
 // 使用 useAuth 檢查登入狀態
 const { isLoggedIn } = useAuth()
 // 如果未登入，重定向到登入頁面
 if (!isLoggedIn()) {
   await navigateTo('/login')
 }
-const orders = ref([])
+const orders = ref<any[]>([])
 const token = useCookie('token')
 
 const getOrders = async () => {
+  loadingStore.show()
   try {
     const res: any = await $fetch('/api/order/all', {
       method: 'GET',
@@ -20,10 +22,16 @@ const getOrders = async () => {
     orders.value = data
   } catch (error) {
     console.log(error)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
 const submitPayment = async (order: any) => {
+  loadingStore.show()
   try {
     const res = await $fetch('/api/ecpay', {
       method: 'POST',
@@ -44,6 +52,11 @@ const submitPayment = async (order: any) => {
     div.querySelector('form')?.submit()
   } catch (error) {
     console.log(error)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
@@ -60,49 +73,102 @@ onMounted(() => {
       我的訂單
     </h1>
     <el-container class="max-w-180 mx-auto mt-10">
-      <el-table v-if="orders.length > 0" :data="orders">
-        <el-table-column prop="id" label="訂單編號" width="220" />
-        <el-table-column label="建立時間" width="100">
-          <template #default="scope">
-            {{ scope.row.createdAt.slice(0, 10) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="total" label="總金額" width="80">
-          <template #default="scope">
-            <span class="font-500">${{ scope.row.total }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="付款方式" width="90">
-          <template #default="scope">
-            <span class="font-500">{{
-              scope.row.payment === 'credit_card' ? '信用卡' : '貨到付款'
-            }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="處理狀態" width="100">
-          <template #default="scope">
-            <span
-              v-if="
-                scope.row.status === 'pending' &&
-                scope.row.payment === 'credit_card'
-              "
+      <div v-if="orders.length > 0" class="w-full">
+        <el-table :data="orders" class="rounded-2 pb-4 hidden md:block">
+          <el-table-column prop="id" label="訂單編號" width="220" />
+          <el-table-column label="建立時間" width="100">
+            <template #default="scope">
+              {{ scope.row.createdAt.slice(0, 10) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="total" label="總金額" width="80">
+            <template #default="scope">
+              <span class="font-500">${{ scope.row.total }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="付款方式" width="90">
+            <template #default="scope">
+              <span class="font-500">{{
+                scope.row.payment === 'credit_card' ? '信用卡' : '貨到付款'
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="處理狀態" width="100">
+            <template #default="scope">
+              <span
+                v-if="
+                  scope.row.status === 'pending' &&
+                  scope.row.payment === 'credit_card'
+                "
+              >
+                <button
+                  @click="submitPayment(scope.row)"
+                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
+                >
+                  前往付款
+                </button>
+              </span>
+              <span v-else-if="scope.row.status === 'pending'">待付款</span>
+              <span v-else-if="scope.row.status === 'paid'">已付款</span>
+              <span v-else-if="scope.row.status === 'shipped'">已出貨</span>
+              <span v-else-if="scope.row.status === 'delivered'">已到貨</span>
+              <span v-else-if="scope.row.status === 'cancelled'">已取消</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作">
+            <template #default="scope">
+              <button
+                class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
+              >
+                查看更多
+              </button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div
+          v-for="order in orders"
+          :key="order?.id"
+          class="flex flex-col p-6 bg-white mb-4 rounded-2 md:hidden"
+        >
+          <span>訂單編號：{{ order.id }}</span>
+          <span class="mt-1"
+            >建立時間： {{ order.createdAt.slice(0, 10) }}</span
+          >
+          <span class="mt-1">總金額： $ {{ order.total }}</span>
+          <span class="mt-1"
+            >付款方式：
+            {{ order.payment === 'credit_card' ? '信用卡' : '貨到付款' }}</span
+          >
+          <div class="flex justify-between mt-2">
+            <div class="flex items-center">
+              <span>處理狀態：</span>
+              <span
+                v-if="
+                  order.status === 'pending' && order.payment === 'credit_card'
+                "
+              >
+                <button
+                  @click="submitPayment(order)"
+                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
+                >
+                  前往付款
+                </button>
+              </span>
+              <span v-else-if="order.status === 'pending'">待付款</span>
+              <span v-else-if="order.status === 'paid'">已付款</span>
+              <span v-else-if="order.status === 'shipped'">已出貨</span>
+              <span v-else-if="order.status === 'delivered'">已到貨</span>
+              <span v-else-if="order.status === 'cancelled'">已取消</span>
+            </div>
+            <button
+              class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
             >
-            <button @click="submitPayment(scope.row)" class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200">前往付款</button>
-            
-            </span>
-            <span v-else-if="scope.row.status === 'pending'">待付款</span>
-            <span v-else-if="scope.row.status === 'paid'">已付款</span>
-            <span v-else-if="scope.row.status === 'shipped'">已出貨</span>
-            <span v-else-if="scope.row.status === 'delivered'">已到貨</span>
-            <span v-else-if="scope.row.status === 'cancelled'">已取消</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="scope">
-            <button @click="submitPayment(scope.row)" class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200">查看更多</button>
-          </template>
-        </el-table-column>
-      </el-table>
+              查看更多
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div
         v-else
         class="flex flex-col items-center justify-center w-full text-gray-500"
