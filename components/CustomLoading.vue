@@ -35,27 +35,31 @@ function clear() {
   clearTimeout(_throttleTimer)
   _throttleTimer = null
 }
+let hasShown = false
+
 
 function show() {
+  if (!import.meta.client) return
+
   clear()
-  if (import.meta.client) {
-    if (props.throttle > 0) {
-      _throttleTimer = setTimeout(() => {
-        loadingStore.show()
-      }, props.throttle)
-    } else {
+  hasShown = true
+  if (props.throttle > 0) {
+    _throttleTimer = setTimeout(() => {
       loadingStore.show()
-    }
+    }, props.throttle)
+  } else {
+    loadingStore.show()
   }
 }
 
 function hide() {
   clear()
-  if (import.meta.client) {
-    setTimeout(() => {
-      loadingStore.hide()
-    }, props.hold)
-  }
+  if (!import.meta.client || !hasShown) return
+
+  setTimeout(() => {
+    loadingStore.hide()
+    hasShown = false
+  }, props.hold)
 }
 
 globalMiddleware.unshift(show)
