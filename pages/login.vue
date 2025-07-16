@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
   layout: false
@@ -52,27 +53,22 @@ const { clearAuth } = useAuth()
 
 const handleLogin = async () => {
   try {
-    const { data, error } = await useFetch<LoginResponse>('/api/user/login', {
+    const data = await $fetch<LoginResponse>('/api/user/login', {
       method: 'POST',
       body: {
         email: ruleform.email,
         password: ruleform.password
       }
     })
-
-    if (error.value) {
-      console.error('登入錯誤:', error.value)
-      return
-    }
-
-    if (data.value) {
+    console.log(data)
+    if (data) {
       // 使用 useCookie 儲存 token
       const token = useCookie('token', {
         maxAge: 30 * 60, // 30分鐘，與後端 JWT 過期時間一致
         secure: true,
         sameSite: 'strict'
       })
-      token.value = data.value.data.token
+      token.value = data.data.token
 
       // 儲存用戶資訊
       const userInfo = useCookie('userInfo', {
@@ -81,23 +77,22 @@ const handleLogin = async () => {
         sameSite: 'strict'
       })
       userInfo.value = JSON.stringify({
-        name: data.value.data.name,
-        email: data.value.data.email,
-        role: data.value.data.role,
-        user_id: data.value.data.user_id
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+        user_id: data.data.user_id
       })
-
-      console.log('登入成功，token 已儲存')
-
-      // 根據用戶角色導向不同頁面
-      if (data.value.data.role === 'admin') {
-        await navigateTo('/admin')
-      } else {
-        await navigateTo('/')
-      }
     }
-  } catch (error) {
-    console.error('登入失敗:', error)
+
+    if (data.data.role === 'admin') {
+      await navigateTo('/admin')
+    } else {
+      await navigateTo('/')
+    }
+  } catch (error: any) {
+    // 錯誤處理
+    const msg = error?.data?.message || error?.message || '登入失敗，請稍後再試'
+    toast.error(`登入失敗: ${msg}`)
     // 登入失敗時清除認證狀態
     clearAuth()
   }
@@ -175,6 +170,13 @@ const handleLogin = async () => {
       >
         登入
       </button>
+
+      <div class="text-center mt-4">
+        還沒有帳號？
+        <NuxtLink to="/signup" class="text-primary underline hover:opacity-80">
+          前往註冊
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
