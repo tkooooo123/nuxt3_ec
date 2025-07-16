@@ -9,11 +9,17 @@ export default defineEventHandler(async (event) => {
 
     // 取得前端傳來的收件人資料
     const body = await readBody(event)
-    const { shipping } = body
+    const { shipping, payment } = body
     if (!shipping || !shipping.name || !shipping.phone || !shipping.address || !shipping.email) {
       throw createError({
         statusCode: 400,
         statusMessage: '收件人資訊不完整'
+      })
+    }
+    if(!payment) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: '未選擇付款方式'
       })
     }
 
@@ -58,7 +64,8 @@ export default defineEventHandler(async (event) => {
       user: userId,
       items: orderItems,
       total,
-      shipping
+      shipping,
+      payment
       
     })
 
