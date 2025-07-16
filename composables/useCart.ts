@@ -10,6 +10,7 @@ export const useCart = () => {
 
   // 獲取購物車資料
   const fetchCart = async () => {
+    loadingStore.show()
     try {
       const { data } = await $fetch<any>('/api/cart', {
         method: 'GET',
@@ -39,6 +40,11 @@ export const useCart = () => {
       // 如果未登入，清空購物車狀態
       cartItems.value = []
       cartCount.value = 0
+    } finally {
+      await nextTick()
+      requestAnimationFrame(() => {
+        loadingStore.hide()
+      })
     }
   }
 

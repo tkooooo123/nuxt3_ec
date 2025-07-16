@@ -1,5 +1,8 @@
 <template>
-  <div class="loader-wrap" :class="isLoading ? 'loader-visible' : 'loader-hidden'">
+  <div
+    class="loader-wrap"
+    :class="isLoading || loadingStore.isLoading ? 'loader-visible' : 'loader-hidden'"
+  >
     <div class="loader">
       <svg viewBox="0 0 86 80">
         <polygon points="43 8 79 72 7 72" />
@@ -12,10 +15,6 @@
 import { globalMiddleware } from '#build/middleware'
 import { useLoadingStore } from '@/stores/loading'
 
-const loadingStore = useLoadingStore()
-
-const isLoading = computed(() => loadingStore.isLoading)
-
 const props = defineProps({
   throttle: {
     type: Number,
@@ -27,7 +26,9 @@ const props = defineProps({
   },
 })
 
+const loadingStore = useLoadingStore()
 
+const isLoading = ref(false)
 
 let _throttleTimer = null
 
@@ -35,31 +36,27 @@ function clear() {
   clearTimeout(_throttleTimer)
   _throttleTimer = null
 }
-let hasShown = false
-
 
 function show() {
-  if (!import.meta.client) return
-
   clear()
-  hasShown = true
-  if (props.throttle > 0) {
-    _throttleTimer = setTimeout(() => {
-      loadingStore.show()
-    }, props.throttle)
-  } else {
-    loadingStore.show()
+  if (import.meta.client) {
+    if (props.throttle > 0) {
+      _throttleTimer = setTimeout(() => {
+        isLoading.value = true
+      }, props.throttle)
+    } else {
+      isLoading.value = true
+    }
   }
 }
 
 function hide() {
   clear()
-  if (!import.meta.client || !hasShown) return
-
-  setTimeout(() => {
-    loadingStore.hide()
-    hasShown = false
-  }, props.hold)
+  if (import.meta.client) {
+    setTimeout(() => {
+      isLoading.value = false
+    }, props.hold)
+  }
 }
 
 globalMiddleware.unshift(show)
@@ -84,19 +81,15 @@ router.onError(() => {
 })
 
 router.beforeResolve((to, from) => {
- 
-  if (to.fullPath === from.fullPath ) {
+  if (to.fullPath === from.fullPath) {
     hide()
-  } 
-    
+  }
 })
 
 router.afterEach((_to, _from, failure) => {
-
   if (failure) {
     hide()
   }
-
 })
 </script>
 
@@ -114,7 +107,7 @@ router.afterEach((_to, _from, failure) => {
   background-color: rgb(0 0 0 / 0.35);
   backdrop-filter: blur(4px);
   transition-property: background-color, visibility, opacity, scale;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 .loader-wrap.loader-visible {
@@ -143,79 +136,84 @@ router.afterEach((_to, _from, failure) => {
   stroke-linecap: round;
   stroke-dasharray: 145 76 145 76;
   stroke-dashoffset: 0;
-  animation: pathTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+  animation: pathTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86)
+    infinite;
 }
 .loader {
- position: relative;
- width: 2.5em;
- height: 2.5em;
- transform: rotate(165deg);
+  position: relative;
+  width: 2.5em;
+  height: 2.5em;
+  transform: rotate(165deg);
 }
 
-.loader:before, .loader:after {
- content: "";
- position: absolute;
- top: 50%;
- left: 50%;
- display: block;
- width: 0.5em;
- height: 0.5em;
- border-radius: 0.25em;
- transform: translate(-50%, -50%);
+.loader:before,
+.loader:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 0.25em;
+  transform: translate(-50%, -50%);
 }
 
 .loader:before {
- animation: before8 2s infinite;
+  animation: before8 2s infinite;
 }
 
 .loader:after {
- animation: after6 2s infinite;
+  animation: after6 2s infinite;
 }
 
 @keyframes before8 {
- 0% {
-  width: 0.5em;
-  box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
- }
+  0% {
+    width: 0.5em;
+    box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75),
+      -1em 0.5em rgba(111, 202, 220, 0.75);
+  }
 
- 35% {
-  width: 2.5em;
-  box-shadow: 0 -0.5em rgba(225, 20, 98, 0.75), 0 0.5em rgba(111, 202, 220, 0.75);
- }
+  35% {
+    width: 2.5em;
+    box-shadow: 0 -0.5em rgba(225, 20, 98, 0.75),
+      0 0.5em rgba(111, 202, 220, 0.75);
+  }
 
- 70% {
-  width: 0.5em;
-  box-shadow: -1em -0.5em rgba(225, 20, 98, 0.75), 1em 0.5em rgba(111, 202, 220, 0.75);
- }
+  70% {
+    width: 0.5em;
+    box-shadow: -1em -0.5em rgba(225, 20, 98, 0.75),
+      1em 0.5em rgba(111, 202, 220, 0.75);
+  }
 
- 100% {
-  box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
- }
+  100% {
+    box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75),
+      -1em 0.5em rgba(111, 202, 220, 0.75);
+  }
 }
 
 @keyframes after6 {
- 0% {
-  height: 0.5em;
-  box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
- }
+  0% {
+    height: 0.5em;
+    box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75),
+      -0.5em -1em rgba(233, 169, 32, 0.75);
+  }
 
- 35% {
-  height: 2.5em;
-  box-shadow: 0.5em 0 rgba(61, 184, 143, 0.75), -0.5em 0 rgba(233, 169, 32, 0.75);
- }
+  35% {
+    height: 2.5em;
+    box-shadow: 0.5em 0 rgba(61, 184, 143, 0.75),
+      -0.5em 0 rgba(233, 169, 32, 0.75);
+  }
 
- 70% {
-  height: 0.5em;
-  box-shadow: 0.5em -1em rgba(61, 184, 143, 0.75), -0.5em 1em rgba(233, 169, 32, 0.75);
- }
+  70% {
+    height: 0.5em;
+    box-shadow: 0.5em -1em rgba(61, 184, 143, 0.75),
+      -0.5em 1em rgba(233, 169, 32, 0.75);
+  }
 
- 100% {
-  box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
- }
+  100% {
+    box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75),
+      -0.5em -1em rgba(233, 169, 32, 0.75);
+  }
 }
-
-</style>  
-
-
-
-
+</style>
