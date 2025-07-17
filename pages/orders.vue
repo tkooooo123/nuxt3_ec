@@ -8,6 +8,8 @@ if (!isLoggedIn()) {
 }
 const orders = ref<any[]>([])
 const token = useCookie('token')
+const orderDialogVisible = ref<boolean>(false)
+const selectedOrder = ref<any>()
 
 const getOrders = async () => {
   loadingStore.show()
@@ -119,7 +121,11 @@ onMounted(() => {
             <template #default="scope">
               <button
                 class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
-              >
+              @click="() => {
+                selectedOrder = scope.row
+                orderDialogVisible = true
+              }"
+                >
                 查看更多
               </button>
             </template>
@@ -161,6 +167,12 @@ onMounted(() => {
               <span v-else-if="order.status === 'cancelled'">已取消</span>
             </div>
             <button
+              @click="
+                () => {
+                  orderDialogVisible = true
+                  selectedOrder = order
+                }
+              "
               class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
             >
               查看更多
@@ -181,6 +193,116 @@ onMounted(() => {
           前往購物
         </button>
       </div>
+      <el-dialog
+        title="訂單明細"
+        v-model="orderDialogVisible"
+        width="90%"
+        class="max-w-200"
+      >
+        <div class="md:grid md:grid-cols-2">
+          <div>
+            <div>
+              <span class="text-4.5 font-600 text-primary">訂單資訊</span>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">編號</span>
+                <span> {{ selectedOrder?.id }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">成立時間</span>
+                <span> {{ selectedOrder?.createdAt.slice(0,19).replace('T', ' ') }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">付款方式</span>
+                <span>
+                  {{
+                    selectedOrder?.payment === 'credit_card'
+                      ? '信用卡'
+                      : '貨到付款'
+                  }}</span
+                >
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">處理狀態</span>
+                <span
+                  v-if="
+                    selectedOrder.status === 'pending' &&
+                    selectedOrder.payment === 'credit_card'
+                  "
+                >
+                  <button
+                    @click="submitPayment(selectedOrder)"
+                    class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 cursor-pointer transition-all duration-200"
+                  >
+                    前往付款
+                  </button>
+                </span>
+                <span v-else-if="selectedOrder.status === 'pending'"
+                  >待付款</span
+                >
+                <span v-else-if="selectedOrder.status === 'paid'">已付款</span>
+                <span v-else-if="selectedOrder.status === 'shipped'"
+                  >已出貨</span
+                >
+                <span v-else-if="selectedOrder.status === 'delivered'"
+                  >已到貨</span
+                >
+                <span v-else-if="selectedOrder.status === 'cancelled'"
+                  >已取消</span
+                >
+              </div>
+            </div>
+            <div class="mt-6">
+              <span class="text-4.5 font-600 text-primary">聯絡資訊</span>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">姓名</span>
+                <span> {{ selectedOrder?.shipping.name }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">Email</span>
+                <span> {{ selectedOrder?.shipping.email }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">電話</span>
+                <span> {{ selectedOrder?.shipping.phone }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">地址</span>
+                <span> {{ selectedOrder?.shipping.address }}</span>
+              </div>
+              <div class="flex mt-2">
+                <span class="w-15 mr-2">留言</span>
+                <span> {{ selectedOrder?.shipping.message || '無' }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 md:mt-0">
+            <span class="text-4.5 font-600 text-primary">購買商品</span>
+            <div
+              v-for="item in selectedOrder.items"
+              :key="item.id"
+              class="mt-4 flex items-center"
+            >
+              <img
+                class="w-20 h-20 block object-cover"
+                :src="item.image"
+                :alt="item.name"
+              />
+              <div class="flex justify-between items-center w-full">
+                <div class="flex flex-col ml-4 justify-center">
+                  <span>{{ item.name }}</span>
+                  <span> {{ item.quantity }} / {{ item.unit }}</span>
+                </div>
+                <span class="ml-4"> $ {{ item.price }}</span>
+              </div>
+            </div>
+            <hr class="my-4" />
+            <div class="flex justify-between text-5 font-600">
+              <span>總金額</span>
+              <span>$ {{ selectedOrder.total }}</span>
+            </div>
+          </div>
+        </div>
+      </el-dialog>
     </el-container>
   </div>
 </template>
