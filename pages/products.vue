@@ -30,18 +30,32 @@ interface ApiResponse<T> {
   message: string
   data: T[]
 }
-
+interface ApiProdcutResponse {
+  message: string
+  data: {
+    products: Product[]
+    pagination: {
+      currentPage: number
+      totalPages: number
+      totalItems: number
+      itemsPerPage: number
+      hasNextPage: boolean
+      hasPrevPage: boolean
+    }
+  }
+}
 const router = useRouter()
 const productsList = ref<Product[]>([])
 const categoryList = ref<Category[]>([])
 const filteredProducts = ref<Product[]>([])
 const selectedCategoryId = ref<string>('all')
+const selectedTheme = ref<string[]>([]) //主題篩選
 
 const { addToCart } = useCart()
 
 const getProducts = async () => {
-  const res = await $fetch<ApiResponse<Product>>('/api/admin/products')
-  productsList.value = res.data
+  const { data } = await $fetch<ApiProdcutResponse>('/api/product/all')
+  productsList.value = data?.products
   filterProducts()
 }
 
@@ -52,33 +66,29 @@ const getCategories = async () => {
 
 // 過濾產品函數
 const filterProducts = () => {
-  if (selectedCategoryId.value === 'all') {
-    filteredProducts.value = productsList.value
-  } else {
-    filteredProducts.value = productsList.value.filter(
-      (product) => product.category?.id === selectedCategoryId.value
-    )
+  // 先依分類過濾
+  let tempProducts =
+    selectedCategoryId.value === 'all'
+      ? productsList.value
+      : productsList.value.filter(
+          (product) => product.category?.id === selectedCategoryId.value
+        )
+
+  // 再依主題過濾（且邏輯）
+  if (selectedTheme.value.length > 0) {
+    tempProducts = tempProducts.filter((product) => {
+      // 必須所有勾選的主題都符合
+      return selectedTheme.value.every((theme) => {
+        if (theme === 'is_newest') return product.is_newest
+        if (theme === 'is_hottest') return product.is_hottest
+        return false
+      })
+    })
   }
+
+  filteredProducts.value = tempProducts
 }
-//加入購物車
-// const addToCart = async (productId: string) => {
-//   try {
-//     const response = await $fetch('/api/cart', {
-//     headers: {
-//       'Authorization': `Bearer ${token.value}`
-//     },
-//     method: 'POST',
-//     body: { productId, quantity: 1 }
-//   })
 
-//   console.log(response)
-//   // 顯示成功訊息
-//   alert(`已成功加入購物車`)
-//   } catch (error) {
-//     console.error('加入購物車失敗:', error)
-//   }
-
-// }
 // 監聽分類選擇變化
 watch(selectedCategoryId, () => {
   filterProducts()
@@ -91,7 +101,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="pt-17 px-12">
+  <div class="py-17 px-12">
     <div class="flex mt-6 mb-12">
       <span>首頁</span>
       <svg
@@ -148,6 +158,16 @@ onMounted(() => {
             {{ category.name }}
           </div>
         </div>
+        <h3>主題篩選</h3>
+        <el-checkbox-group v-model="selectedTheme" @change="filterProducts">
+          <el-checkbox
+            label="新品報到"
+            value="is_newest"
+            class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 m-0 md:w-full md:mb-2"
+          >
+          </el-checkbox>
+          <el-checkbox label="熱銷排行" value="is_hottest"  class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 m-0 md:w-full"> </el-checkbox>
+        </el-checkbox-group>
       </div>
       <div class="col-span-3">
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -210,7 +230,7 @@ onMounted(() => {
                 新品
               </span>
               <span
-              v-if="product.is_hottest"
+                v-if="product.is_hottest"
                 class="bg-primary flex text-#F7eee9 py-1.5 px-2 rounded-7.5"
               >
                 <svg
@@ -247,7 +267,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .category-item {
   transition: all 0.3s ease-in-out;
 
@@ -263,6 +283,31 @@ onMounted(() => {
   &:hover {
     .product-card-image {
       transform: scale(1.05);
+    }
+  }
+}
+:deep() {
+  .el-checkbox__inner {
+    zoom: 1.2;
+  }
+  .el-checkbox {
+    --el-checkbox-checked-text-color: #f87171;
+    --el-checkbox-checked-input-border-color: #f87171;
+    --el-checkbox-checked-bg-color: #f87171;
+    --el-checkbox-input-border-color-hover: #f87171;
+  }
+  .el-checkbox {
+    .el-checkbox__label {
+      transition: color 0.3s ease-in-out;
+    }
+
+    &:hover {
+      .el-checkbox__label {
+        color: #f87171;
+      }
+    }
+    &.is-checked {
+    background: #fee2e2;
     }
   }
 }
