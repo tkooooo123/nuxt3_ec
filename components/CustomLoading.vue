@@ -84,6 +84,11 @@ router.beforeResolve((to, from) => {
   if (to.fullPath === from.fullPath) {
     hide()
   }
+
+  const onlyQueryChanged = to.path === from.path && to.fullPath !== from.fullPath
+  if (onlyQueryChanged) {
+    hide()
+  }
 })
 
 router.afterEach((_to, _from, failure) => {
@@ -91,6 +96,7 @@ router.afterEach((_to, _from, failure) => {
     hide()
   }
 })
+
 </script>
 
 <style scoped>

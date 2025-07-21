@@ -49,36 +49,29 @@ const hottestProductImages = ref<string[]>([])
 const selectedNewestImageIndex = ref(0)
 const selectedHottestImageIndex = ref(0)
 
-// 選擇圖片
-const selectNewestImage = (index: number) => {
-  selectedNewestImageIndex.value = index
-}
-const selectHottestImage = (index: number) => {
-  selectedHottestImageIndex.value = index
-}
-
 const getProducts = async () => {
   loadingStore.show()
   try {
-    const res: ApiResponse = await $fetch('/api/product/all')
-    products.value = res.data.products
-    newestProduct.value = res.data.products[0]
-    hottestProduct.value = res.data.products.filter(
+    const { data } = await $fetch<ApiResponse>('/api/product/all')
+    products.value = data.products
+    newestProduct.value = data.products[0]
+    hottestProduct.value = data.products.filter(
       (product) => product.is_hottest
     )[0]
     newestProductImages.value = [
-      res.data.products[0].image,
-      ...res.data.products[0].imagesUrl
+      data.products[0].image,
+      ...data.products[0].imagesUrl
     ]
     hottestProductImages.value = [
-      res.data.products.filter((product) => product.is_hottest)[0].image,
-      ...res.data.products.filter((product) => product.is_hottest)[0].imagesUrl
+      data.products.filter((product) => product.is_hottest)[0].image,
+      ...data.products.filter((product) => product.is_hottest)[0].imagesUrl
     ]
   } catch (err: any) {
     console.error('取得商品失敗:', err)
   } finally {
     await nextTick()
     requestAnimationFrame(() => {
+      console.log('api')
       loadingStore.hide()
     })
   }
@@ -134,6 +127,7 @@ onMounted(() => {
           ></p>
           <div class="mt-6 flex justify-end">
             <button
+              @click="navigateTo('/products?topic=is_hottest')"
               class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid border-primary text-primary rounded-30px"
             >
               <span>更多熱門 </span>
@@ -175,6 +169,7 @@ onMounted(() => {
           ></p>
           <div class="mt-6 flex justify-end">
             <button
+              @click="navigateTo('/products?topic=is_newest')"
               class="flex items-center gap-2 h-11 px-6 font-600 bg-white hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer border-1 border-solid border-primary text-primary rounded-30px"
             >
               <span>更多新品 </span>

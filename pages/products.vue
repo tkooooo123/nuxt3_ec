@@ -45,12 +45,13 @@ interface ApiProdcutResponse {
   }
 }
 const router = useRouter()
+const route = useRoute()
 const productsList = ref<Product[]>([])
 const categoryList = ref<Category[]>([])
 const filteredProducts = ref<Product[]>([])
 const selectedCategoryId = ref<string>('all')
 const selectedTheme = ref<string[]>([]) //主題篩選
-
+const keyword = ref<string>('') //搜尋關鍵字
 const { addToCart } = useCart()
 
 const getProducts = async () => {
@@ -85,16 +86,40 @@ const filterProducts = () => {
       })
     })
   }
+  if (route.query.search) {
+    if (route.query.search) {
+      const search = String(route.query.search).toLowerCase()
+      tempProducts = tempProducts.filter(
+        (product) =>
+          product.name.toLowerCase().includes(search) ||
+          product.description.toLowerCase().includes(search)
+      )
+    }
+  }
 
   filteredProducts.value = tempProducts
+}
+const handleSearch = () => {
+  const trimmed = keyword.value.trim()
+  if (!trimmed) return // 若輸入是空白或空值就不執行搜尋
+
+  navigateTo(`/products?search=${encodeURIComponent(trimmed)}`)
 }
 
 // 監聽分類選擇變化
 watch(selectedCategoryId, () => {
   filterProducts()
 })
-
+watch(
+  () => route.query.search,
+  () => {
+    filterProducts()
+  }
+)
 onMounted(() => {
+  if (route.query.topic) {
+    selectedTheme.value = [route.query.topic as string]
+  }
   getProducts()
   getCategories()
 })
@@ -137,12 +162,19 @@ onMounted(() => {
 
       <span>全部</span>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-y-6 md:gap-x-6">
       <div class="flex flex-col col-span-1">
+        <el-input
+          class="max-w-120"
+          placeholder="搜尋商品"
+          v-model="keyword"
+          @keydown.enter="handleSearch"
+        ></el-input>
         <h3>產品分類</h3>
         <div class="flex md:block">
           <div
-            class="category-item hover:bg-red-100 text-red md:w-full mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
+            class="category-item hover:bg-red-100 text-red mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
             :class="{ active: selectedCategoryId === 'all' }"
             @click="selectedCategoryId = 'all'"
           >
@@ -151,7 +183,7 @@ onMounted(() => {
           <div
             v-for="category in categoryList"
             :key="category.id"
-            class="category-item hover:bg-red-100 text-red md:w-full mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
+            class="category-item hover:bg-red-100 text-red mr-2 md:mr-0 my-2 p-2 cursor-pointer rounded-2 whitespace-nowrap"
             :class="{ active: selectedCategoryId === category.id }"
             @click="selectedCategoryId = category.id"
           >
@@ -159,17 +191,62 @@ onMounted(() => {
           </div>
         </div>
         <h3>主題篩選</h3>
-        <el-checkbox-group v-model="selectedTheme" @change="filterProducts">
+        <el-checkbox-group
+          v-model="selectedTheme"
+          @change="filterProducts"
+          class="flex md:flex-col"
+        >
           <el-checkbox
             label="新品報到"
             value="is_newest"
-            class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 m-0 md:w-full md:mb-2"
+            class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 md:mb-2"
           >
           </el-checkbox>
-          <el-checkbox label="熱銷排行" value="is_hottest"  class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 m-0 md:w-full"> </el-checkbox>
+          <el-checkbox
+            label="熱銷排行"
+            value="is_hottest"
+            class="p-2 rounded-2 hover:bg-red-100 transition-all duration-300 md:mb-2"
+          >
+          </el-checkbox>
         </el-checkbox-group>
       </div>
       <div class="col-span-3">
+        <!-- 當沒有產品時顯示提示 -->
+        <div>
+          <!-- 有搜尋關鍵字時 -->
+          <template v-if="route.query.search">
+            <div class="flex flex-col">
+              <span class="text-primary font-500 text-7"
+                >關鍵字搜尋結果：{{ route.query.search }}</span
+              >
+              <span class="mt-6 mb-2" v-if="filteredProducts.length !== 0"
+                >共{{ filteredProducts.length }}項「{{
+                  route.query.search
+                }}」商品</span
+              >
+              <div
+                v-if="filteredProducts.length === 0"
+                class="text-center py-8"
+              >
+                <p class="text-gray-500 text-6">查無相關商品</p>
+              </div>
+            </div>
+          </template>
+          <!-- 無搜尋關鍵字但有分類或主題篩選時 -->
+          <template
+            v-else-if="selectedCategoryId !== 'all' || selectedTheme.length > 0"
+          >
+            <div v-if="filteredProducts.length === 0" class="text-center py-8">
+              <p class="text-gray-500">該分類/主題下暫無產品</p>
+            </div>
+          </template>
+          <!-- 無任何篩選時 -->
+          <template v-else>
+            <div v-if="filteredProducts.length === 0" class="text-center py-8">
+              <p class="text-gray-500">暫無產品</p>
+            </div>
+          </template>
+        </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="product in filteredProducts"
@@ -258,10 +335,6 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <!-- 當沒有產品時顯示提示 -->
-        <div v-if="filteredProducts.length === 0" class="text-center py-8">
-          <p class="text-gray-500">該分類下暫無產品</p>
-        </div>
       </div>
     </div>
   </div>
@@ -295,6 +368,10 @@ onMounted(() => {
     --el-checkbox-checked-input-border-color: #f87171;
     --el-checkbox-checked-bg-color: #f87171;
     --el-checkbox-input-border-color-hover: #f87171;
+    margin-right: 8px;
+    @media (min-width: 768px) {
+      margin-right: 0;
+    }
   }
   .el-checkbox {
     .el-checkbox__label {
@@ -307,8 +384,14 @@ onMounted(() => {
       }
     }
     &.is-checked {
-    background: #fee2e2;
+      background: #fee2e2;
     }
+  }
+  .el-input {
+    --el-input-focus-border-color: #f87171;
+  }
+  .el-input__inner {
+    height: 40px;
   }
 }
 </style>
