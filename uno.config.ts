@@ -12,7 +12,13 @@ export default defineConfig({
       secondary: '#F7E7D7',
       snow: '#FFFAF5',
       dark: '#1B170E',
-      primary_dark: '#CFB17D'
+      primary_dark: '#CFB17D',
+      secondary_dark: '#423a2f',
+      blue: {
+        light: '#44AAE9',
+        dark: '#3093d0'
+      },
+      alert: '#E04C10'
     },
   }
 })

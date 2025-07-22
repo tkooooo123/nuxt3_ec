@@ -123,24 +123,24 @@ onMounted(() => {
     <el-container>
         <div class="w-full">
             <div class="px-8 py-6 ">
-                <h1>分類管理</h1>
+                <h1 class="text-8">分類管理</h1>
                 <div class="flex justify-end">
-                    <button class="bg-blue rounded-2 h-10 px-4 text-white font-600 cursor-pointer" @click="() => {
+                    <button class="h-10 bg-blue-light hover:bg-blue-dark text-white px-4 rounded-2 border-0 cursor-pointer transition-all duration-200" @click="() => {
                         createDialogVisible = true
                         type = 'create'
-                    }">新增</button>
+                    }">新增分類</button>
                 </div>
                 <el-table class="mt-8" :data="categoryList"
                     :headerCellStyle="{ background: '#60A5FA', color: 'white' }">
                     <el-table-column label="No" width="60"></el-table-column>
                     <el-table-column label="名稱" prop="name" width="160"></el-table-column>
                     <el-table-column label="描述" prop="description"></el-table-column>
-                    <el-table-column label="動作">
+                    <el-table-column label="動作" width="170">
                         <template #default="scope">
                             <div class="flex">
-                                <button class="bg-yellow h-10 px-4 rounded-2 font-600  cursor-pointer"
+                                <button class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
                                     @click="handleEdit(scope.row)">編輯</button>
-                                <button class="bg-red h-10 px-4 rounded-2 ml-2 text-white font-600  cursor-pointer"
+                                <button class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
                                     @click="() => {
                                         deleteDialogVisible = true
                                         selectToDelete = scope.row

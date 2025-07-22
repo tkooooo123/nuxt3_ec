@@ -85,7 +85,7 @@ const handleLogin = async () => {
     }
 
     if (data.data.role === 'admin') {
-      await navigateTo('/admin')
+      await navigateTo('/admin/products')
     } else {
       await navigateTo('/')
     }

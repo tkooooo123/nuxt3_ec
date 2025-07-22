@@ -434,391 +434,398 @@ const deleteProduct = async () => {
 
 <template>
   <el-container>
-    <div class="p-6 w-full">
-      <h1>Test</h1>
-      <div class="flex justify-end">
-        <button
-          class="h-10 px-4 rounded-2 border-0 cursor-pointer"
-          @click="
-            () => {
-              resetForm()
-              productDialogVisible = true
-              type = 'create'
-            }
-          "
-        >
-          新增
-        </button>
-      </div>
-      <el-table :data="productList" class="mt-6">
-        <el-table-column label="圖片">
-          <template #default="scope">
-            <img
-              :src="scope.row.image"
-              alt="商品圖片"
-              class="w-20 h-20 object-cover"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column label="名稱" prop="name"></el-table-column>
-        <el-table-column label="原價" prop="origin_price"></el-table-column>
-        <el-table-column label="售價" prop="price"></el-table-column>
-        <el-table-column label="數量" prop="quantity"></el-table-column>
-        <el-table-column label="狀態">
-          <template #default="scope">
-            <div class="flex flex-col gap-1">
-              <el-tag v-if="scope.row.is_hottest" type="danger" size="small">最熱門</el-tag>
-              <el-tag v-if="scope.row.is_newest" type="success" size="small">最新</el-tag>
-              <el-tag v-if="scope.row.isEnabled" type="primary" size="small">啟用</el-tag>
-              <el-tag v-else type="info" size="small">停用</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="scope">
-            <div class="flex">
-              <button
-                class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
-                @click="editProduct(scope.row)"
-              >
-                編輯
-              </button>
-              <button
-                class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2"
-                @click="
-                  () => {
-                    deleteDialogVisible = true
-                    selectToDelete = scope.row
-                  }
-                "
-              >
-                刪除
-              </button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-dialog
-        :title="`${type === 'edit' ? '編輯' : '新增'}`"
-        v-model="productDialogVisible"
-        width="700"
-        :modal="false"
-      >
-        <div>
-          <el-form ref="formRef" :model="ruleForm" :rules="rules">
-            <div class="grid md:grid-cols-2 gap-4">
-              <el-form-item
-                label="品名"
-                prop="name"
-                class="col-span-2 flex flex-col items-start"
-              >
-                <el-input v-model="ruleForm.name"></el-input>
-              </el-form-item>
-              <el-form-item
-                label="主要圖片"
-                prop="image"
-                class="flex flex-col items-start"
-              >
-                <el-upload
-                  v-loading="loading"
-                  v-if="ruleForm.image === ''"
-                  class="w-full"
-                  drag
-                  multiple
-                  :before-upload="checkFileType"
-                  action="#"
+    <div class="w-full">
+      <div class="p-6">
+        <h1 class="text-8">產品管理</h1>
+        <div class="flex justify-end">
+          <button
+            class="h-10 bg-blue-light hover:bg-blue-dark text-white px-4 rounded-2 border-0 cursor-pointer transition-all duration-200"
+            @click="
+              () => {
+                resetForm()
+                productDialogVisible = true
+                type = 'create'
+              }
+            "
+          >
+            新增產品
+          </button>
+        </div>
+        <el-table :data="productList" class="mt-6">
+          <el-table-column label="圖片" width="105">
+            <template #default="scope">
+              <img
+                :src="scope.row.image"
+                alt="商品圖片"
+                class="w-20 h-20 object-cover"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column label="名稱" prop="name"></el-table-column>
+          <el-table-column
+            label="原價"
+            prop="origin_price"
+            width="80"
+          ></el-table-column>
+          <el-table-column
+            label="售價"
+            prop="price"
+            width="80"
+          ></el-table-column>
+          <el-table-column
+            label="數量"
+            prop="quantity"
+            width="60"
+          ></el-table-column>
+          <el-table-column label="狀態">
+            <template #default="scope">
+              <div class="flex flex-col gap-1">
+                <el-tag v-if="scope.row.is_hottest" type="danger" size="small"
+                  >最熱門</el-tag
                 >
-                  <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                  <div class="el-upload__text">
-                    將圖片拖曳到此處，<em>或點擊以上傳</em>
+                <el-tag v-if="scope.row.is_newest" type="success" size="small"
+                  >最新</el-tag
+                >
+                <el-tag v-if="scope.row.isEnabled" type="primary" size="small"
+                  >啟用</el-tag
+                >
+                <el-tag v-else type="info" size="small">停用</el-tag>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="170">
+            <template #default="scope">
+              <div class="flex">
+                <button
+                  class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
+                  @click="editProduct(scope.row)"
+                >
+                  編輯
+                </button>
+                <button
+                  class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
+                  @click="
+                    () => {
+                      deleteDialogVisible = true
+                      selectToDelete = scope.row
+                    }
+                  "
+                >
+                  刪除
+                </button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-dialog
+          :title="`${type === 'edit' ? '編輯' : '新增'}產品`"
+          v-model="productDialogVisible"
+          width="700"
+          :modal="false"
+        >
+          <div>
+            <el-form ref="formRef" :model="ruleForm" :rules="rules">
+              <div class="grid md:grid-cols-2 gap-4">
+                <el-form-item
+                  label="品名"
+                  prop="name"
+                  class="col-span-2 flex flex-col items-start"
+                >
+                  <el-input v-model="ruleForm.name"></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="主要圖片"
+                  prop="image"
+                  class="flex flex-col items-start"
+                >
+                  <el-upload
+                    v-loading="loading"
+                    v-if="ruleForm.image === ''"
+                    class="w-full"
+                    drag
+                    multiple
+                    :before-upload="checkFileType"
+                    action="#"
+                  >
+                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                    <div class="el-upload__text">
+                      將圖片拖曳到此處，<em>或點擊以上傳</em>
+                    </div>
+                  </el-upload>
+                  <div v-else v-loading="loading" class="flex flex-col">
+                    <img
+                      class="max-w-full block"
+                      :src="ruleForm.image"
+                      alt="產品圖片"
+                    />
+                    <div class="flex justify-end">
+                      <el-upload
+                        multiple
+                        :before-upload="checkFileType"
+                        action="#"
+                        class="mt-4"
+                      >
+                        <button
+                          @click.prevent=""
+                          class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
+                        >
+                          選擇其他圖片
+                        </button>
+                      </el-upload>
+                    </div>
                   </div>
-                </el-upload>
-                <div v-else v-loading="loading" class="flex flex-col">
-                  <img
-                    class="max-w-full block"
-                    :src="ruleForm.image"
-                    alt="產品圖片"
-                  />
-                  <div class="flex justify-end">
-                    <el-upload
-                      multiple
-                      :before-upload="checkFileType"
-                      action="#"
-                      class="mt-4"
+                </el-form-item>
+                <el-form-item
+                  label="其他圖片"
+                  prop="imagesUrl"
+                  class="flex flex-col items-start"
+                >
+                  <div class="w-full">
+                    <!-- 已上傳的圖片列表 -->
+                    <div
+                      class="flex flex-col w-full"
+                      v-if="
+                        ruleForm.imagesUrl.length > 0 && !multipleUploadLoading
+                      "
+                      v-loading="multipleUploadLoading"
                     >
+                      <div
+                        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                      >
+                        <div
+                          v-for="(imageUrl, index) in ruleForm.imagesUrl"
+                          :key="index"
+                          class="relative group"
+                        >
+                          <img
+                            :src="imageUrl"
+                            :alt="`產品圖片 ${index + 1}`"
+                            class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          />
+                          <div
+                            class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center"
+                          >
+                            <el-button
+                              type="danger"
+                              size="small"
+                              circle
+                              class="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              @click="removeImage(index)"
+                            >
+                              <el-icon><delete /></el-icon>
+                            </el-button>
+                          </div>
+                        </div>
+                      </div>
                       <button
                         @click.prevent=""
                         class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
                       >
-                        選擇其他圖片
+                        上傳更多圖片
                       </button>
+                    </div>
+
+                    <!-- 多張圖片上傳區域 -->
+                    <el-upload
+                      v-else
+                      v-loading="multipleUploadLoading"
+                      class="w-full"
+                      drag
+                      multiple
+                      :before-upload="
+                        () => {
+                          multipleUploadLoading = true
+                          return false
+                        }
+                      "
+                      :on-change="checkMultipleFileType"
+                      action="#"
+                      :show-file-list="false"
+                    >
+                      <el-icon class="el-icon--upload"
+                        ><upload-filled
+                      /></el-icon>
+                      <div class="el-upload__text">
+                        將多張圖片拖曳到此處，<em>或點擊以上傳</em>
+                      </div>
+                      <template #tip>
+                        <div class="el-upload__tip">
+                          支援 JPG/PNG 格式，可同時選擇多張圖片
+                        </div>
+                      </template>
                     </el-upload>
                   </div>
-                </div>
-              </el-form-item>
-              <el-form-item
-                label="其他圖片"
-                prop="imagesUrl"
-                class="flex flex-col items-start"
-              >
-                <div class="w-full">
-                  <!-- 已上傳的圖片列表 -->
-                  <div
-                    class="flex flex-col w-full"
-                    v-if="
-                      ruleForm.imagesUrl.length > 0 && !multipleUploadLoading
-                    "
-                    v-loading="multipleUploadLoading"
+                </el-form-item>
+                <el-form-item
+                  label="分類"
+                  prop="category"
+                  class="flex flex-col items-start"
+                >
+                  <el-select
+                    v-model="ruleForm.category"
+                    placeholder="請選擇分類"
                   >
-                    <div
-                      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                    >
-                      <div
-                        v-for="(imageUrl, index) in ruleForm.imagesUrl"
-                        :key="index"
-                        class="relative group"
-                      >
-                        <img
-                          :src="imageUrl"
-                          :alt="`產品圖片 ${index + 1}`"
-                          class="w-full h-32 object-cover rounded-lg border border-gray-200"
-                        />
-                        <div
-                          class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center"
-                        >
-                          <el-button
-                            type="danger"
-                            size="small"
-                            circle
-                            class="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                            @click="removeImage(index)"
-                          >
-                            <el-icon><delete /></el-icon>
-                          </el-button>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      @click.prevent=""
-                      class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
-                    >
-                      上傳更多圖片
-                    </button>
-                  </div>
-
-                  <!-- 多張圖片上傳區域 -->
-                  <el-upload
-                    v-else
-                    v-loading="multipleUploadLoading"
-                    class="w-full"
-                    drag
-                    multiple
-                    :before-upload="
-                      () => {
-                        multipleUploadLoading = true
-                        return false
-                      }
-                    "
-                    :on-change="checkMultipleFileType"
-                    action="#"
-                    :show-file-list="false"
-                  >
-                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                    <div class="el-upload__text">
-                      將多張圖片拖曳到此處，<em>或點擊以上傳</em>
-                    </div>
-                    <template #tip>
-                      <div class="el-upload__tip">
-                        支援 JPG/PNG 格式，可同時選擇多張圖片
-                      </div>
-                    </template>
-                  </el-upload>
-                </div>
-              </el-form-item>
-              <el-form-item
-                label="分類"
-                prop="category"
-                class="flex flex-col items-start"
-              >
-                <el-select v-model="ruleForm.category" placeholder="請選擇分類">
-                  <el-option
-                    v-for="category in categories"
-                    :key="category.id"
-                    :label="category.name"
-                    :value="category.id"
+                    <el-option
+                      v-for="category in categories"
+                      :key="category.id"
+                      :label="category.name"
+                      :value="category.id"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
+                  label="單位"
+                  prop="unit"
+                  class="flex flex-col items-start"
+                >
+                  <el-input v-model="ruleForm.unit"></el-input>
+                </el-form-item>
+                <el-form-item label="原價" class="flex flex-col items-start">
+                  <el-input-number
+                    v-model="ruleForm.origin_price"
+                    :min="0"
+                    :max="100000"
+                    :step="1"
                   />
-                </el-select>
-              </el-form-item>
-              <el-form-item
-                label="單位"
-                prop="unit"
-                class="flex flex-col items-start"
+                </el-form-item>
+                <el-form-item
+                  label="售價"
+                  prop="price"
+                  class="flex flex-col items-start"
+                >
+                  <el-input-number
+                    v-model="ruleForm.price"
+                    :min="0"
+                    :max="100000"
+                    :step="1"
+                  />
+                </el-form-item>
+                <el-form-item
+                  label="數量"
+                  prop="quantity"
+                  class="flex flex-col items-start"
+                >
+                  <el-input-number
+                    v-model="ruleForm.quantity"
+                    :min="1"
+                    :max="10000"
+                    :step="1"
+                  />
+                </el-form-item>
+                <el-form-item label="最熱門" class="flex flex-col items-start">
+                  <el-switch v-model="ruleForm.is_hottest" />
+                </el-form-item>
+                <el-form-item label="最新" class="flex flex-col items-start">
+                  <el-switch v-model="ruleForm.is_newest" />
+                </el-form-item>
+                <el-form-item label="啟用" class="flex flex-col items-start">
+                  <el-switch v-model="ruleForm.isEnabled" />
+                </el-form-item>
+                <el-form-item
+                  label="描述"
+                  prop="description"
+                  class="flex flex-col items-start col-span-2"
+                >
+                  <el-input
+                    type="textarea"
+                    :rows="5"
+                    placeholder="請輸入描述"
+                    class="textarea"
+                    v-model="ruleForm.description"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="內容"
+                  prop="content"
+                  class="flex flex-col items-start col-span-2"
+                >
+                  <el-input
+                    type="textarea"
+                    :rows="5"
+                    placeholder="請輸入內容"
+                    class="textarea"
+                    v-model="ruleForm.content"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="注意事項"
+                  class="flex flex-col items-start col-span-2"
+                >
+                  <el-input
+                    type="textarea"
+                    :rows="3"
+                    placeholder="請輸入注意事項"
+                    class="textarea"
+                    v-model="ruleForm.notice"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="材質" class="flex flex-col items-start">
+                  <el-input
+                    v-model="ruleForm.material"
+                    placeholder="請輸入材質"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="尺寸" class="flex flex-col items-start">
+                  <el-input
+                    v-model="ruleForm.size"
+                    placeholder="請輸入尺寸"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="風格" class="flex flex-col items-start">
+                  <el-input
+                    v-model="ruleForm.style"
+                    placeholder="請輸入風格"
+                  ></el-input>
+                </el-form-item>
+              </div>
+            </el-form>
+            <div class="flex justify-end mt-4">
+              <button
+                class="h-10 px-4 cursor-pointer"
+                @click="productDialogVisible = false"
               >
-                <el-input v-model="ruleForm.unit"></el-input>
-              </el-form-item>
-              <el-form-item
-                label="原價"
-                class="flex flex-col items-start"
+                取消
+              </button>
+              <button
+                class="h-10 px-4 ml-2 cursor-pointer"
+                @click="handleSubmit"
               >
-                <el-input-number
-                  v-model="ruleForm.origin_price"
-                  :min="0"
-                  :max="100000"
-                  :step="1"
-                />
-              </el-form-item>
-              <el-form-item
-                label="售價"
-                prop="price"
-                class="flex flex-col items-start"
-              >
-                <el-input-number
-                  v-model="ruleForm.price"
-                  :min="0"
-                  :max="100000"
-                  :step="1"
-                />
-              </el-form-item>
-              <el-form-item
-                label="數量"
-                prop="quantity"
-                class="flex flex-col items-start"
-              >
-                <el-input-number
-                  v-model="ruleForm.quantity"
-                  :min="1"
-                  :max="10000"
-                  :step="1"
-                />
-              </el-form-item>
-              <el-form-item
-                label="最熱門"
-                class="flex flex-col items-start"
-              >
-                <el-switch v-model="ruleForm.is_hottest" />
-              </el-form-item>
-              <el-form-item
-                label="最新"
-                class="flex flex-col items-start"
-              >
-                <el-switch v-model="ruleForm.is_newest" />
-              </el-form-item>
-              <el-form-item
-                label="啟用"
-                class="flex flex-col items-start"
-              >
-                <el-switch v-model="ruleForm.isEnabled" />
-              </el-form-item>
-              <el-form-item
-                label="描述"
-                prop="description"
-                class="flex flex-col items-start col-span-2"
-              >
-                <el-input
-                  type="textarea"
-                  :rows="5"
-                  placeholder="請輸入描述"
-                  class="textarea"
-                  v-model="ruleForm.description"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="內容"
-                prop="content"
-                class="flex flex-col items-start col-span-2"
-              >
-                <el-input
-                  type="textarea"
-                  :rows="5"
-                  placeholder="請輸入內容"
-                  class="textarea"
-                  v-model="ruleForm.content"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="注意事項"
-                class="flex flex-col items-start col-span-2"
-              >
-                <el-input
-                  type="textarea"
-                  :rows="3"
-                  placeholder="請輸入注意事項"
-                  class="textarea"
-                  v-model="ruleForm.notice"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="材質"
-                class="flex flex-col items-start"
-              >
-                <el-input
-                  v-model="ruleForm.material"
-                  placeholder="請輸入材質"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="尺寸"
-                class="flex flex-col items-start"
-              >
-                <el-input
-                  v-model="ruleForm.size"
-                  placeholder="請輸入尺寸"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="風格"
-                class="flex flex-col items-start"
-              >
-                <el-input
-                  v-model="ruleForm.style"
-                  placeholder="請輸入風格"
-                ></el-input>
-              </el-form-item>
+                確定
+              </button>
             </div>
-          </el-form>
-          <div class="flex justify-end mt-4">
-            <button
-              class="h-10 px-4 cursor-pointer"
-              @click="productDialogVisible = false"
-            >
-              取消
-            </button>
-            <button class="h-10 px-4 ml-2 cursor-pointer" @click="handleSubmit">
-              確定
-            </button>
           </div>
-        </div>
-      </el-dialog>
+        </el-dialog>
 
-      <!-- 刪除確認對話框 -->
-      <el-dialog
-        title="確認刪除"
-        v-model="deleteDialogVisible"
-        width="400"
-        :modal="false"
-      >
-        <div>
-          <p>確定要刪除產品「{{ selectToDelete?.name }}」嗎？</p>
-          <p class="text-red-500 text-sm mt-2">此操作無法復原</p>
-        </div>
-        <template #footer>
-          <div class="flex justify-end">
-            <button
-              class="h-10 px-4 cursor-pointer"
-              @click="deleteDialogVisible = false"
-            >
-              取消
-            </button>
-            <button
-              class="h-10 px-4 ml-2 bg-red text-white font-600 cursor-pointer"
-              @click="deleteProduct"
-            >
-              確定刪除
-            </button>
+        <!-- 刪除確認對話框 -->
+        <el-dialog
+          title="確認刪除"
+          v-model="deleteDialogVisible"
+          width="400"
+          :modal="false"
+        >
+          <div>
+            <p>確定要刪除產品「{{ selectToDelete?.name }}」嗎？</p>
+            <p class="text-red-500 text-sm mt-2">此操作無法復原</p>
           </div>
-        </template>
-      </el-dialog>
+          <template #footer>
+            <div class="flex justify-end">
+              <button
+                class="h-10 px-4 cursor-pointer"
+                @click="deleteDialogVisible = false"
+              >
+                取消
+              </button>
+              <button
+                class="h-10 px-4 ml-2 bg-red text-white font-600 cursor-pointer"
+                @click="deleteProduct"
+              >
+                確定刪除
+              </button>
+            </div>
+          </template>
+        </el-dialog>
+      </div>
     </div>
   </el-container>
 </template>
