@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@nuxtjs/ngrok": "^3.0.1",
+    "@nuxtjs/sitemap": "^7.4.3",
     "@pinia/nuxt": "^0.11.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",

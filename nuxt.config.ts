@@ -4,7 +4,13 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
-   modules: ['@unocss/nuxt', '@element-plus/nuxt', '@nuxtjs/ngrok', '@pinia/nuxt'],
+   modules: [
+     '@unocss/nuxt',
+     '@element-plus/nuxt',
+     '@nuxtjs/ngrok',
+     '@pinia/nuxt',
+     '@nuxtjs/sitemap'
+   ],
    app: {
     head: {
       htmlAttrs: {
@@ -50,6 +56,17 @@ export default defineNuxtConfig({
   ngrok: {
     authtoken: process.env.NGROK_AUTHTOKEN,
     production: false,
+  },
+  site: {
+    url: process.env.SITE_URL
+  },
+  sitemap: {
+   
+    defaults: {
+      changefreq: 'daily',
+      priority: 1.0
+    },
+      exclude: ['/admin/**']
   },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true }
