@@ -5,7 +5,7 @@
       <AdminAsideMenu></AdminAsideMenu>
     </el-menu>
 
-    <NuxtPage class="bg-white m-4 rounded-3"/>
+    <NuxtPage/>
   </el-container>
     </div>
  

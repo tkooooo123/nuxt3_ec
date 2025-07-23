@@ -433,7 +433,7 @@ const deleteProduct = async () => {
 </script>
 
 <template>
-  <el-container>
+  <el-container class="bg-white m-4 rounded-3">
     <div class="w-full">
       <div class="p-6">
         <h1 class="text-8">產品管理</h1>

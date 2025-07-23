@@ -121,7 +121,7 @@ onMounted(() => {
 
 <template>
     <el-container>
-        <div class="w-full">
+        <div class="w-full bg-white m-4 rounded-3">
             <div class="px-8 py-6 ">
                 <h1 class="text-8">分類管理</h1>
                 <div class="flex justify-end">

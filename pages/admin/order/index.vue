@@ -19,18 +19,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-container>
+  <el-container class="bg-white m-4 rounded-3">
     <div class="w-full">
       <div class="p-6">
         <h1 class="text-8">訂單管理</h1>
         <el-table :data="ordersList" class="mt-6">
-          <el-table-column label="No">
+          <el-table-column label="No" width="60">
             <template #default="scope">
               <span>{{ scope.$index + 1 }}</span>
             </template>
           </el-table-column>
           <el-table-column label="訂單編號" prop="id" />
-
+          
+          <el-table-column>
+            <template #header>
+              <div class="flex"><span>訂購人/</span><small>Email</small></div>
+            </template>
+            <template #default="scope">
+              <div
+                
+                class="flex flex-col"
+              >
+                <span class="font-600">{{ scope.row.shipping.name }}</span>
+                <span>{{ scope.row.shipping.email }}</span>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column width="120">
             <template #header>
               <div class="flex"><span>訂購產品/</span><small>數量</small></div>
@@ -46,17 +60,28 @@ onMounted(() => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="總金額" prop="total">
+          <el-table-column label="總金額" prop="total" width="100">
             <template #default="scope">
               <span>$ {{ scope.row.total }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column label="狀態" prop="status" />
+          <el-table-column label="狀態">
+            <template #default="scope">
+              <span v-if="scope.row.status === 'pending' && scope.row.payment === 'credit_card'">待付款</span>
+              <span v-else-if="scope.row.status === 'paid'">已付款</span>
+              <span v-else-if="scope.row.status === 'shipping'">配送中</span>
+              <span v-else-if="scope.row.status === 'shipped'">已送達</span>
+              <span v-else-if="scope.row.status === 'completed'">已送達</span>
+              <span v-else-if="scope.row.status === 'cancelled'">已取消</span>
+              <span v-else>處理中</span>
+            </template>
+          </el-table-column>
           <el-table-column label="功能" width="160">
             <template #default="scope">
               <div class="flex">
                 <button
+                @click="navigateTo(`/admin/order/${scope.row.id}`)"
                   class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
                 >
                   編輯
