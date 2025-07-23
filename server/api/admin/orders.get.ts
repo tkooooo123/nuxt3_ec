@@ -1,7 +1,8 @@
 import Order from '~/server/models/Order'
-
+import { connectDB } from '~/server/utils/mongoose'
 export default defineEventHandler(async (event) => {
   try {
+    await connectDB()
     // 取得所有訂單，並帶出 user 詳細資料
     const orders = await Order.find().populate('user').populate('items.product')
     

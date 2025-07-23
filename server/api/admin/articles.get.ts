@@ -1,12 +1,13 @@
 import Article from '~/server/models/Article'
-import { H3Event } from "h3";
+import { H3Event } from 'h3'
+import { connectDB } from '~/server/utils/mongoose'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
+    await connectDB()
     const articles = await Article.find().sort({ date: -1 }) // 依公告日期倒序排列
 
-     const data = articles.map((item: any) => ({
-       
+    const data = articles.map((item: any) => ({
       id: item._id.toString(),
       title: item.title,
       author: item.author,
@@ -15,21 +16,21 @@ export default defineEventHandler(async (event: H3Event) => {
       is_public: item.is_public,
       date: item.date,
       content: item.content
-    }));
+    }))
 
-     return event.respondWith(
+    return event.respondWith(
       new Response(
         JSON.stringify({
-          message: "取得成功!",
-          data,
+          message: '取得成功!',
+          data
         }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
-    );
+    )
   } catch (error: any) {
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '無法取得文章',
+      statusMessage: error.message || '無法取得文章'
     })
   }
 })

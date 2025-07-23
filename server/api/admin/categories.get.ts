@@ -1,8 +1,10 @@
 import Category from "@/server/models/Category";
 import { H3Event } from "h3";
+import { connectDB } from '~/server/utils/mongoose'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
+    await connectDB()
     const categories = await Category.find().select("name description"); // 僅選取欄位
 
     // 將 _id 轉為 id，並回傳乾淨資料
