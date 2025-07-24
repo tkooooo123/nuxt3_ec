@@ -10,13 +10,19 @@ export default defineEventHandler(async (event) => {
     // 取得前端傳來的收件人資料
     const body = await readBody(event)
     const { shipping, payment } = body
-    if (!shipping || !shipping.name || !shipping.phone || !shipping.address || !shipping.email) {
+    if (
+      !shipping ||
+      !shipping.name ||
+      !shipping.phone ||
+      !shipping.address ||
+      !shipping.email
+    ) {
       throw createError({
         statusCode: 400,
         statusMessage: '收件人資訊不完整'
       })
     }
-    if(!payment) {
+    if (!payment) {
       throw createError({
         statusCode: 400,
         statusMessage: '未選擇付款方式'
@@ -37,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     // 檢查商品狀態與庫存，並計算總金額
     let total = 0
-    const orderItems = cart.items.map(item => {
+    const orderItems = cart.items.map((item) => {
       const product = item.product as any
       if (!product.isEnabled) {
         throw createError({
@@ -66,8 +72,17 @@ export default defineEventHandler(async (event) => {
       total,
       shipping,
       payment
-      
     })
+
+    // 扣除商品庫存
+    const Product = (await import('~/server/models/Product')).default
+    for (const item of orderItems) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { quantity: -item.quantity } },
+        { new: true }
+      )
+    }
 
     // 清空購物車
     cart.items = []
@@ -89,4 +104,4 @@ export default defineEventHandler(async (event) => {
       statusMessage: '建立訂單失敗，請稍後再試'
     })
   }
-}) 
+})
