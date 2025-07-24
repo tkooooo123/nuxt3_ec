@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
         email: order.user.email
       },
       items: order.items.map((item: any) => ({
+        id: item.product._id,
         name: item.product.name,
         image: item.product.image,
         quantity: item.quantity,

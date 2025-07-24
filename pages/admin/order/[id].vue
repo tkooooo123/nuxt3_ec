@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormInstance, FormRules } from 'element-plus'
+
 definePageMeta({
   layout: 'admin'
 })
@@ -11,13 +13,14 @@ interface Order {
     email: string
   }
   items: Array<{
+    id: string
     name: string
     image: string
     quantity: number
     price: number
     origin_price: number
     stock: number
-    
+    origin_quantity: number
   }>
   total: number
   shipping: {
@@ -41,18 +44,78 @@ interface Order {
 const route = useRoute()
 const order = ref<Order[]>([])
 
+const formRef = ref<FormInstance>()
+const ruleForm = ref({
+  email: '',
+  name: '',
+  phone: '',
+  address: '',
+  message: ''
+})
 
+const rules = ref<FormRules>({
+  email: [
+    { required: true, message: '請輸入Email', trigger: 'blur' },
+    {
+      type: 'email',
+      message: '請輸入正確的 Email 格式',
+      trigger: ['blur', 'change']
+    }
+  ],
+  name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
+  phone: [{ required: true, message: '請輸入電話', trigger: 'blur' }],
+  address: [{ required: true, message: '請輸入地址', trigger: 'blur' }],
+  payment: [{ required: true, message: '請選擇付款方式', trigger: 'blur' }]
+})
 
+const recalculateTotal = () => {
+  if (!order.value[0]) return
+  order.value[0].total = order.value[0].items.reduce(
+    (sum, item) => sum + item.quantity * item.price,
+    0
+  )
+}
 
 const getOrder = async () => {
   try {
     const { data } = await $fetch<any>(`/api/admin/order/${route.params.id}`)
     order.value = [data]
+    order.value[0]?.items.forEach((item) => {
+      item.origin_quantity = item.quantity
+      if (!item.id && item._id) item.id = item._id // 補上 id
+    })
+    ruleForm.value = { ...data.shipping }
+    recalculateTotal()
   } catch (error) {
     console.error('取得訂單失敗', error)
   }
 }
-
+const editOrder = async () => {
+  const data = {
+    shipping: ruleForm.value,
+    status: order.value[0].status,
+    items: order.value[0].items,
+    total: order.value[0].total
+  }
+  console.log(data)
+  try {
+    const res = await $fetch(`/api/admin/order/${route.params.id}`, {
+      method: 'PUT',
+      body: data
+    })
+    console.log(res)
+    // 你可以根據 res 做提示或跳轉
+  } catch (error) {
+    console.error('更新訂單失敗', error)
+  }
+}
+const handleSave = async () => {
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      editOrder()
+    }
+  })
+}
 onMounted(() => {
   getOrder()
 })
@@ -96,19 +159,14 @@ onMounted(() => {
           </el-table-column>
           <el-table-column label="處理狀態">
             <template #default="scope">
-              <span
-                v-if="
-                  scope.row.status === 'pending' &&
-                  scope.row.payment === 'credit_card'
-                "
-                >待付款</span
-              >
-              <span v-else-if="scope.row.status === 'paid'">已付款</span>
-              <span v-else-if="scope.row.status === 'shipping'">配送中</span>
-              <span v-else-if="scope.row.status === 'shipped'">已送達</span>
-              <span v-else-if="scope.row.status === 'completed'">已送達</span>
-              <span v-else-if="scope.row.status === 'cancelled'">已取消</span>
-              <span v-else>處理中</span>
+              <el-select v-model="scope.row.status" placeholder="請選擇狀態">
+                <el-option label="待付款" value="pending" />
+                <el-option label="已付款" value="paid" />
+                <el-option label="配送中" value="shipping" />
+                <el-option label="已送達" value="shipped" />
+                <el-option label="已完成" value="completed" />
+                <el-option label="已取消" value="cancelled" />
+              </el-select>
             </template>
           </el-table-column>
           <el-table-column label="付款方式">
@@ -120,24 +178,35 @@ onMounted(() => {
           </el-table-column>
         </el-table>
       </div>
-    
-       
-     
+
       <div class="flex flex-col xl:flex-row gap-5 mt-5">
         <div class="flex-1 p-6 bg-white rounded-3">
           <span class="text-5 font-600">訂購人資料</span>
-          <el-form class="mt-6">
+          <el-form class="mt-6" ref="formRef" :rules="rules" :model="ruleForm">
             <el-form-item label="姓名">
-              <el-input placeholder="請輸入姓名"></el-input>
+              <el-input
+                placeholder="請輸入姓名"
+                v-model="ruleForm.name"
+              ></el-input>
             </el-form-item>
             <el-form-item label="電話">
-              <el-input placeholder="請輸入電話"></el-input>
+              <el-input
+                placeholder="請輸入電話"
+                v-model="ruleForm.phone"
+              ></el-input>
             </el-form-item>
             <el-form-item label="信箱">
-              <el-input type="email" placeholder="請輸入Email"></el-input>
+              <el-input
+                type="email"
+                placeholder="請輸入Email"
+                v-model="ruleForm.email"
+              ></el-input>
             </el-form-item>
             <el-form-item label="地址">
-              <el-input placeholder="請輸入地址"></el-input>
+              <el-input
+                placeholder="請輸入地址"
+                v-model="ruleForm.address"
+              ></el-input>
             </el-form-item>
             <el-form-item label="留言">
               <el-input
@@ -145,77 +214,97 @@ onMounted(() => {
                 type="textarea"
                 :rows="4"
                 placeholder="請輸入留言"
+                v-model="ruleForm.message"
               ></el-input>
             </el-form-item>
           </el-form>
         </div>
-        <div class="xl:w-60%  flex flex-col gap-2 bg-white p-6 rounded-3">
-        
+        <div class="xl:w-60% flex flex-col gap-2 bg-white p-6 rounded-3">
           <span class="text-5 font-600">訂購產品</span>
-          
-         
-       
-        <el-table :data="order[0]?.items">
+
+          <el-table :data="order[0]?.items">
             <el-table-column label="圖示" width="100">
               <template #default="scope">
-                <img class="w-20 rounded-3 object-cover block" :src="scope.row.image" :alt="scope.row.name">
+                <img
+                  class="w-20 rounded-3 object-cover block"
+                  :src="scope.row.image"
+                  :alt="scope.row.name"
+                />
               </template>
             </el-table-column>
             <el-table-column label="品名" prop="name"></el-table-column>
             <el-table-column label="單價">
               <template #default="scope">
-                <span><small class="line-through"> $ {{ scope.row.origin_price }}</small> $ {{ scope.row.price }}</span>
+                <span
+                  ><small class="line-through">
+                    $ {{ scope.row.origin_price }}</small
+                  >
+                  $ {{ scope.row.price }}</span
+                >
               </template>
             </el-table-column>
             <el-table-column label="數量/單位" width="150">
               <template #default="scope">
                 <div class="flex items-center">
-              <button
-                :disabled="scope.row.quantity === 1"
-             
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2.5"
-                  stroke="currentColor"
-                  class="size-4 align-middle"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 12h14"
-                  />
-                </svg>
-              </button>
-              <span
-                class="bg-white h-8 w-8 text-center flex items-center justify-center box-border border-t border-b border-l-0 border-r-0 border-solid border-primary"
-                >{{ scope.row.quantity }}</span
-              >
-              <button
-                :disabled="scope.row.quantity === scope.row.stock"
-              
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2.5"
-                  stroke="currentColor"
-                  class="size-4 align-middle"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
-                  />
-                </svg>
-              </button>
-              <span class="ml-1">/ {{ scope.row.unit }}</span>
-            </div>
+                  <button
+                    @click="
+                      () => {
+                        scope.row.quantity -= 1
+                        recalculateTotal()
+                      }
+                    "
+                    :disabled="scope.row.quantity === 1"
+                    class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2.5"
+                      stroke="currentColor"
+                      class="size-4 align-middle"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 12h14"
+                      />
+                    </svg>
+                  </button>
+                  <span
+                    class="bg-white h-8 w-8 text-center flex items-center justify-center box-border border-t border-b border-l-0 border-r-0 border-solid border-primary"
+                    >{{ scope.row.quantity }}</span
+                  >
+                  <button
+                    @click="
+                      () => {
+                        scope.row.quantity += 1
+                        recalculateTotal()
+                      }
+                    "
+                    :disabled="
+                      scope.row.quantity ===
+                      scope.row.stock + scope.row.origin_quantity
+                    "
+                    class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2.5"
+                      stroke="currentColor"
+                      class="size-4 align-middle"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15"
+                      />
+                    </svg>
+                  </button>
+                  <span class="ml-1">/ {{ scope.row.unit }}</span>
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="小計">
@@ -228,11 +317,12 @@ onMounted(() => {
             <span class="mr-8">總計</span>
             <span class="text-primary font-600"> $ {{ order[0]?.total }}</span>
           </div>
-      </div>
+        </div>
       </div>
       <div class="mt-5 p-6 bg-white rounded-3 flex">
         <button
           class="bg-primary text-white rounded-7.5 h-10 px-4 cursor-pointer"
+          @click="handleSave"
         >
           儲存變更
         </button>
@@ -256,7 +346,6 @@ onMounted(() => {
           返回訂單列表</NuxtLink
         >
       </div>
-      
     </div>
   </el-container>
 </template>
