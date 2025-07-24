@@ -26,7 +26,7 @@ const ruleForm = ref({
 })
 const rules = ref<FormRules>({
   email: [
-    { required: true, message: '請輸入帳號', trigger: 'blur' },
+    { required: true, message: '請輸入Email', trigger: 'blur' },
     {
       type: 'email',
       message: '請輸入正確的 Email 格式',
@@ -131,7 +131,7 @@ const postOrder = async () => {
               <button
                 :disabled="scope.row.quantity === 1"
                 @click="updateCartItemQuantity(scope.row.id, scope.row.quantity - 1)"
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +155,7 @@ const postOrder = async () => {
               <button
                 :disabled="scope.row.quantity === scope.row.stock"
                 @click="updateCartItemQuantity(scope.row.id, scope.row.quantity + 1)"
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -264,7 +264,7 @@ const postOrder = async () => {
               <button
                 :disabled="item.quantity === 1"
                 @click="updateCartItemQuantity(item.id, item.quantity - 1)"
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +288,7 @@ const postOrder = async () => {
               <button
                 :disabled="item.quantity === item.stock"
                 @click="updateCartItemQuantity(item.id, item.quantity + 1)"
-                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
