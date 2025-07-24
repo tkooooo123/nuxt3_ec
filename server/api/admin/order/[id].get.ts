@@ -39,7 +39,8 @@ export default defineEventHandler(async (event) => {
         quantity: item.quantity,
         price: item.price,
         origin_price: item.product.origin_price,
-        stock: item.product.quantity
+        stock: item.product.quantity,
+        unit: item.product.unit
       })),
       total: order.total,
       shipping: order.shipping,
