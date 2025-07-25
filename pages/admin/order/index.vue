@@ -7,11 +7,13 @@ definePageMeta({
   middleware: adminAuth
 })
 const token = useCookie('token')
+const loadingStore = useLoadingStore()
 const ordersList = ref<any[]>([])
 const deleteDialogVisible = ref<boolean>(false)
 const selectedOrderId = ref<string>('')
 
 const getOrders = async () => {
+  loadingStore.show()
   try {
     const res: any = await $fetch('/api/admin/orders', {
       headers: {
@@ -19,11 +21,17 @@ const getOrders = async () => {
       }
     })
     ordersList.value = res.data
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 const handleDelete = async () => {
+  loadingStore.show()
   try {
     const res: any = await $fetch(`/api/admin/order/${selectedOrderId.value}`, {
       method: 'DELETE',
@@ -32,12 +40,17 @@ const handleDelete = async () => {
       }
     })
 
-    toast.success('刪除成功')
+    toast.success(`${res.message}`)
 
     await getOrders()
     deleteDialogVisible.value = false
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 

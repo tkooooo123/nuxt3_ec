@@ -2,10 +2,11 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import { FetchError } from 'ofetch'
 import adminAuth from '~/middleware/adminAuth'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
-    layout: 'admin',
-    middleware: adminAuth
+  layout: 'admin',
+  middleware: adminAuth
 })
 interface category {
   id: string
@@ -18,6 +19,7 @@ interface CatrgoryRuleForm {
 }
 
 const token = useCookie('token')
+const loadingStore = useLoadingStore()
 const categoryList = ref<category[]>([])
 
 const createDialogVisible = ref<boolean>(false)
@@ -37,21 +39,31 @@ const rules: FormRules<CatrgoryRuleForm> = {
   description: [{ required: true, message: '請輸入分類描述', trigger: 'blur' }]
 }
 const getCategories = async () => {
+  loadingStore.show()
   try {
-    const { data } = await $fetch<{ data: category[] }>('/api/admin/categories', {
-      headers: {
+    const { data } = await $fetch<{ data: category[] }>(
+      '/api/admin/categories',
+      {
+        headers: {
           Authorization: `Bearer ${token.value}`
+        }
       }
-    })
+    )
     if (data) {
       categoryList.value = data
     }
-  } catch (error) {
-    console.error('取得分類失敗', error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
 const addCategory = async () => {
+  loadingStore.show()
   try {
     const data = await $fetch('/api/admin/category', {
       method: type.value === 'edit' ? 'PUT' : 'POST',
@@ -67,10 +79,39 @@ const addCategory = async () => {
       ruleform.description = ''
       getCategories()
     }
-  } catch (error) {
-    if (error instanceof FetchError) {
-    }
-    console.log(error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
+  }
+}
+
+const handleDelete = async () => {
+  loadingStore.show()
+  try {
+    const res = await $fetch(`/api/admin/category`, {
+      method: 'DELETE',
+      body: {
+        id: selectToDelete.value?.id
+      }
+    })
+
+    ElMessage.success(res.message || '刪除成功')
+
+    // 關閉 dialog 並重置選擇
+    await getCategories()
+    console.log(deleteDialogVisible.value)
+    deleteDialogVisible.value = false
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
@@ -89,27 +130,6 @@ const handleEdit = (item: category) => {
   ruleform.description = item.description
   selectedCategoryId.value = item.id
 }
-
-const handleDelete = async () => {
-  try {
-    const res = await $fetch(`/api/admin/category`, {
-      method: 'DELETE',
-      body: {
-        id: selectToDelete.value?.id
-      }
-    })
-
-    ElMessage.success(res.message || '刪除成功')
-
-    // 關閉 dialog 並重置選擇
-    await getCategories()
-    console.log(deleteDialogVisible.value)
-    deleteDialogVisible.value = false
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 onMounted(() => {
   getCategories()
 })
