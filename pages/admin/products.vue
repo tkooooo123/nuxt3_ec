@@ -33,7 +33,7 @@ interface category {
   name: string
   description: string
 }
-
+const token = useCookie('token')
 const productDialogVisible = ref<boolean>(false)
 const deleteDialogVisible = ref<boolean>(false)
 const selectToDelete = ref<product | null>(null)
@@ -236,7 +236,11 @@ const removeImage = (index: number) => {
 const fetchCategories = async () => {
   try {
     const response = await $fetch<{ message: string; data: any[] }>(
-      '/api/admin/categories'
+      '/api/admin/categories',{
+        headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+      }
     )
     categories.value = response.data
   } catch (error) {
@@ -246,7 +250,11 @@ const fetchCategories = async () => {
 
 const fetchProducts = async () => {
   const res = await $fetch<{ message: string; data: any[] }>(
-    '/api/admin/products'
+    '/api/admin/products',{
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+    }
   )
   productList.value = res.data
 }

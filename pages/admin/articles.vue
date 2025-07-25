@@ -30,6 +30,7 @@ interface articleRuleForm {
   date: string
   imageUrl: string
 }
+const token = useCookie('token')
 const articleDialogVisible = ref<boolean>(false)
 const deleteDialogVisible = ref<boolean>(false)
 const type = ref<'edit' | 'create'>('create')
@@ -143,7 +144,11 @@ const handleSubmit = () => {
 }
 const getArticles = async () => {
   try {
-    const { data } = await $fetch<{ data: article[] }>('/api/admin/articles')
+    const { data } = await $fetch<{ data: article[] }>('/api/admin/articles', {
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+    })
     if (data) {
       articleList.value = data
     }

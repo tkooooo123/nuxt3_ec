@@ -6,13 +6,18 @@ definePageMeta({
   layout: 'admin',
   middleware: adminAuth
 })
+const token = useCookie('token')
 const ordersList = ref<any[]>([])
 const deleteDialogVisible = ref<boolean>(false)
 const selectedOrderId = ref<string>('')
 
 const getOrders = async () => {
   try {
-    const res: any = await $fetch('/api/admin/orders')
+    const res: any = await $fetch('/api/admin/orders', {
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+    })
     ordersList.value = res.data
   } catch (error) {
     console.log(error)
@@ -21,7 +26,10 @@ const getOrders = async () => {
 const handleDelete = async () => {
   try {
     const res: any = await $fetch(`/api/admin/order/${selectedOrderId.value}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
     })
 
     toast.success('刪除成功')

@@ -41,6 +41,7 @@ interface Order {
   createdAt: string // ISO 字串格式
 }
 
+const token = useCookie('token')
 const route = useRoute()
 const order = ref<Order[]>([])
 
@@ -78,11 +79,14 @@ const recalculateTotal = () => {
 
 const getOrder = async () => {
   try {
-    const { data } = await $fetch<any>(`/api/admin/order/${route.params.id}`)
+    const { data } = await $fetch<any>(`/api/admin/order/${route.params.id}`, {
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+    })
     order.value = [data]
     order.value[0]?.items.forEach((item) => {
       item.origin_quantity = item.quantity
-      if (!item.id && item._id) item.id = item._id // 補上 id
     })
     ruleForm.value = { ...data.shipping }
     recalculateTotal()
@@ -101,6 +105,9 @@ const editOrder = async () => {
   try {
     const res = await $fetch(`/api/admin/order/${route.params.id}`, {
       method: 'PUT',
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      },
       body: data
     })
     console.log(res)
