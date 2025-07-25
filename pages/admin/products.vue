@@ -349,6 +349,9 @@ const addProduct = async () => {
           material: ruleForm.material,
           size: ruleForm.size,
           style: ruleForm.style
+        },
+        headers: {
+          Authorization: `Bearer ${token.value}`
         }
       }
     )
@@ -399,6 +402,9 @@ const updateProduct = async () => {
           material: ruleForm.material,
           size: ruleForm.size,
           style: ruleForm.style
+        },
+        headers: {
+          Authorization: `Bearer ${token.value}`
         }
       }
     )
@@ -432,6 +438,9 @@ const deleteProduct = async () => {
       method: 'DELETE',
       body: {
         id: selectToDelete.value.id
+      },
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
     })
 

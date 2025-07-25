@@ -71,6 +71,9 @@ const addCategory = async () => {
         name: ruleform.name,
         description: ruleform.description,
         id: type.value === 'edit' ? selectedCategoryId.value : null
+      },
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
     })
     if (data) {
@@ -96,6 +99,9 @@ const handleDelete = async () => {
       method: 'DELETE',
       body: {
         id: selectToDelete.value?.id
+      },
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
     })
 
