@@ -1,13 +1,31 @@
 <script setup lang="ts">
+import { toast } from 'vue3-toastify'
+
 definePageMeta({
   layout: 'admin'
 })
 const ordersList = ref<any[]>([])
+const deleteDialogVisible = ref<boolean>(false)
+const selectedOrderId = ref<string>('')
 
 const getOrders = async () => {
   try {
     const res: any = await $fetch('/api/admin/orders')
     ordersList.value = res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+const handleDelete = async () => {
+  try {
+    const res: any = await $fetch(`/api/admin/order/${selectedOrderId.value}`, {
+      method: 'DELETE'
+    })
+
+    toast.success('刪除成功')
+
+    await getOrders()
+    deleteDialogVisible.value = false
   } catch (error) {
     console.log(error)
   }
@@ -30,16 +48,13 @@ onMounted(() => {
             </template>
           </el-table-column>
           <el-table-column label="訂單編號" prop="id" />
-          
+
           <el-table-column>
             <template #header>
               <div class="flex"><span>訂購人/</span><small>Email</small></div>
             </template>
             <template #default="scope">
-              <div
-                
-                class="flex flex-col"
-              >
+              <div class="flex flex-col">
                 <span class="font-600">{{ scope.row.shipping.name }}</span>
                 <span>{{ scope.row.shipping.email }}</span>
               </div>
@@ -68,7 +83,13 @@ onMounted(() => {
 
           <el-table-column label="狀態">
             <template #default="scope">
-              <span v-if="scope.row.status === 'pending' && scope.row.payment === 'credit_card'">待付款</span>
+              <span
+                v-if="
+                  scope.row.status === 'pending' &&
+                  scope.row.payment === 'credit_card'
+                "
+                >待付款</span
+              >
               <span v-else-if="scope.row.status === 'paid'">已付款</span>
               <span v-else-if="scope.row.status === 'shipping'">配送中</span>
               <span v-else-if="scope.row.status === 'shipped'">已送達</span>
@@ -81,13 +102,19 @@ onMounted(() => {
             <template #default="scope">
               <div class="flex">
                 <button
-                @click="navigateTo(`/admin/order/${scope.row.id}`)"
+                  @click="navigateTo(`/admin/order/${scope.row.id}`)"
                   class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
                 >
                   編輯
                 </button>
                 <button
                   class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
+                  @click="
+                    () => {
+                      deleteDialogVisible = true
+                      selectedOrderId = scope.row.id
+                    }
+                  "
                 >
                   刪除
                 </button>
@@ -96,6 +123,25 @@ onMounted(() => {
           </el-table-column>
         </el-table>
       </div>
+      <el-dialog title="刪除訂單" v-model="deleteDialogVisible">
+        <div>
+          <p>訂單「{{ selectedOrderId }}」刪除後將無法復原，你確定要刪除嗎？</p>
+          <div class="flex justify-end">
+            <button
+              class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+              @click="deleteDialogVisible = false"
+            >
+              取消
+            </button>
+            <button
+              class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+              @click="handleDelete"
+            >
+              確定
+            </button>
+          </div>
+        </div>
+      </el-dialog>
     </div>
   </el-container>
 </template>
