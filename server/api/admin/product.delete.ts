@@ -1,7 +1,10 @@
 import Product from '~/server/models/Product'
 import { H3Event } from 'h3'
+import { verifyAdminAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event: H3Event) => {
+  // 驗證管理員權限
+  await verifyAdminAuth(event)
   try {
     const body = await readBody(event)
     const { id } = body
@@ -30,4 +33,4 @@ export default defineEventHandler(async (event: H3Event) => {
       statusMessage: error.message || '伺服器錯誤'
     })
   }
-}) 
+})

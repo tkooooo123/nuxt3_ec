@@ -1,15 +1,20 @@
 import Order from '~/server/models/Order'
 import { connectDB } from '~/server/utils/mongoose'
+import { verifyAdminAuth } from '~/server/utils/auth'
+
 export default defineEventHandler(async (event) => {
+  // 驗證管理員權限
+  await verifyAdminAuth(event)
+
   try {
     await connectDB()
     // 取得所有訂單，並帶出 user 詳細資料
     const orders = await Order.find().populate('user').populate('items.product')
-    
+
     const data = orders.map((order) => ({
       id: order._id.toString(),
       userId: order.user._id.toString(),
-      items: order.items.map((item:any) => ({
+      items: order.items.map((item: any) => ({
         name: item.product.name,
         image: item.product.image,
         quantity: item.quantity,

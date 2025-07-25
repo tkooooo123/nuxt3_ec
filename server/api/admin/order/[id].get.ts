@@ -1,8 +1,12 @@
 import Order from '~/server/models/Order'
 import { connectDB } from '~/server/utils/mongoose'
 import type { IUser } from '~/server/models/User'
+import { verifyAdminAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+  // 驗證管理員權限
+  await verifyAdminAuth(event)
+
   try {
     await connectDB()
     // 取得訂單 id

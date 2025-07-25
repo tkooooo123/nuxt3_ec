@@ -1,10 +1,13 @@
 import Article from "~/server/models/Article";
 import { H3Event } from "h3";
+import { verifyAdminAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event: H3Event) => {
 try {
+  // 驗證管理員權限
+  await verifyAdminAuth(event)
     const body = await readBody(event);
-console.log(body)
+
     const { title, author, tags, content, is_public, date, imageUrl } = body
     if (!title) {
       return createError({ statusCode: 400, statusMessage: '請輸入文章標題' });

@@ -1,8 +1,12 @@
 import Category from "@/server/models/Category";
 import { H3Event } from "h3";
 import { connectDB } from '~/server/utils/mongoose'
+import { verifyAdminAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event: H3Event) => {
+  // 驗證管理員權限
+  await verifyAdminAuth(event)
+  
   try {
     await connectDB()
     const categories = await Category.find().select("name description"); // 僅選取欄位

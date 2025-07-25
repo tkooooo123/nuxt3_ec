@@ -1,8 +1,10 @@
 import Category from "@/server/models/Category";
 import { H3Event } from "h3";
-
+import { verifyAdminAuth } from '~/server/utils/auth'
 export default defineEventHandler(async (event: H3Event) => {
   try {
+     // 驗證管理員權限
+    await verifyAdminAuth(event)
     const body = await readBody(event);
     const { id, name, description } = body;
 

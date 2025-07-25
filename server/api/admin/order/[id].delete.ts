@@ -2,9 +2,12 @@ import Order from '~/server/models/Order'
 import Product from '~/server/models/Product'
 import { connectDB } from '~/server/utils/mongoose'
 import type { IProduct } from '~/server/models/Product'
+import { verifyAdminAuth } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
+    // 驗證管理員權限
+    await verifyAdminAuth(event)
     await connectDB()
     const id = event.context.params?.id
     if (!id) {

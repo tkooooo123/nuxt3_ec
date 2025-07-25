@@ -2,8 +2,13 @@ import Product from '~/server/models/Product'
 import Category from '~/server/models/Category'
 import { H3Event } from 'h3'
 import { connectDB } from '~/server/utils/mongoose'
+import { verifyAdminAuth } from '~/server/utils/auth'
+
 export default defineEventHandler(async (event: H3Event) => {
   try {
+    // 驗證管理員權限
+    await verifyAdminAuth(event)
+    
     await connectDB()
     // 取得所有商品，並帶出分類資訊，依建立時間倒序排列
     const products = await Product.find()
