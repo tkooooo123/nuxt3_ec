@@ -2,6 +2,7 @@
 import { UploadFilled, Delete } from '@element-plus/icons-vue'
 import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
 import adminAuth from '~/middleware/adminAuth'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
   layout: 'admin',
@@ -34,6 +35,7 @@ interface category {
   description: string
 }
 const token = useCookie('token')
+const loadingStore = useLoadingStore()
 const productDialogVisible = ref<boolean>(false)
 const deleteDialogVisible = ref<boolean>(false)
 const selectToDelete = ref<product | null>(null)
@@ -232,33 +234,6 @@ const removeImage = (index: number) => {
   })
 }
 
-// 取得分類資料
-const fetchCategories = async () => {
-  try {
-    const response = await $fetch<{ message: string; data: any[] }>(
-      '/api/admin/categories',{
-        headers: {
-          Authorization: `Bearer ${token.value}`
-      }
-      }
-    )
-    categories.value = response.data
-  } catch (error) {
-    console.error('取得分類資料失敗:', error)
-  }
-}
-
-const fetchProducts = async () => {
-  const res = await $fetch<{ message: string; data: any[] }>(
-    '/api/admin/products',{
-      headers: {
-          Authorization: `Bearer ${token.value}`
-      }
-    }
-  )
-  productList.value = res.data
-}
-
 const editProduct = (row: product) => {
   type.value = 'edit'
   selectedProductId.value = row.id
@@ -304,25 +279,53 @@ const resetForm = () => {
   ruleForm.style = ''
 }
 
-// 頁面載入時取得分類資料
-onMounted(() => {
-  fetchCategories()
-  fetchProducts()
-})
-
-const handleSubmit = () => {
-  formRef.value?.validate((valid) => {
-    if (valid) {
-      if (type.value === 'edit') {
-        updateProduct()
-      } else {
-        addProduct()
+// 取得分類資料
+const fetchCategories = async () => {
+  try {
+    const response = await $fetch<{ message: string; data: any[] }>(
+      '/api/admin/categories',
+      {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
       }
-    }
-  })
+    )
+    categories.value = response.data
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
+  }
+}
+
+//取得商品資料
+const fetchProducts = async () => {
+  loadingStore.show()
+  try {
+    const { data } = await $fetch<{ message: string; data: any[] }>(
+      '/api/admin/products',
+      {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    productList.value = data
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
+  }
 }
 
 const addProduct = async () => {
+  loadingStore.show()
   try {
     const res = await $fetch<{ message: string; data: any[] }>(
       '/api/admin/product',
@@ -360,12 +363,18 @@ const addProduct = async () => {
       // 重新取得產品列表
       await fetchProducts()
     }
-  } catch (error) {
-    console.error('新增產品失敗:', error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
 const updateProduct = async () => {
+  loadingStore.show()
   try {
     const res = await $fetch<{ message: string; data: any }>(
       '/api/admin/product',
@@ -404,15 +413,20 @@ const updateProduct = async () => {
       // 重新取得產品列表
       await fetchProducts()
     }
-  } catch (error) {
-    console.error('更新產品失敗:', error)
+  } catch (error: any) {
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
+    })
   }
 }
 
 // 刪除產品
 const deleteProduct = async () => {
   if (!selectToDelete.value) return
-
+  loadingStore.show()
   try {
     const res = await $fetch<{ message: string }>('/api/admin/product', {
       method: 'DELETE',
@@ -433,13 +447,31 @@ const deleteProduct = async () => {
       await fetchProducts()
     }
   } catch (error: any) {
-    ElMessage({
-      message: error.message || '刪除產品失敗',
-      type: 'error',
-      duration: 3000
+    toast.error(`${error.data?.statusMessage}`)
+  } finally {
+    await nextTick()
+    requestAnimationFrame(() => {
+      loadingStore.hide()
     })
   }
 }
+const handleSubmit = () => {
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      if (type.value === 'edit') {
+        updateProduct()
+      } else {
+        addProduct()
+      }
+    }
+  })
+}
+
+// 頁面載入時取得分類資料
+onMounted(() => {
+  fetchCategories()
+  fetchProducts()
+})
 </script>
 
 <template>
