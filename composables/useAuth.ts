@@ -8,7 +8,7 @@ export const useAuth = () => {
   // 獲取用戶資訊
   const getUser = () => {
     const userInfo = useCookie('userInfo')
-    return userInfo.value ? JSON.parse(userInfo.value) : null
+    return userInfo.value ? userInfo.value : null
   }
 
   // 檢查是否已登入

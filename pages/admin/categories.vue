@@ -1,19 +1,23 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
 import { FetchError } from 'ofetch'
+import adminAuth from '~/middleware/adminAuth'
 
 definePageMeta({
-    layout: 'admin'
+    layout: 'admin',
+    middleware: adminAuth
 })
 interface category {
-    id: string
-    name: string
-    description: string
+  id: string
+  name: string
+  description: string
 }
 interface CatrgoryRuleForm {
-    name: string
-    description: string
+  name: string
+  description: string
 }
+
+const token = useCookie('token')
 const categoryList = ref<category[]>([])
 
 const createDialogVisible = ref<boolean>(false)
@@ -24,180 +28,222 @@ const selectToDelete = ref<category | null>(null)
 
 const formRef = ref<FormInstance>()
 const ruleform = reactive<CatrgoryRuleForm>({
-    name: '',
-    description: ''
+  name: '',
+  description: ''
 })
 
-
-
 const rules: FormRules<CatrgoryRuleForm> = {
-    name: [
-        { required: true, message: '請輸入分類名稱', trigger: 'blur' }
-    ],
-    description: [
-        { required: true, message: '請輸入分類描述', trigger: 'blur' }
-    ]
+  name: [{ required: true, message: '請輸入分類名稱', trigger: 'blur' }],
+  description: [{ required: true, message: '請輸入分類描述', trigger: 'blur' }]
 }
 const getCategories = async () => {
-    try {
-        const { data } = await $fetch<{ data: category[] }>('/api/admin/categories');
-        if (data) {
-            categoryList.value = data
-        }
-
-    } catch (error) {
-        console.error("取得分類失敗", error);
+  try {
+    const { data } = await $fetch<{ data: category[] }>('/api/admin/categories', {
+      headers: {
+          Authorization: `Bearer ${token.value}`
+      }
+    })
+    if (data) {
+      categoryList.value = data
     }
+  } catch (error) {
+    console.error('取得分類失敗', error)
+  }
 }
 
 const addCategory = async () => {
-    try {
-        const data = await $fetch('/api/admin/category', {
-            method: type.value === 'edit' ? 'PUT' : 'POST',
-            body: {
-                name: ruleform.name,
-                description: ruleform.description,
-                id: type.value === 'edit' ? selectedCategoryId.value : null
-            }
-        })
-        if (data) {
-            createDialogVisible.value = false
-            ruleform.name = ''
-            ruleform.description = ''
-            getCategories()
-
-        }
-    } catch (error) {
-        if (error instanceof FetchError) {
-        }
-        console.log(error)
+  try {
+    const data = await $fetch('/api/admin/category', {
+      method: type.value === 'edit' ? 'PUT' : 'POST',
+      body: {
+        name: ruleform.name,
+        description: ruleform.description,
+        id: type.value === 'edit' ? selectedCategoryId.value : null
+      }
+    })
+    if (data) {
+      createDialogVisible.value = false
+      ruleform.name = ''
+      ruleform.description = ''
+      getCategories()
     }
+  } catch (error) {
+    if (error instanceof FetchError) {
+    }
+    console.log(error)
+  }
 }
 
-
-
 const handleSubmit = () => {
-    formRef.value?.validate((valid) => {
-        if (valid) {
-            addCategory()
-        }
-    })
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      addCategory()
+    }
+  })
 }
 
 const handleEdit = (item: category) => {
-    createDialogVisible.value = true
-    type.value = 'edit'
-    ruleform.name = item.name
-    ruleform.description = item.description
-    selectedCategoryId.value = item.id
+  createDialogVisible.value = true
+  type.value = 'edit'
+  ruleform.name = item.name
+  ruleform.description = item.description
+  selectedCategoryId.value = item.id
 }
 
 const handleDelete = async () => {
-    try {
-        const res = await $fetch(`/api/admin/category`, {
-            method: 'DELETE',
-            body: {
-                id: selectToDelete.value?.id
-            }
+  try {
+    const res = await $fetch(`/api/admin/category`, {
+      method: 'DELETE',
+      body: {
+        id: selectToDelete.value?.id
+      }
+    })
 
-        });
+    ElMessage.success(res.message || '刪除成功')
 
-
-        ElMessage.success(res.message || '刪除成功');
-
-        // 關閉 dialog 並重置選擇
-        await getCategories()
-        console.log(deleteDialogVisible.value)
-        deleteDialogVisible.value = false;
-    } catch (error) {
-        console.log(error)
-    }
+    // 關閉 dialog 並重置選擇
+    await getCategories()
+    console.log(deleteDialogVisible.value)
+    deleteDialogVisible.value = false
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 onMounted(() => {
-    getCategories()
+  getCategories()
 })
 </script>
 
 <template>
-    <el-container>
-        <div class="w-full bg-white m-4 rounded-3">
-            <div class="px-8 py-6 ">
-                <h1 class="text-8">分類管理</h1>
-                <div class="flex justify-end">
-                    <button class="h-10 bg-blue-light hover:bg-blue-dark text-white px-4 rounded-2 border-0 cursor-pointer transition-all duration-200" @click="() => {
-                        createDialogVisible = true
-                        type = 'create'
-                    }">新增分類</button>
-                </div>
-                <el-table class="mt-8" :data="categoryList"
-                    :headerCellStyle="{ background: '#60A5FA', color: 'white' }">
-                    <el-table-column label="No" width="60"></el-table-column>
-                    <el-table-column label="名稱" prop="name" width="160"></el-table-column>
-                    <el-table-column label="描述" prop="description"></el-table-column>
-                    <el-table-column label="動作" width="170">
-                        <template #default="scope">
-                            <div class="flex">
-                                <button class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
-                                    @click="handleEdit(scope.row)">編輯</button>
-                                <button class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
-                                    @click="() => {
-                                        deleteDialogVisible = true
-                                        selectToDelete = scope.row
-                                    }">刪除</button>
-                            </div>
-                        </template></el-table-column>
-                </el-table>
-            </div>
+  <el-container>
+    <div class="w-full bg-white m-4 rounded-3">
+      <div class="px-8 py-6">
+        <h1 class="text-8">分類管理</h1>
+        <div class="flex justify-end">
+          <button
+            class="h-10 bg-blue-light hover:bg-blue-dark text-white px-4 rounded-2 border-0 cursor-pointer transition-all duration-200"
+            @click="
+              () => {
+                createDialogVisible = true
+                type = 'create'
+              }
+            "
+          >
+            新增分類
+          </button>
         </div>
+        <el-table
+          class="mt-8"
+          :data="categoryList"
+          :headerCellStyle="{ background: '#60A5FA', color: 'white' }"
+        >
+          <el-table-column label="No" width="60"></el-table-column>
+          <el-table-column
+            label="名稱"
+            prop="name"
+            width="160"
+          ></el-table-column>
+          <el-table-column label="描述" prop="description"></el-table-column>
+          <el-table-column label="動作" width="170">
+            <template #default="scope">
+              <div class="flex">
+                <button
+                  class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
+                  @click="handleEdit(scope.row)"
+                >
+                  編輯
+                </button>
+                <button
+                  class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
+                  @click="
+                    () => {
+                      deleteDialogVisible = true
+                      selectToDelete = scope.row
+                    }
+                  "
+                >
+                  刪除
+                </button>
+              </div>
+            </template></el-table-column
+          >
+        </el-table>
+      </div>
+    </div>
 
-        <!--新增彈窗-->
-        <el-dialog :title="`${type === 'edit' ? '編輯' : '新增'}分類`" v-model="createDialogVisible" width="600">
-
-            <div>
-                <el-form ref="formRef" :model="ruleform" :rules="rules">
-                    <el-form-item label="名稱" prop="name" class="flex flex-col items-start">
-                        <el-input v-model="ruleform.name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="描述" prop="description" class="flex flex-col items-start">
-                        <el-input type="textarea" v-model="ruleform.description"></el-input>
-                    </el-form-item>
-                </el-form>
-                <div class="flex justify-end">
-                    <button
-                        class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
-                        @click="createDialogVisible = false">取消</button>
-                    <button class="bg-blue text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
-                        @click="handleSubmit">確定</button>
-                </div>
-            </div>
-        </el-dialog>
-        <!--刪除彈窗-->
-        <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
-            <div>
-                <p v-if="selectToDelete">分類「{{ selectToDelete.name }}」刪除後將無法復原，你確定要刪除嗎？</p>
-                <div class="flex justify-end">
-                    <button
-                        class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
-                        @click="deleteDialogVisible = false">取消</button>
-                    <button class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
-                        @click="handleDelete">確定</button>
-                </div>
-            </div>
-        </el-dialog>
-
-    </el-container>
-
+    <!--新增彈窗-->
+    <el-dialog
+      :title="`${type === 'edit' ? '編輯' : '新增'}分類`"
+      v-model="createDialogVisible"
+      width="600"
+    >
+      <div>
+        <el-form ref="formRef" :model="ruleform" :rules="rules">
+          <el-form-item
+            label="名稱"
+            prop="name"
+            class="flex flex-col items-start"
+          >
+            <el-input v-model="ruleform.name"></el-input>
+          </el-form-item>
+          <el-form-item
+            label="描述"
+            prop="description"
+            class="flex flex-col items-start"
+          >
+            <el-input type="textarea" v-model="ruleform.description"></el-input>
+          </el-form-item>
+        </el-form>
+        <div class="flex justify-end">
+          <button
+            class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+            @click="createDialogVisible = false"
+          >
+            取消
+          </button>
+          <button
+            class="bg-blue text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+            @click="handleSubmit"
+          >
+            確定
+          </button>
+        </div>
+      </div>
+    </el-dialog>
+    <!--刪除彈窗-->
+    <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
+      <div>
+        <p v-if="selectToDelete">
+          分類「{{ selectToDelete.name }}」刪除後將無法復原，你確定要刪除嗎？
+        </p>
+        <div class="flex justify-end">
+          <button
+            class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+            @click="deleteDialogVisible = false"
+          >
+            取消
+          </button>
+          <button
+            class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+            @click="handleDelete"
+          >
+            確定
+          </button>
+        </div>
+      </div>
+    </el-dialog>
+  </el-container>
 </template>
 
 <style lang="scss" scoped>
 :deep() {
-    .el-form-item__content {
-        width: 100%;
-    }
+  .el-form-item__content {
+    width: 100%;
+  }
 
-    .el-dialog {
-        padding: 24px;
-    }
+  .el-dialog {
+    padding: 24px;
+  }
 }
 </style>

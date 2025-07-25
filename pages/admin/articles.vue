@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
+import adminAuth from '~/middleware/adminAuth'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: adminAuth
 })
 interface tagItem {
   id: string
@@ -44,27 +46,13 @@ const articleList = ref<article[]>([
   }
 ])
 const rules: FormRules<articleRuleForm> = {
-  title: [
-    { required: true, message: '請輸入標題', trigger: 'blur' }
-  ],
-  author: [
-    { required: true, message: '請輸入作者', trigger: 'blur' }
-  ],
-  content: [
-    { required: true, message: '請輸入內容', trigger: 'blur' }
-  ],
-  is_public: [
-    { required: true, message: '請選擇是否公開', trigger: 'blur' }
-  ],
-  date: [
-    { required: true, message: '請選擇公告日期', trigger: 'blur' }
-  ],
-  imageUrl: [
-    { required: true, message: '請選擇圖片', trigger: 'blur' }
-  ],
-  tags: [
-    { required: true, message: '請新增標籤', trigger: 'blur' }
-  ],
+  title: [{ required: true, message: '請輸入標題', trigger: 'blur' }],
+  author: [{ required: true, message: '請輸入作者', trigger: 'blur' }],
+  content: [{ required: true, message: '請輸入內容', trigger: 'blur' }],
+  is_public: [{ required: true, message: '請選擇是否公開', trigger: 'blur' }],
+  date: [{ required: true, message: '請選擇公告日期', trigger: 'blur' }],
+  imageUrl: [{ required: true, message: '請選擇圖片', trigger: 'blur' }],
+  tags: [{ required: true, message: '請新增標籤', trigger: 'blur' }]
 }
 const formRef = ref<FormInstance>()
 const uploadFile = ref<UploadRawFile | null>(null)
@@ -139,8 +127,6 @@ const formatDateString = (dateStr: string): string => {
 }
 
 const parseDateString = (str: string): string => {
-
-
   const year = parseInt(str.slice(0, 4), 10)
   const month = parseInt(str.slice(4, 6), 10) - 1 // 月份從 0 開始
   const day = parseInt(str.slice(6, 8), 10)
@@ -177,11 +163,10 @@ const createArticle = async () => {
       imageUrl: ruleForm.imageUrl,
       id: type.value === 'edit' ? selectedArticleId.value : null
     }
-    const data = await $fetch('/api/admin/article',
-      {
-        method: type.value === 'edit' ? 'PUT' : 'POST',
-        body: params
-      })
+    const data = await $fetch('/api/admin/article', {
+      method: type.value === 'edit' ? 'PUT' : 'POST',
+      body: params
+    })
     ElMessage({
       type: 'success',
       message: data?.message
@@ -209,28 +194,26 @@ const editArticle = (item: article) => {
   })
   ruleForm.date = parseDateString(item.date)
   articleDialogVisible.value = true
-
 }
 
 const handleDelete = async () => {
-    try {
-        const res = await $fetch(`/api/admin/article`, {
-            method: 'DELETE',
-            body: {
-                id: selectToDelete.value?.id
-            }
+  try {
+    const res = await $fetch(`/api/admin/article`, {
+      method: 'DELETE',
+      body: {
+        id: selectToDelete.value?.id
+      }
+    })
 
-        });
+    ElMessage.success(res.message || '刪除成功')
 
-         ElMessage.success(res.message || '刪除成功');
+    // 關閉 dialog 並重置選擇
+    await getArticles()
 
-        // 關閉 dialog 並重置選擇
-        await getArticles()
-
-        deleteDialogVisible.value = false;
-    } catch (error) {
-        console.log(error)
-    }
+    deleteDialogVisible.value = false
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 onMounted(() => {
@@ -243,118 +226,210 @@ onMounted(() => {
     <div class="p-6 w-full">
       <h1>文章管理</h1>
       <div class="flex justify-end">
-        <button class="h-10 px-4 rounded-2 border-0 cursor-pointer" @click="
-          () => {
-            articleDialogVisible = true
-            type = 'create'
-          }
-        ">
+        <button
+          class="h-10 px-4 rounded-2 border-0 cursor-pointer"
+          @click="
+            () => {
+              articleDialogVisible = true
+              type = 'create'
+            }
+          "
+        >
           新增
         </button>
       </div>
-      <div>
-
-      </div>
+      <div></div>
       <el-table :data="articleList" class="mt-6">
         <el-table-column label="No" width="50">
           <template #default="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column label="標題" prop="title" width="180"></el-table-column>
-        <el-table-column label="作者" prop="author" width="120"></el-table-column>
+        <el-table-column
+          label="標題"
+          prop="title"
+          width="180"
+        ></el-table-column>
+        <el-table-column
+          label="作者"
+          prop="author"
+          width="120"
+        ></el-table-column>
         <el-table-column label="標籤" width="120">
           <template #default="scope">
-            <div class="flex"><span v-for="tag in scope.row.tags" class="mx-1">
+            <div class="flex">
+              <span v-for="tag in scope.row.tags" class="mx-1">
                 {{ tag }}
-              </span></div>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="內容" prop="content"></el-table-column>
-        <el-table-column label="發布日期" width="120" prop="date"></el-table-column>
+        <el-table-column
+          label="發布日期"
+          width="120"
+          prop="date"
+        ></el-table-column>
         <el-table-column label="是否公開" width="90">
           <template #default="scope">
-            <span v-if="scope.row.is_public">已公開</span> <span v-else>未公開</span>
+            <span v-if="scope.row.is_public">已公開</span>
+            <span v-else>未公開</span>
           </template>
         </el-table-column>
         <el-table-column label="動作">
           <template #default="scope">
             <div class="flex">
-              <button class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
-                @click="editArticle(scope.row)">編輯</button>
-              <button class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2" @click="() => {
-                deleteDialogVisible = true
-                selectToDelete = scope.row
-              }">刪除</button>
+              <button
+                class="h-10 px-4 bg-yellow font-600 rounded-2 cursor-pointer"
+                @click="editArticle(scope.row)"
+              >
+                編輯
+              </button>
+              <button
+                class="h-10 px-4 bg-red text-white font-600 rounded-2 cursor-pointer ml-2"
+                @click="
+                  () => {
+                    deleteDialogVisible = true
+                    selectToDelete = scope.row
+                  }
+                "
+              >
+                刪除
+              </button>
             </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog :title="`${type === 'edit' ? '編輯' : '新增'}文章`" v-model="articleDialogVisible" width="700"
-        :modal="false">
+      <el-dialog
+        :title="`${type === 'edit' ? '編輯' : '新增'}文章`"
+        v-model="articleDialogVisible"
+        width="700"
+        :modal="false"
+      >
         <div>
           <el-form ref="formRef" :model="ruleForm" :rules="rules">
             <div class="grid md:grid-cols-2 gap-4 flex-1">
-              <el-form-item label="標題" prop="title" class="col-span-2 flex flex-col items-start">
+              <el-form-item
+                label="標題"
+                prop="title"
+                class="col-span-2 flex flex-col items-start"
+              >
                 <el-input v-model="ruleForm.title"></el-input>
               </el-form-item>
               <div>
-                <el-form-item label="作者" prop="author" class="flex flex-col items-start">
+                <el-form-item
+                  label="作者"
+                  prop="author"
+                  class="flex flex-col items-start"
+                >
                   <el-input v-model="ruleForm.author"></el-input>
                 </el-form-item>
               </div>
-              <el-form-item label="圖片" prop="imageUrl" class="flex flex-col items-start">
-                <el-upload v-loading="loading" v-if="ruleForm.imageUrl === ''" class="w-full" drag multiple
-                  :before-upload="checkFileType" action="#">
+              <el-form-item
+                label="圖片"
+                prop="imageUrl"
+                class="flex flex-col items-start"
+              >
+                <el-upload
+                  v-loading="loading"
+                  v-if="ruleForm.imageUrl === ''"
+                  class="w-full"
+                  drag
+                  multiple
+                  :before-upload="checkFileType"
+                  action="#"
+                >
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">
                     將圖片拖曳到此處，<em>或點擊以上傳</em>
                   </div>
-
                 </el-upload>
                 <div v-else v-loading="loading" class="flex flex-col">
-                  <img class="max-w-full block" :src="ruleForm.imageUrl" alt="文章圖片" />
+                  <img
+                    class="max-w-full block"
+                    :src="ruleForm.imageUrl"
+                    alt="文章圖片"
+                  />
                   <div class="flex justify-end">
-                    <el-upload multiple :before-upload="checkFileType" action="#" class="mt-4">
-
-                      <button @click.prevent=""
-                        class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer">選擇其他圖片</button>
-
+                    <el-upload
+                      multiple
+                      :before-upload="checkFileType"
+                      action="#"
+                      class="mt-4"
+                    >
+                      <button
+                        @click.prevent=""
+                        class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
+                      >
+                        選擇其他圖片
+                      </button>
                     </el-upload>
-
                   </div>
                 </div>
-
               </el-form-item>
               <el-form-item label="標籤" class="flex flex-col items-start">
                 <div class="flex items-center justify-between w-full">
-                  <el-input placeholder="請輸入標籤名稱" v-model="inputTag"></el-input>
-                  <button class="h-12.5 w-17 rounded-2 ml-2 cursor-pointer" :disabled="!inputTag.trim() ? true : false"
-                    :class="!inputTag.trim() ? 'cursor-not-allowed' : ''" @click.prevent="addTag">
+                  <el-input
+                    placeholder="請輸入標籤名稱"
+                    v-model="inputTag"
+                  ></el-input>
+                  <button
+                    class="h-12.5 w-17 rounded-2 ml-2 cursor-pointer"
+                    :disabled="!inputTag.trim() ? true : false"
+                    :class="!inputTag.trim() ? 'cursor-not-allowed' : ''"
+                    @click.prevent="addTag"
+                  >
                     新增
                   </button>
                 </div>
               </el-form-item>
-              <el-form-item label="標籤清單" prop="tags" class="flex flex-col items-start">
+              <el-form-item
+                label="標籤清單"
+                prop="tags"
+                class="flex flex-col items-start"
+              >
                 <div class="flex">
-                  <el-tag v-for="tag in ruleForm.tags" closable @close="removeTag(tag.id)" :key="tag.id" class="px-2">{{
-                    tag.name }}</el-tag>
+                  <el-tag
+                    v-for="tag in ruleForm.tags"
+                    closable
+                    @close="removeTag(tag.id)"
+                    :key="tag.id"
+                    class="px-2"
+                    >{{ tag.name }}</el-tag
+                  >
                 </div>
               </el-form-item>
-              <el-form-item label="是否公開" prop="is_public" class="flex flex-col items-start">
+              <el-form-item
+                label="是否公開"
+                prop="is_public"
+                class="flex flex-col items-start"
+              >
                 <el-radio-group v-model="ruleForm.is_public">
                   <el-radio :value="true">是</el-radio>
                   <el-radio :value="false">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="公告日期" prop="date" class="flex flex-col items-start">
+              <el-form-item
+                label="公告日期"
+                prop="date"
+                class="flex flex-col items-start"
+              >
                 <el-date-picker v-model="ruleForm.date"></el-date-picker>
               </el-form-item>
 
-              <el-form-item label="內容" prop="" class="flex flex-col items-start col-span-2">
-                <el-input type="textarea" :rows="5" placeholder="請輸入內容" class="textarea"
-                  v-model="ruleForm.content"></el-input>
+              <el-form-item
+                label="內容"
+                prop=""
+                class="flex flex-col items-start col-span-2"
+              >
+                <el-input
+                  type="textarea"
+                  :rows="5"
+                  placeholder="請輸入內容"
+                  class="textarea"
+                  v-model="ruleForm.content"
+                ></el-input>
               </el-form-item>
             </div>
           </el-form>
@@ -369,17 +444,27 @@ onMounted(() => {
       <!--刪除彈窗-->
       <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
         <div>
-          <p v-if="selectToDelete">分類「{{ selectToDelete.title }}」刪除後將無法復原，你確定要刪除嗎？</p>
+          <p v-if="selectToDelete">
+            分類「{{ selectToDelete.title }}」刪除後將無法復原，你確定要刪除嗎？
+          </p>
           <div class="flex justify-end">
-            <button class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
-              @click="deleteDialogVisible = false">取消</button>
-            <button class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer" @click="handleDelete">確定</button>
+            <button
+              class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+              @click="deleteDialogVisible = false"
+            >
+              取消
+            </button>
+            <button
+              class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+              @click="handleDelete"
+            >
+              確定
+            </button>
           </div>
         </div>
       </el-dialog>
     </div>
   </el-container>
-
 </template>
 
 <style lang="scss" scoped>

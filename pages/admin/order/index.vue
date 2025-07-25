@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { toast } from 'vue3-toastify'
+import adminAuth from '~/middleware/adminAuth'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: adminAuth
 })
 const ordersList = ref<any[]>([])
 const deleteDialogVisible = ref<boolean>(false)

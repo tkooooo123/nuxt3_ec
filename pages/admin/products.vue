@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { UploadFilled, Delete } from '@element-plus/icons-vue'
 import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
+import adminAuth from '~/middleware/adminAuth'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: adminAuth
 })
 interface product {
   id: string
