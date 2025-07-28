@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { logout } = useAuth()
 const route = useRoute()
 const isExpanded = ref<boolean>(true)
 const menuList = ref<any[]>([
@@ -20,6 +21,10 @@ const menuList = ref<any[]>([
   }
 ])
 const selectedMenu = ref<string>('')
+
+const handleLogout = async () => {
+  await logout()
+}
 onMounted(() => {
   selectedMenu.value = route.path
 })
@@ -70,7 +75,8 @@ onMounted(() => {
       </div>
       <button
         class="m-4 bg-primary text-white rounded-30px h-10 cursor-pointer flex items-center justify-center"
-      >
+      @click="handleLogout"
+        >
         登出
         <svg
           xmlns="http://www.w3.org/2000/svg"
