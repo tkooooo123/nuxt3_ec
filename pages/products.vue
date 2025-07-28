@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { toast } from 'vue3-toastify'
+
+
 interface Product {
   id: string
   name: string
@@ -44,6 +47,7 @@ interface ApiProdcutResponse {
     }
   }
 }
+const loadingStore = useLoadingStore()
 const router = useRouter()
 const route = useRoute()
 const productsList = ref<Product[]>([])
@@ -55,14 +59,26 @@ const keyword = ref<string>('') //搜尋關鍵字
 const { addToCart } = useCart()
 
 const getProducts = async () => {
-  const { data } = await $fetch<ApiProdcutResponse>('/api/product/all')
-  productsList.value = data?.products
-  filterProducts()
+ try {
+   const { data } = await $fetch<ApiProdcutResponse>('/api/product/all')
+   productsList.value = data?.products
+   filterProducts()
+ } catch (error: any) {
+  toast.error(`${error.data?.statusMessage}`)
+ }
 }
 
 const getCategories = async () => {
-  const res = await $fetch<ApiResponse<Category>>('/api/category/all')
-  categoryList.value = res.data
+  loadingStore.show()
+ try {
+   const res = await $fetch<ApiResponse<Category>>('/api/category/all')
+   categoryList.value = res.data
+   await  getProducts()
+ } catch (error: any) {
+  toast.error(`${error.data?.statusMessage}`)
+ } finally {
+  loadingStore.hide()
+ }
 }
 
 // 過濾產品函數
@@ -120,7 +136,6 @@ onMounted(() => {
   if (route.query.topic) {
     selectedTheme.value = [route.query.topic as string]
   }
-  getProducts()
   getCategories()
 })
 </script>
