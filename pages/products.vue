@@ -61,7 +61,7 @@ const getProducts = async () => {
 }
 
 const getCategories = async () => {
-  const res = await $fetch<ApiResponse<Category>>('/api/admin/categories')
+  const res = await $fetch<ApiResponse<Category>>('/api/category/all')
   categoryList.value = res.data
 }
 
