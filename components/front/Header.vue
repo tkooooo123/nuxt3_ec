@@ -17,8 +17,8 @@ const navList = ref<navItem[]>([
   },
   {
     id: 2,
-    name: '最新消息',
-    link: 'news'
+    name: '產品一覽',
+    link: 'products'
   }
 ])
 
@@ -86,9 +86,12 @@ const handleLogout = async () => {
       <ul class="hidden md:flex">
         <li class="mx-1" v-for="item in navList" :key="item.id">
           <RouterLink
-            to=""
-            class="relative after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-full hover:after:left-0 py-1"
-            ><span class="px-2">{{ item.name }}</span></RouterLink
+            :to="`${item.link}`"
+            class="relative after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-full hover:after:left-0 py-1"
+            ><span
+              class="px-2 hover:text-primary transition-all duration-200"
+              >{{ item.name }}</span
+            ></RouterLink
           >
         </li>
       </ul>
@@ -102,7 +105,7 @@ const handleLogout = async () => {
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 hover:text-red"
+          class="size-6 hover:text-primary"
         >
           <path
             stroke-linecap="round"
@@ -113,7 +116,7 @@ const handleLogout = async () => {
         <!-- 購物車數量徽章 -->
         <span
           v-if="cartCount > 0"
-          class="absolute -top-2 md:top-1.5 -right-2 md:-right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+          class="absolute -top-2 md:top-1.5 -right-2 md:-right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
         >
           {{ cartCount }}
         </span>
@@ -125,58 +128,86 @@ const handleLogout = async () => {
       >
         <span>登入</span>
       </RouterLink>
-      <div v-else class="hidden md:flex items-center ml-4 relative" @click="arrowToggled = !arrowToggled">
-        <img class="rounded-50% block h-12 w-12" src="https://i.imgur.com/ZgnOsNJ.png" alt="avatar" />
-        <div
-          class="arrow-down"
-          :class="{ rotated: arrowToggled }"
-        ></div>
+      <div
+        v-else
+        class="hidden md:flex items-center ml-4 relative"
+        @click="arrowToggled = !arrowToggled"
+      >
+        <img
+          class="rounded-50% block h-12 w-12"
+          src="https://i.imgur.com/ZgnOsNJ.png"
+          alt="avatar"
+        />
+        <div class="arrow-down" :class="{ rotated: arrowToggled }"></div>
         <div
           class="absolute top-full right-0 w-40 bg-white rounded-b-[8px] pt-1 z-5"
           v-if="arrowToggled"
           style="box-shadow: 0px 4px 4px 0px #00000040"
         >
-          <div class="flex justify-center items-center py-1.5 cursor-pointer" @click="navigateTo('/orders')">
-          
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
-           
+          <div
+            class="flex justify-center items-center py-1.5 cursor-pointer"
+            @click="navigateTo('/orders')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#1f1f1f"
+            >
+              <path
+                d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"
+              />
+            </svg>
 
             <span class="ml-2 font-600">訂單</span>
           </div>
-          
-          <div class="border-t-1 border-t-#E7E7E7 border-t-solid h-12 flex justify-center items-center  cursor-pointer" @click="handleLogout">
+
+          <div
+            class="border-t-1 border-t-#E7E7E7 border-t-solid h-12 flex justify-center items-center cursor-pointer"
+            @click="handleLogout"
+          >
             <span class="font-600">登出</span>
           </div>
         </div>
       </div>
     </div>
-    <!--手機板 toggle 清單-->
   </div>
+  <!--手機板 toggle 清單-->
   <div
     v-if="isToggled"
-    class="fixed left-0 right-0 top-17 z-1 bg-white md:hidden"
+    class="fixed left-0 right-0 top-17 bottom-0 z-9 bg-white md:hidden"
   >
     <ul class="px-5">
       <li v-if="isLoggedIn()">
         <RouterLink
+          to="/orders"
+          @click="isToggled = !isToggled"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
+          ><span class="text-center">訂單</span></RouterLink
+        >
+      </li>
+      <li v-if="isLoggedIn()">
+        <RouterLink
           to=""
           @click="handleLogout"
-          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
           ><span class="text-center">登出</span></RouterLink
         >
       </li>
       <li v-else>
         <RouterLink
           to="/login"
-          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
           ><span class="text-center">登入</span></RouterLink
         >
       </li>
       <hr class="my-4" />
       <li class="mx-1" v-for="item in navList" :key="item.id">
         <RouterLink
-          to=""
-          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-red-500 after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1"
+          :to="item.link"
+          @click="isToggled = !isToggled"
+          class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
           ><span class="text-center">{{ item.name }}</span></RouterLink
         >
       </li>
