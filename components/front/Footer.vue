@@ -4,7 +4,7 @@
 <template>
   <footer class="bg-#f7eee9 text-white">
     <div class=" mx-auto px-6 md:px-[clamp(48px,10vw,120px)] py-8">
-      <div class=" flex flex-col sm:flex-row justify-between items-center relative">
+      <div class=" flex flex-col md:flex-row justify-between items-center relative">
 
 
         <div class="max-w-40">
@@ -13,10 +13,23 @@
           class="w-full cursor-pointer" src="/images/logo.png" alt="logo">
         </div>
         
+        <ul class="p-0 flex flex-col md:flex-row gap-4">
+          <li>
+            <NuxtLink to="/about" class="hover:text-primary transition-all duration-200">
+              關於我們
+            </NuxtLink>
+           
+          </li>
+          <li>
+            <NuxtLink to="/products" class="hover:text-primary transition-all duration-200">
+              商品一覽
+            </NuxtLink>
+          </li>
+        </ul>
 
 
 
-        <div class="flex gap-3">
+        <div class="flex gap-3 mt-4 md:mt-0">
           <img src="/images/footer/facebook.png" alt="facebook_logo" class="w-6 h-6 block opacity-80 cursor-pointer">
           <img src="/images/footer/instagram.png" alt="instagram_logo" class="w-6 h-6 block opacity-80 cursor-pointer">
           <img src="/images/footer/line.png" alt="line_logo" class="w-6 h-6 block opacity-80 cursor-pointer">
