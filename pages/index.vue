@@ -77,6 +77,19 @@ const getProducts = async () => {
   }
 }
 
+const scrollToSection = (id: string) => {
+  const target = document.querySelector(`#${id}`)
+  if (target) {
+    const yOffset = -84 // 上方偏移量（例如固定 header 高度）
+    const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset
+
+    window.scrollTo({
+      top: y,
+      behavior: 'smooth'
+    })
+  }
+}
+
 onMounted(() => {
   getProducts()
 })
@@ -84,12 +97,29 @@ onMounted(() => {
 
 <template>
   <div class="pt-17">
-    <div class="banner">
+    <div class="banner relative">
       <img
         class="w-full h-150 block object-cover"
         src="/images/home_banner.jpg"
         alt="banner"
       />
+      <div class="absolute bottom-2 left-1/2 -translate-x-1/2">
+        <svg
+        @click="scrollToSection('hottest-product')"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.0"
+          stroke="currentColor"
+          class="size-9 text-white moving cursor-pointer"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+          />
+        </svg>
+      </div>
     </div>
 
     <div
@@ -97,7 +127,8 @@ onMounted(() => {
     >
       <h2
         class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
-      >
+        id="hottest-product"
+        >
         熱門商品
       </h2>
       <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
@@ -207,3 +238,20 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+//上下移動動畫
+.moving {
+  animation: upDown 1.5s ease-in-out infinite;
+}
+
+@keyframes upDown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+</style>
