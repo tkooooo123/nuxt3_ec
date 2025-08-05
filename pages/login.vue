@@ -2,29 +2,22 @@
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { toast } from 'vue3-toastify'
+import type { ApiResponse } from '~/types/api'
+import type { User } from '~/types/user'
 
 definePageMeta({
   layout: false
 })
+
 interface RuleForm {
   email: string
   password: string
 }
 
-interface LoginResponse {
-  message: string
-  data: {
-    token: string
-    name: string
-    email: string
-    role: string
-    user_id: string
-  }
-}
+
 const loadingStore = useLoadingStore()
 const isShow = ref<boolean>(false)
 const formRef = ref<FormInstance>()
-
 const ruleform = reactive<RuleForm>({
   email: '',
   password: ''
@@ -54,21 +47,22 @@ const { clearAuth } = useAuth()
 const handleLogin = async () => {
   loadingStore.show()
   try {
-    const data = await $fetch<LoginResponse>('/api/user/login', {
+    const res = await $fetch<ApiResponse<User>>('/api/user/login', {
       method: 'POST',
       body: {
         email: ruleform.email,
         password: ruleform.password
       }
     })
-    if (data) {
+    if (res.data) {
       // 使用 useCookie 儲存 token
       const token = useCookie('token', {
         maxAge: 30 * 60, // 30分鐘，與後端 JWT 過期時間一致
         secure: true,
         sameSite: 'strict'
       })
-      token.value = data.data.token
+      token.value = res.data.token
+      console.log(res.data)
 
       // 儲存用戶資訊
       const userInfo = useCookie('userInfo', {
@@ -77,14 +71,14 @@ const handleLogin = async () => {
         sameSite: 'strict'
       })
       userInfo.value = JSON.stringify({
-        name: data.data.name,
-        email: data.data.email,
-        role: data.data.role,
-        user_id: data.data.user_id
+        name: res.data.name,
+        email: res.data.email,
+        role: res.data.role,
+        user_id: res.data.user_id
       })
     }
 
-    if (data.data.role === 'admin') {
+    if ( res.data && res.data.role === 'admin') {
       await navigateTo('/admin/products')
     } else {
       await navigateTo('/')

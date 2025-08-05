@@ -1,52 +1,9 @@
 <script lang="ts" setup>
 import { toast } from 'vue3-toastify'
+import type { ApiResponse } from '~/types/api'
+import type { Product, ProductsResponse } from '~/types/product'
+import type { Category } from '~/types/category'
 
-
-interface Product {
-  id: string
-  name: string
-  image: string
-  imagesUrl: string[]
-  description: string
-  content: string
-  quantity: number
-  price: number
-  isEnabled: boolean
-  is_hottest: boolean
-  is_newest: boolean
-  unit: string
-  category: {
-    id: string
-    name: string
-    description: string
-  } | null
-  createdAt: string
-}
-
-interface Category {
-  id: string
-  name: string
-  description: string
-}
-
-interface ApiResponse<T> {
-  message: string
-  data: T[]
-}
-interface ApiProdcutResponse {
-  message: string
-  data: {
-    products: Product[]
-    pagination: {
-      currentPage: number
-      totalPages: number
-      totalItems: number
-      itemsPerPage: number
-      hasNextPage: boolean
-      hasPrevPage: boolean
-    }
-  }
-}
 const loadingStore = useLoadingStore()
 const router = useRouter()
 const route = useRoute()
@@ -60,8 +17,8 @@ const { addToCart } = useCart()
 
 const getProducts = async () => {
  try {
-   const { data } = await $fetch<ApiProdcutResponse>('/api/product/all')
-   productsList.value = data?.products
+   const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
+    productsList.value = res.data?.products ?? [];
    filterProducts()
  } catch (error: any) {
   toast.error(`${error.data?.statusMessage}`)
@@ -71,8 +28,8 @@ const getProducts = async () => {
 const getCategories = async () => {
   loadingStore.show()
  try {
-   const res = await $fetch<ApiResponse<Category>>('/api/category/all')
-   categoryList.value = res.data
+   const res = await $fetch<ApiResponse<Category[]>>('/api/category/all')
+   categoryList.value = res.data ||[]
    await  getProducts()
  } catch (error: any) {
   toast.error(`${error.data?.statusMessage}`)
@@ -88,7 +45,7 @@ const filterProducts = () => {
     selectedCategoryId.value === 'all'
       ? productsList.value
       : productsList.value.filter(
-          (product) => product.category?.id === selectedCategoryId.value
+          (product) => typeof product.category === 'object'&& product.category?.id === selectedCategoryId.value
         )
 
   // 再依主題過濾（且邏輯）

@@ -1,37 +1,8 @@
 <script setup lang="ts">
-interface Product {
-  id: string
-  name: string
-  image: string
-  imagesUrl: string[]
-  description: string
-  content: string
-  quantity: number
-  price: number
-  isEnabled: boolean
-  unit: string
-  is_hottest: boolean
-  is_newest: boolean
-  notice: string
-  origin: string
-  origin_price: number
-  size: string
-  material: string
-  category: {
-    id: string
-    name: string
-    description: string
-  } | null
-  createdAt: string
-}
+import type { Product } from '~/types/product'
+import type { ApiResponse } from '~/types/api'
+import type { User } from '~/types/user'
 
-interface ApiResponse<T> {
-  message: string
-  data: T
-}
-interface UserInfo {
-  user_id: string
-}
 
 const route = useRoute()
 const product = ref<Product | null>(null)
@@ -43,7 +14,7 @@ const quantity = ref(1)
 const detailType = ref<'content' | 'specification' | 'notice'>('content')
 
 const userCookie = useCookie('userInfo')
-const userInfo = userCookie.value as UserInfo | null
+const userInfo = userCookie.value as User | null
 const userId = userInfo?.user_id
 
 // 使用 useCart composable
@@ -56,9 +27,10 @@ const getProduct = async () => {
     const res = await $fetch<ApiResponse<Product>>(
       `/api/product/${route.params.id}`
     )
-    product.value = res.data
-
-    imgList.value = [product.value.image, ...product.value.imagesUrl]
+    product.value = res.data || null
+    if (product.value) {
+      imgList.value = [product.value.image, ...product.value.imagesUrl]
+    }
   } catch (err: any) {
     error.value = err.data?.message || '無法載入商品資訊'
   } finally {
@@ -240,55 +212,57 @@ onMounted(() => {
             {{ product.name }}
           </h1>
           <div class="flex gap-3 my-2">
-              <span
-                v-if="product.is_newest"
-                class="bg-#F7eee9 flex text-primary py-1.5 px-2 rounded-7.5"
+            <span
+              v-if="product.is_newest"
+              class="bg-#F7eee9 flex text-primary py-1.5 px-2 rounded-7.5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                  />
-                </svg>
-                新品
-              </span>
-              <span
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                />
+              </svg>
+              新品
+            </span>
+            <span
               v-if="product.is_hottest"
-                class="bg-primary flex text-#F7eee9 py-1.5 px-2 rounded-7.5"
+              class="bg-primary flex text-#F7eee9 py-1.5 px-2 rounded-7.5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
-                  />
-                </svg>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                />
+              </svg>
 
-                TOP
-              </span>
-            </div>
+              TOP
+            </span>
+          </div>
           <div v-if="product.category" class="text-sm text-gray-500">
-            分類：{{ product.category.name }}
+            分類：{{
+              typeof product.category === 'object' && product.category.name
+            }}
           </div>
         </div>
 
