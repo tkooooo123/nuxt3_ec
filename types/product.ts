@@ -17,7 +17,7 @@ export interface Product {
   size: string
   style: string
   category: string | { id: string; name: string; description: string }
-  createdAt: string
+  createdAt?: string
 }
 
 export interface ProductsResponse {

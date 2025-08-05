@@ -1,49 +1,15 @@
 <script setup lang="ts">
 import type { FormInstance, FormRules } from 'element-plus'
+import type { ApiResponse } from '~/types/api'
+import type { AdminOrder } from '~/types/order'
 
 definePageMeta({
   layout: 'admin'
 })
 
-interface Order {
-  id: string
-  user: {
-    userId: string
-    name: string
-    email: string
-  }
-  items: Array<{
-    id: string
-    name: string
-    image: string
-    quantity: number
-    price: number
-    origin_price: number
-    stock: number
-    origin_quantity: number
-  }>
-  total: number
-  shipping: {
-    name: string
-    phone: string
-    address: string
-    email: string
-    message: string
-  }
-  status:
-    | 'pending'
-    | 'paid'
-    | 'shipped'
-    | 'shipping'
-    | 'completed'
-    | 'cancelled'
-  payment: 'credit_card' | 'cash_on_delivery'
-  createdAt: string // ISO 字串格式
-}
-
 const token = useCookie('token')
 const route = useRoute()
-const order = ref<Order[]>([])
+const order = ref<AdminOrder[]>([])
 
 const formRef = ref<FormInstance>()
 const ruleForm = ref({
@@ -79,17 +45,22 @@ const recalculateTotal = () => {
 
 const getOrder = async () => {
   try {
-    const { data } = await $fetch<any>(`/api/admin/order/${route.params.id}`, {
-      headers: {
+    const res = await $fetch<ApiResponse<AdminOrder>>(
+      `/api/admin/order/${route.params.id}`,
+      {
+        headers: {
           Authorization: `Bearer ${token.value}`
+        }
       }
-    })
-    order.value = [data]
-    order.value[0]?.items.forEach((item) => {
-      item.origin_quantity = item.quantity
-    })
-    ruleForm.value = { ...data.shipping }
-    recalculateTotal()
+    )
+    if (res.data) {
+      order.value = [res.data]
+      order.value[0]?.items.forEach((item) => {
+        item.origin_quantity = item.quantity
+      })
+      ruleForm.value = { ...res.data.shipping }
+      recalculateTotal()
+    }
   } catch (error) {
     console.error('取得訂單失敗', error)
   }
@@ -101,12 +72,11 @@ const editOrder = async () => {
     items: order.value[0].items,
     total: order.value[0].total
   }
-  console.log(data)
   try {
     const res = await $fetch(`/api/admin/order/${route.params.id}`, {
       method: 'PUT',
       headers: {
-          Authorization: `Bearer ${token.value}`
+        Authorization: `Bearer ${token.value}`
       },
       body: data
     })

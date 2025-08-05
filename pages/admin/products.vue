@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { UploadFilled, Delete } from '@element-plus/icons-vue'
 import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
+import type { ApiResponse } from '~/types/api'
+import type { Product } from '~/types/product'
+import type { Category } from '~/types/category'
 import adminAuth from '~/middleware/adminAuth'
 import { toast } from 'vue3-toastify'
 
@@ -8,39 +11,16 @@ definePageMeta({
   layout: 'admin',
   middleware: adminAuth
 })
-interface product {
-  id: string
-  name: string
-  description: string
-  image: string
-  imagesUrl: string[]
-  quantity: number
-  price: number
-  origin_price: number
-  content: string
-  isEnabled: boolean
-  unit: string
-  is_hottest: boolean
-  is_newest: boolean
-  notice: string
-  material: string
-  size: string
-  style: string
-  category: string | { id: string; name: string; description: string }
-}
 
-interface category {
-  id: string
-  name: string
-  description: string
-}
+
+
 const token = useCookie('token')
 const loadingStore = useLoadingStore()
 const productDialogVisible = ref<boolean>(false)
 const deleteDialogVisible = ref<boolean>(false)
-const selectToDelete = ref<product | null>(null)
+const selectToDelete = ref<Product | null>(null)
 const type = ref<'edit' | 'create'>('create')
-const productList = ref<product[]>([
+const productList = ref<Product[]>([
   {
     id: '',
     name: '',
@@ -59,11 +39,12 @@ const productList = ref<product[]>([
     material: '',
     size: '',
     style: '',
-    category: ''
+    category: '',
+    createdAt: ''
   }
 ])
 
-const categories = ref<category[]>([])
+const categories = ref<Category[]>([])
 const uploadFile = ref<UploadRawFile | null>(null)
 const loading = ref<boolean>(false)
 const selectedProductId = ref<string>('')
@@ -73,7 +54,7 @@ const multipleUploadFiles = ref<File[]>([])
 const multipleUploadLoading = ref<boolean>(false)
 
 const formRef = ref<FormInstance>()
-const rules: FormRules<product> = {
+const rules: FormRules<Product> = {
   name: [{ required: true, message: '請輸入名稱', trigger: 'blur' }],
   category: [{ required: true, message: '請選擇分類', trigger: 'blur' }],
   unit: [{ required: true, message: '請輸入單位', trigger: 'blur' }],
@@ -84,7 +65,7 @@ const rules: FormRules<product> = {
   image: [{ required: true, message: '請上傳圖片', trigger: 'blur' }],
   imagesUrl: [{ required: true, message: '請上傳圖片', trigger: 'blur' }]
 }
-const ruleForm = reactive<product>({
+const ruleForm = reactive<Product>({
   id: '',
   name: '',
   description: '',
@@ -102,7 +83,7 @@ const ruleForm = reactive<product>({
   notice: '',
   material: '',
   size: '',
-  style: ''
+  style: '',
 })
 
 const checkFileType = async (file: UploadRawFile) => {
@@ -234,7 +215,7 @@ const removeImage = (index: number) => {
   })
 }
 
-const editProduct = (row: product) => {
+const editProduct = (row: Product) => {
   type.value = 'edit'
   selectedProductId.value = row.id
   ruleForm.name = row.name
@@ -303,7 +284,7 @@ const fetchCategories = async () => {
 const fetchProducts = async () => {
   loadingStore.show()
   try {
-    const { data } = await $fetch<{ message: string; data: any[] }>(
+    const res = await $fetch<ApiResponse<Product[]>>(
       '/api/admin/products',
       {
         headers: {
@@ -311,7 +292,10 @@ const fetchProducts = async () => {
         }
       }
     )
-    productList.value = data
+    if(res.data) {
+      productList.value = res.data
+    }
+   
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
@@ -374,7 +358,7 @@ const addProduct = async () => {
 const updateProduct = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<{ message: string; data: any }>(
+    const res = await $fetch<ApiResponse<Product>>(
       '/api/admin/product',
       {
         method: 'PUT',

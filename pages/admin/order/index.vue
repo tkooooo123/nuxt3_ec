@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { toast } from 'vue3-toastify'
 import adminAuth from '~/middleware/adminAuth'
+import type { ApiResponse } from '~/types/api'
+import type { OrderResponse } from '~/types/order'
 
 definePageMeta({
   layout: 'admin',
@@ -8,19 +10,22 @@ definePageMeta({
 })
 const token = useCookie('token')
 const loadingStore = useLoadingStore()
-const ordersList = ref<any[]>([])
+const ordersList = ref<OrderResponse[]>([])
 const deleteDialogVisible = ref<boolean>(false)
 const selectedOrderId = ref<string>('')
 
 const getOrders = async () => {
   loadingStore.show()
   try {
-    const res: any = await $fetch('/api/admin/orders', {
+    const res = await $fetch<ApiResponse<OrderResponse[]>>('/api/admin/orders', {
       headers: {
           Authorization: `Bearer ${token.value}`
       }
     })
-    ordersList.value = res.data
+    if(res.data) {
+      ordersList.value = res.data
+    }
+
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {

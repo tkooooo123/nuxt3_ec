@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
+import type { ApiResponse } from '~/types/api'
+import type { Category } from '~/types/category'
 import { FetchError } from 'ofetch'
 import adminAuth from '~/middleware/adminAuth'
 import { toast } from 'vue3-toastify'
@@ -8,11 +10,7 @@ definePageMeta({
   layout: 'admin',
   middleware: adminAuth
 })
-interface category {
-  id: string
-  name: string
-  description: string
-}
+
 interface CatrgoryRuleForm {
   name: string
   description: string
@@ -20,13 +18,13 @@ interface CatrgoryRuleForm {
 
 const token = useCookie('token')
 const loadingStore = useLoadingStore()
-const categoryList = ref<category[]>([])
+const categoryList = ref<Category[]>([])
 
 const createDialogVisible = ref<boolean>(false)
 const deleteDialogVisible = ref<boolean>(false)
 const type = ref<string>('')
 const selectedCategoryId = ref<string>('')
-const selectToDelete = ref<category | null>(null)
+const selectToDelete = ref<Category | null>(null)
 
 const formRef = ref<FormInstance>()
 const ruleform = reactive<CatrgoryRuleForm>({
@@ -41,7 +39,7 @@ const rules: FormRules<CatrgoryRuleForm> = {
 const getCategories = async () => {
   loadingStore.show()
   try {
-    const { data } = await $fetch<{ data: category[] }>(
+    const res = await $fetch<ApiResponse<Category[]>>(
       '/api/admin/categories',
       {
         headers: {
@@ -49,8 +47,8 @@ const getCategories = async () => {
         }
       }
     )
-    if (data) {
-      categoryList.value = data
+    if (res.data) {
+      categoryList.value = res.data
     }
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
@@ -120,7 +118,7 @@ const handleSubmit = () => {
   })
 }
 
-const handleEdit = (item: category) => {
+const handleEdit = (item: Category) => {
   createDialogVisible.value = true
   type.value = 'edit'
   ruleform.name = item.name
