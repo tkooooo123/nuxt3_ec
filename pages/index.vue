@@ -69,11 +69,7 @@ const getProducts = async () => {
   } catch (err: any) {
     console.error('取得商品失敗:', err)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
-      console.log('api')
       loadingStore.hide()
-    })
   }
 }
 
@@ -105,7 +101,7 @@ onMounted(() => {
       />
       <!-- Banner 文案內容 -->
       <div
-        class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center"
+        class="absolute inset-0 bg-black bg-opacity-15 flex items-center justify-center"
       >
         <div class="text-center text-white px-4">
           <h1 class="text-8 md:text-12 lg:text-16 font-bold mb-4">
