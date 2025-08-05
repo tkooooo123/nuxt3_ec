@@ -103,9 +103,49 @@ onMounted(() => {
         src="/images/home_banner.jpg"
         alt="banner"
       />
+      <!-- Banner 文案內容 -->
+      <div
+        class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center"
+      >
+        <div class="text-center text-white px-4">
+          <h1 class="text-8 md:text-12 lg:text-16 font-bold mb-4">
+            精選烘焙商品
+          </h1>
+          <p
+            class="text-4 md:text-6 lg:text-8 mb-8 max-w-2xl mx-auto leading-relaxed"
+          >
+            嚴選優質原料，手工製作的美味烘焙，為您的生活增添甜蜜滋味
+          </p>
+          <div
+            class="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <button
+              @click="navigateTo('/products')"
+              class="flex items-center gap-2 h-12 px-8 font-600 bg-primary hover:bg-primary_dark transition-all duration-200 cursor-pointer text-white rounded-30px text-4 md:text-5"
+            >
+              <span>前去逛逛</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- 向下滾動箭頭 -->
       <div class="absolute bottom-2 left-1/2 -translate-x-1/2">
         <svg
-        @click="scrollToSection('hottest-product')"
+          @click="scrollToSection('hottest-product')"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -128,7 +168,7 @@ onMounted(() => {
       <h2
         class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
         id="hottest-product"
-        >
+      >
         熱門商品
       </h2>
       <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
