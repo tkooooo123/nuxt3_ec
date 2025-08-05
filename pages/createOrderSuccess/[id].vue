@@ -1,21 +1,22 @@
 <script setup lang="ts">
+import type { ApiResponse } from '~/types/api'
+import type { OrderResponse, OrderItem } from '~/types/order'
 const route = useRoute()
 const orderId = route.params.id
-const order = ref<any>()
+const order = ref<OrderResponse>()
 const getOrder = async () => {
-  const res: any = await $fetch(`/api/order/${orderId}`)
-  console.log(res)
+  const res = await $fetch<ApiResponse<OrderResponse>>(`/api/order/${orderId}`)
   order.value = res.data
 }
 const submitPayment = async () => {
-
+  if (!order.value) return
   const res = await $fetch('/api/ecpay', {
     method: 'POST',
     body: {
       orderId: order.value.id,
       amount: order.value.total,
       description: '訂單測試',
-      itemName: order.value.items.map((item: any) => item.name).join(','),
+      itemName: order.value.items.map((item: OrderItem) => item.name).join(','),
       page: 'createOrderSuccess'
     },
     responseType: 'text' // 回傳 HTML 字串
@@ -32,7 +33,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="pt-17 px-12">
+  <div class="pt-17 pb-20 px-12">
     <h1
       class="text-center relative after:content-[''] after:absolute after:z-[2] after:bottom-[-6px] after:left-0 after:w-54 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
     >
@@ -53,8 +54,14 @@ onMounted(() => {
         </p>
       </div>
       <div class="p-4 bg-red-100 flex flex-col justify-center items-center">
-        <div v-if="order?.payment === 'credit_card' && order?.status === 'pending'" class="py-6">
-          <button class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors cursor-pointer" @click="submitPayment">
+        <div
+          v-if="order?.payment === 'credit_card' && order?.status === 'pending'"
+          class="py-6"
+        >
+          <button
+            class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors cursor-pointer"
+            @click="submitPayment"
+          >
             立即付款
           </button>
         </div>

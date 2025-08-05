@@ -1,44 +1,6 @@
 <script setup lang="ts">
-interface Product {
-  id: string
-  name: string
-  image: string
-  imagesUrl: string[]
-  description: string
-  content: string
-  quantity: number
-  price: number
-  origin_price: number
-  unit: string
-  is_hottest: boolean
-  is_newest: boolean
-  notice: string
-  material: string
-  size: string
-  style: string
-  category: {
-    id: string
-    name: string
-    description: string
-  } | null
-  createdAt: string
-}
-
-interface ApiResponse {
-  message: string
-  data: {
-    products: Product[]
-    pagination: {
-      currentPage: number
-      totalPages: number
-      totalItems: number
-      itemsPerPage: number
-      hasNextPage: boolean
-      hasPrevPage: boolean
-    }
-  }
-}
-
+import type { ApiResponse } from '~/types/api'
+import type { Product, ProductsResponse } from '~/types/product'
 const loadingStore = useLoadingStore()
 
 const products = ref<Product[]>([])
@@ -52,24 +14,27 @@ const selectedHottestImageIndex = ref(0)
 const getProducts = async () => {
   loadingStore.show()
   try {
-    const { data } = await $fetch<ApiResponse>('/api/product/all')
-    products.value = data.products
-    newestProduct.value = data.products[0]
-    hottestProduct.value = data.products.filter(
-      (product) => product.is_hottest
-    )[0]
-    newestProductImages.value = [
-      data.products[0].image,
-      ...data.products[0].imagesUrl
-    ]
-    hottestProductImages.value = [
-      data.products.filter((product) => product.is_hottest)[0].image,
-      ...data.products.filter((product) => product.is_hottest)[0].imagesUrl
-    ]
+    const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
+    if (res.data) {
+      products.value = res.data.products
+      newestProduct.value = res.data.products[0]
+      hottestProduct.value = res.data.products.filter(
+        (product) => product.is_hottest
+      )[0]
+      newestProductImages.value = [
+        res.data.products[0].image,
+        ...res.data.products[0].imagesUrl
+      ]
+      hottestProductImages.value = [
+        res.data.products.filter((product) => product.is_hottest)[0].image,
+        ...res.data.products.filter((product) => product.is_hottest)[0]
+          .imagesUrl
+      ]
+    }
   } catch (err: any) {
     console.error('取得商品失敗:', err)
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 

@@ -1,13 +1,16 @@
+import type { User } from "~/types/user"
+
 export const useAuth = () => {
+
   // 獲取 token
   const getToken = () => {
-    const token = useCookie('token')
+    const token = useCookie<string | null>('token')
     return token.value
   }
 
   // 獲取用戶資訊
   const getUser = () => {
-    const userInfo = useCookie('userInfo')
+    const userInfo = useCookie<User | null>('userInfo')
     return userInfo.value ? userInfo.value : null
   }
 
@@ -26,8 +29,8 @@ export const useAuth = () => {
   const logout = async () => {
    
       // 都要清除本地狀態
-      const token = useCookie('token')
-      const userInfo = useCookie('userInfo')
+      const token = useCookie<string | null>('token')
+      const userInfo = useCookie<User | null>('userInfo')
 
       token.value = null
       userInfo.value = null
@@ -39,8 +42,8 @@ export const useAuth = () => {
 
   // 清除認證狀態（不重定向）
   const clearAuth = () => {
-    const token = useCookie('token')
-    const userInfo = useCookie('userInfo')
+    const token = useCookie<string | null>('token')
+    const userInfo = useCookie<User | null>('userInfo')
 
     token.value = null
     userInfo.value = null

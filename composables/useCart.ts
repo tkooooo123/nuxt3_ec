@@ -1,4 +1,6 @@
 import { toast } from 'vue3-toastify'
+import type { ApiResponse } from '~/types/api'
+import type { CartResponse } from '~/types/cart'
 
 export const useCart = () => {
   // 使用 useState 確保全局狀態共享
@@ -12,7 +14,7 @@ export const useCart = () => {
   const fetchCart = async () => {
     loadingStore.show()
     try {
-      const { data } = await $fetch<any>('/api/cart', {
+      const { data } = await $fetch<ApiResponse<CartResponse>>('/api/cart', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token.value}`
@@ -41,10 +43,7 @@ export const useCart = () => {
       cartItems.value = []
       cartCount.value = 0
     } finally {
-      await nextTick()
-      requestAnimationFrame(() => {
-        loadingStore.hide()
-      })
+        loadingStore.hide() 
     }
   }
 
@@ -81,10 +80,7 @@ export const useCart = () => {
         error: error.data?.statusMessage || '加入購物車失敗'
       }
     } finally {
-      await nextTick()
-      requestAnimationFrame(() => {
         loadingStore.hide()
-      })
     }
   }
 
@@ -113,10 +109,7 @@ export const useCart = () => {
         error: error.data?.statusMessage || '更新數量失敗'
       }
     } finally {
-      await nextTick()
-      requestAnimationFrame(() => {
         loadingStore.hide()
-      })
     }
   }
 
@@ -145,10 +138,7 @@ export const useCart = () => {
         error: error.data?.statusMessage || '移除商品失敗'
       }
     } finally {
-      await nextTick()
-      requestAnimationFrame(() => {
         loadingStore.hide()
-      })
     }
   }
 

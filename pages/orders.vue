@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ApiResponse } from '~/types/api'
+import type { OrderResponse, OrderItem } from '~/types/order'
 const loadingStore = useLoadingStore()
 // 使用 useAuth 檢查登入狀態
 const { isLoggedIn } = useAuth()
@@ -6,33 +8,29 @@ const { isLoggedIn } = useAuth()
 if (!isLoggedIn()) {
   await navigateTo('/login')
 }
-const orders = ref<any[]>([])
+const orders = ref<OrderResponse[]>([])
 const token = useCookie('token')
 const orderDialogVisible = ref<boolean>(false)
-const selectedOrder = ref<any>()
+const selectedOrder = ref<OrderResponse>()
 
 const getOrders = async () => {
   loadingStore.show()
   try {
-    const res: any = await $fetch('/api/order/all', {
+    const res = await $fetch<ApiResponse<OrderResponse[]>>('/api/order/all', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token.value}`
       }
     })
-    const data = await res.data
-    orders.value = data
+    orders.value = res.data || []
   } catch (error) {
     console.log(error)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
   }
 }
 
-const submitPayment = async (order: any) => {
+const submitPayment = async (order: OrderResponse) => {
   loadingStore.show()
   try {
     const res = await $fetch('/api/ecpay', {
@@ -41,7 +39,7 @@ const submitPayment = async (order: any) => {
         orderId: order.id,
         amount: order.total,
         description: '訂單測試',
-        itemName: order.items.map((item: any) => item.name).join(','),
+        itemName: order.items.map((item: OrderItem) => item.name).join(','),
         page: 'orders'
       },
       responseType: 'text' // 回傳 HTML 字串
@@ -223,8 +221,8 @@ onMounted(() => {
                 <span class="w-15 mr-2">處理狀態</span>
                 <span
                   v-if="
-                    selectedOrder.status === 'pending' &&
-                    selectedOrder.payment === 'credit_card'
+                    selectedOrder?.status === 'pending' &&
+                    selectedOrder?.payment === 'credit_card'
                   "
                 >
                   <button
@@ -234,17 +232,17 @@ onMounted(() => {
                     前往付款
                   </button>
                 </span>
-                <span v-else-if="selectedOrder.status === 'pending'"
+                <span v-else-if="selectedOrder?.status === 'pending'"
                   >待付款</span
                 >
-                <span v-else-if="selectedOrder.status === 'paid'">已付款</span>
-                <span v-else-if="selectedOrder.status === 'shipped'"
+                <span v-else-if="selectedOrder?.status === 'paid'">已付款</span>
+                <span v-else-if="selectedOrder?.status === 'shipped'"
                   >已出貨</span
                 >
-                <span v-else-if="selectedOrder.status === 'delivered'"
+                <span v-else-if="selectedOrder?.status === 'delivered'"
                   >已到貨</span
                 >
-                <span v-else-if="selectedOrder.status === 'cancelled'"
+                <span v-else-if="selectedOrder?.status === 'cancelled'"
                   >已取消</span
                 >
               </div>
@@ -276,7 +274,7 @@ onMounted(() => {
           <div class="mt-6 md:mt-0">
             <span class="text-4.5 font-600 text-primary">購買商品</span>
             <div
-              v-for="item in selectedOrder.items"
+              v-for="item in selectedOrder?.items"
               :key="item.id"
               class="mt-4 flex items-center"
             >
@@ -296,7 +294,7 @@ onMounted(() => {
             <hr class="my-4" />
             <div class="flex justify-between text-5 font-600">
               <span>總金額</span>
-              <span>$ {{ selectedOrder.total }}</span>
+              <span>$ {{ selectedOrder?.total }}</span>
             </div>
           </div>
         </div>
