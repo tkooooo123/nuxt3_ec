@@ -55,10 +55,8 @@ const submitPayment = async (order: any) => {
   } catch (error) {
     console.log(error)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
+    
   }
 }
 
