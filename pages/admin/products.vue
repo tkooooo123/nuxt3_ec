@@ -294,10 +294,8 @@ const fetchCategories = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
+    
   }
 }
 
@@ -317,10 +315,9 @@ const fetchProducts = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
+ 
       loadingStore.hide()
-    })
+   
   }
 }
 
@@ -369,10 +366,8 @@ const addProduct = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
+  
   }
 }
 
@@ -422,10 +417,9 @@ const updateProduct = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
+ 
       loadingStore.hide()
-    })
+   
   }
 }
 
@@ -458,10 +452,9 @@ const deleteProduct = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
+
       loadingStore.hide()
-    })
+  
   }
 }
 const handleSubmit = () => {

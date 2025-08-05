@@ -55,10 +55,7 @@ const getCategories = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
   }
 }
 
@@ -85,10 +82,7 @@ const addCategory = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
   }
 }
 
@@ -114,10 +108,7 @@ const handleDelete = async () => {
   } catch (error: any) {
     toast.error(`${error.data?.statusMessage}`)
   } finally {
-    await nextTick()
-    requestAnimationFrame(() => {
       loadingStore.hide()
-    })
   }
 }
 
