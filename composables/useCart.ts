@@ -43,7 +43,7 @@ export const useCart = () => {
       cartItems.value = []
       cartCount.value = 0
     } finally {
-        loadingStore.hide() 
+      loadingStore.hide()
     }
   }
 
@@ -72,7 +72,6 @@ export const useCart = () => {
         await fetchCart()
         toast.success('已成功加入購物車')
       }
-
     } catch (error: any) {
       toast.error(`${error.data?.statusMessage}`)
       return {
@@ -80,12 +79,15 @@ export const useCart = () => {
         error: error.data?.statusMessage || '加入購物車失敗'
       }
     } finally {
-        loadingStore.hide()
+      loadingStore.hide()
     }
   }
 
   // 更新購物車數量
-  const updateCartItemQuantity = async (productId: string, quantity: number) => {
+  const updateCartItemQuantity = async (
+    productId: string,
+    quantity: number
+  ) => {
     loadingStore.show()
     try {
       await $fetch(`/api/cart/quantity`, {
@@ -101,7 +103,6 @@ export const useCart = () => {
 
       // 重新獲取購物車資料
       await fetchCart()
-
     } catch (error: any) {
       toast.error(`${error.data?.statusMessage}`)
       return {
@@ -109,7 +110,7 @@ export const useCart = () => {
         error: error.data?.statusMessage || '更新數量失敗'
       }
     } finally {
-        loadingStore.hide()
+      loadingStore.hide()
     }
   }
 
@@ -130,7 +131,6 @@ export const useCart = () => {
       // 重新獲取購物車資料
       await fetchCart()
       toast.success('移除商品成功')
-
     } catch (error: any) {
       toast.error(`${error.data?.statusMessage}`)
       return {
@@ -138,14 +138,33 @@ export const useCart = () => {
         error: error.data?.statusMessage || '移除商品失敗'
       }
     } finally {
-        loadingStore.hide()
+      loadingStore.hide()
     }
   }
 
   // 清空購物車
-  const clearCart = () => {
-    cartItems.value = []
-    cartCount.value = 0
+  const clearCart = async () => {
+    loadingStore.show()
+    try {
+      if (!token.value) {
+        toast.error('請先登入')
+        cartItems.value = []
+        cartCount.value = 0
+        return
+      }
+      await $fetch('/api/cart/clear', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
+      })
+      await fetchCart()
+      toast.success('購物車已清空')
+    } catch (error: any) {
+      toast.error(`${error.data?.statusMessage || '清空購物車失敗'}`)
+    } finally {
+      loadingStore.hide()
+    }
   }
 
   return {

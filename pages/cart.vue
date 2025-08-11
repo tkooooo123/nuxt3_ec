@@ -5,13 +5,13 @@ import type { FormInstance, FormRules } from 'element-plus'
 const { isLoggedIn } = useAuth()
 
 //使用 useCart 獲取購物車資料
-const { cartItems, removeFromCart,updateCartItemQuantity } = useCart()
+const { cartItems, removeFromCart, updateCartItemQuantity, clearCart } =
+  useCart()
 
 // 如果未登入，重定向到登入頁面
 if (!isLoggedIn()) {
   await navigateTo('/login')
 }
-
 
 const router = useRouter()
 const token = useCookie('token')
@@ -65,7 +65,6 @@ const postOrder = async () => {
     console.log(error)
   }
 }
-
 </script>
 
 <template>
@@ -91,6 +90,7 @@ const postOrder = async () => {
       <div class="flex justify-end">
         <button
           class="flex items-center gap-2 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary px-4 py-2 rounded-full mt-4 cursor-pointer transition-all duration-200"
+          @click="clearCart"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,9 @@ const postOrder = async () => {
             <div class="flex items-center">
               <button
                 :disabled="scope.row.quantity === 1"
-                @click="updateCartItemQuantity(scope.row.id, scope.row.quantity - 1)"
+                @click="
+                  updateCartItemQuantity(scope.row.id, scope.row.quantity - 1)
+                "
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
@@ -154,7 +156,9 @@ const postOrder = async () => {
               >
               <button
                 :disabled="scope.row.quantity === scope.row.stock"
-                @click="updateCartItemQuantity(scope.row.id, scope.row.quantity + 1)"
+                @click="
+                  updateCartItemQuantity(scope.row.id, scope.row.quantity + 1)
+                "
                 class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
