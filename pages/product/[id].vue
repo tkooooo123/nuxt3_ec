@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Product } from '~/types/product'
+import type { Product, ProductsResponse } from '~/types/product'
 import type { ApiResponse } from '~/types/api'
 import type { User } from '~/types/user'
 
@@ -11,6 +11,7 @@ const error = ref<string | null>(null)
 const selectedImageIndex = ref(0)
 const quantity = ref(1)
 const detailType = ref<'content' | 'specification' | 'notice'>('content')
+const hottestList = ref<Product[]>([])
 
 const userCookie = useCookie('userInfo')
 const userInfo = userCookie.value as User | null
@@ -30,6 +31,19 @@ const getProduct = async () => {
     if (product.value) {
       imgList.value = [product.value.image, ...product.value.imagesUrl]
     }
+  } catch (err: any) {
+    error.value = err.data?.message || '無法載入商品資訊'
+  } finally {
+    loading.value = false
+  }
+}
+const getProducts = async () => {
+  try {
+    loading.value = true
+    const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
+    hottestList.value =
+      res.data && res.data.products.length > 0 ? res.data.products : []
+      console.log(hottestList.value)
   } catch (err: any) {
     error.value = err.data?.message || '無法載入商品資訊'
   } finally {
@@ -97,8 +111,9 @@ const formatPrice = (price: number) => {
   return price.toLocaleString('zh-TW')
 }
 
-onMounted(() => {
-  getProduct()
+onMounted(async () => {
+  await getProducts()
+  await getProduct()
 })
 </script>
 
@@ -454,14 +469,15 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <!-- <div>
+    <div>
       <h2
         class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
         id="hottest-product"
       >
         熱門商品
       </h2>
-    </div> -->
+      <FrontProductSwiper class="mt-5" :products="hottestList"></FrontProductSwiper>
+    </div>
   </div>
 </template>
 
