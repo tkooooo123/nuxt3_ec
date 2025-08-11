@@ -38,6 +38,7 @@ const rules = ref<FormRules>({
   address: [{ required: true, message: '請輸入地址', trigger: 'blur' }],
   payment: [{ required: true, message: '請選擇付款方式', trigger: 'blur' }]
 })
+const deleteDialogVisible = ref<boolean>(false)
 
 const submitOrder = async () => {
   formRef.value?.validate((valid) => {
@@ -90,7 +91,7 @@ const postOrder = async () => {
       <div class="flex justify-end">
         <button
           class="flex items-center gap-2 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary px-4 py-2 rounded-full mt-4 cursor-pointer transition-all duration-200"
-          @click="clearCart"
+          @click="deleteDialogVisible = true"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -389,6 +390,38 @@ const postOrder = async () => {
         </button>
       </div>
     </div>
+    <el-dialog v-model="deleteDialogVisible" width="300">
+      <div>
+        <div class="flex flex-col items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-24 text-red"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+            />
+          </svg>
+          <p class="text-5 font-600">確定要清空購物車嗎？</p>
+          <div class="flex">
+            <button class="rounded-16px cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
+            @click="deleteDialogVisible = false"
+            >取消</button>
+            <button class="rounded-16px bg-red-600 text-white px-4 py-2 cursor-pointer"
+            @click="() => {
+              clearCart()
+              deleteDialogVisible = false
+            }"
+            >確定</button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
