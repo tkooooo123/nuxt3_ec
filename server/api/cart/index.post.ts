@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
     // 獲取請求體
     const body = await readBody(event)
     const { productId, quantity = 1 } = body
-    console.log(userId, body)
     // 驗證必要參數
     if (!productId) {
       throw createError({

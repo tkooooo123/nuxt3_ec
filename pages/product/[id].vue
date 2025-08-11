@@ -43,7 +43,6 @@ const getProducts = async () => {
     const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
     hottestList.value =
       res.data && res.data.products.length > 0 ? res.data.products : []
-      console.log(hottestList.value)
   } catch (err: any) {
     error.value = err.data?.message || '無法載入商品資訊'
   } finally {
