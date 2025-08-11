@@ -3,7 +3,6 @@ import type { Product } from '~/types/product'
 import type { ApiResponse } from '~/types/api'
 import type { User } from '~/types/user'
 
-
 const route = useRoute()
 const product = ref<Product | null>(null)
 const loading = ref(true)
@@ -104,7 +103,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="pt-17 px-3 sm:px-12">
+  <div class="py-17 px-3 sm:px-12">
     <!-- 麵包屑導航 -->
     <div class="flex items-center mt-6 mb-8 text-sm text-gray-600">
       <NuxtLink to="/" class="hover:text-primary transition-colors"
@@ -401,19 +400,19 @@ onMounted(() => {
         >
         <span
           class="mr-3 p-3 rounded-2 cursor-pointer transition-all duration-200"
-          @click="detailType = 'specification'"
+          @click="detailType = 'notice'"
           :class="
-            detailType === 'specification'
-              ? 'bg-#fee2e2 text-primary'
-              : 'bg-#ECECEC'
+            detailType === 'notice' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'
           "
           >注意事項</span
         >
         <span
           class="p-3 rounded-2 cursor-pointer transition-all duration-200"
-          @click="detailType = 'notice'"
+          @click="detailType = 'specification'"
           :class="
-            detailType === 'notice' ? 'bg-#fee2e2 text-primary' : 'bg-#ECECEC'
+            detailType === 'specification'
+              ? 'bg-#fee2e2 text-primary'
+              : 'bg-#ECECEC'
           "
           >產品規格</span
         >
@@ -424,14 +423,59 @@ onMounted(() => {
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>
-      <div class="max-w-none" v-if="detailType === 'specification'">
+      <div class="max-w-none" v-if="detailType === 'notice'">
         <div
           v-html="product.notice"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>
+      <div class="max-w-none" v-if="detailType === 'specification'">
+        <div class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2">
+          <table>
+            <tbody>
+              <tr>
+                <th class="w-20 font-600">風味</th>
+                <td>{{ product.style }}</td>
+              </tr>
+              <tr>
+                <th class="w-20 font-600">成分</th>
+                <td>{{ product.material }}</td>
+              </tr>
+              <tr>
+                <th class="w-20 font-600">尺寸</th>
+                <td>{{ product.size }}</td>
+              </tr>
+              <tr>
+                <th class="w-20 font-600">單位</th>
+                <td>{{ product.unit }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+    <!-- <div>
+      <h2
+        class="mt-30 mb-10 text-7 md:text-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-32 md:after:w-44 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
+        id="hottest-product"
+      >
+        熱門商品
+      </h2>
+    </div> -->
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+table {
+  border-collapse: collapse; /* 合併框線 */
+  width: 100%;
+}
+th,
+td {
+  border: 1px solid #ccc; /* 細灰色框線 */
+  padding: 8px 12px;
+}
+th {
+  background-color: #f7f7f7;
+}
+</style>
