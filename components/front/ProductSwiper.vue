@@ -27,8 +27,12 @@ const onSlideChange = () => {
     prevBtnVisible.value = !isAtStart
   }
 }
-const goToPrev = () => {
+const goToNext = () => {
   swiperRef.value?.slideNext()
+  setTimeout(onSlideChange, 200)
+}
+const goToPrev = () => {
+   swiperRef.value?.slidePrev()
   setTimeout(onSlideChange, 200)
 }
 </script>
@@ -36,6 +40,7 @@ const goToPrev = () => {
 <template>
   <Swiper
     @swiper="onSwiper"
+   @slideChange="onSlideChange"
     :modules="[Navigation]"
     :breakpoints="{
       0: {
@@ -139,7 +144,7 @@ const goToPrev = () => {
     </SwiperSlide>
     <button
           v-show="prevBtnVisible"
-          @click="swiperRef?.slidePrev()"
+          @click="goToPrev"
           class="bg-primary dark:bg-white w-[clamp(24px,7vw,48px)] h-[clamp(24px,7vw,48px)] rounded-50% flex justify-center items-center absolute top-50% transform-translate-y--50% left-0 z-3 cursor-pointer"
         >
           <svg
@@ -159,7 +164,7 @@ const goToPrev = () => {
         </button>
         <button
           v-show="nextBtnVisible"
-          @click="goToPrev"
+          @click="goToNext"
           class="bg-primary dark:bg-white w-[clamp(24px,7vw,48px)] h-[clamp(24px,7vw,48px)] md:h-12 md:w-12 rounded-50% flex justify-center items-center absolute top-50% transform-translate-y--50% right-0 z-5 cursor-pointer"
         >
           <svg
