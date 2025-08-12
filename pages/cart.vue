@@ -5,7 +5,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 const { isLoggedIn } = useAuth()
 
 //使用 useCart 獲取購物車資料
-const { cartItems, removeFromCart, updateCartItemQuantity, clearCart } =
+const { cartItems, removeFromCart, updateCartItemQuantity, clearCart, fetchCart } =
   useCart()
 
 // 如果未登入，重定向到登入頁面
@@ -60,6 +60,7 @@ const postOrder = async () => {
       }
     })
     if (res) {
+      await fetchCart()
       router.push(`/createOrderSuccess/${res.data.orderId}`)
     }
   } catch (error) {
@@ -69,7 +70,7 @@ const postOrder = async () => {
 </script>
 
 <template>
-  <div class="pt-17 px-3 sm:px-12">
+  <div class="py-17 px-3 sm:px-12">
     <h1
       class="text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-28 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
     >
