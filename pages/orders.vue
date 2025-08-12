@@ -13,6 +13,15 @@ const token = useCookie('token')
 const orderDialogVisible = ref<boolean>(false)
 const selectedOrder = ref<OrderResponse>()
 
+// 分頁相關
+const currentPage = ref<number>(1)
+const pageSize = ref<number>(10)
+  const pagedOrders = computed<OrderResponse[]>(() => {
+  if (!orders.value.length) return []
+  const start = (currentPage.value - 1) * pageSize.value
+  return orders.value.slice(start, start + pageSize.value)
+})
+
 const getOrders = async () => {
   loadingStore.show()
   try {
@@ -72,7 +81,7 @@ onMounted(() => {
     </h1>
     <el-container class="max-w-180 mx-auto mt-10">
       <div v-if="orders.length > 0" class="w-full">
-        <el-table :data="orders" class="rounded-2 pb-4 hidden md:block">
+        <el-table :data="pagedOrders" class="rounded-2 pb-4 hidden md:block">
           <el-table-column prop="id" label="訂單編號" width="220" />
           <el-table-column label="建立時間" width="100">
             <template #default="scope">
@@ -128,7 +137,7 @@ onMounted(() => {
           </el-table-column>
         </el-table>
         <div
-          v-for="order in orders"
+          v-for="order in pagedOrders"
           :key="order?.id"
           class="flex flex-col p-6 bg-white mb-4 rounded-2 md:hidden"
         >
@@ -174,6 +183,16 @@ onMounted(() => {
               查看更多
             </button>
           </div>
+        </div>
+          <!-- 分頁 -->
+          <div class="flex justify-center mt-6">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="orders.length"
+            v-model:current-page="currentPage"
+            :page-size="pageSize"
+          />
         </div>
       </div>
 
