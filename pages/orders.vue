@@ -14,13 +14,7 @@ const orderDialogVisible = ref<boolean>(false)
 const selectedOrder = ref<OrderResponse>()
 
 // 分頁相關
-const currentPage = ref<number>(1)
-const pageSize = ref<number>(10)
-const pagedOrders = computed<OrderResponse[]>(() => {
-  if (!orders.value.length) return []
-  const start = (currentPage.value - 1) * pageSize.value
-  return orders.value.slice(start, start + pageSize.value)
-})
+const { currentPage, pageSize, pagedData: pagedOrders } = usePagination<OrderResponse>(orders, 10)
 
 const getOrders = async () => {
   loadingStore.show()
@@ -187,12 +181,10 @@ onMounted(() => {
         </div>
         <!-- 分頁 -->
         <div class="flex justify-center mt-6">
-          <el-pagination
-            background
-            layout="prev, pager, next"
+          <Pagination
             :total="orders.length"
-            v-model:current-page="currentPage"
             :page-size="pageSize"
+            v-model:currentPage="currentPage"
           />
         </div>
       </div>
@@ -332,5 +324,8 @@ onMounted(() => {
   .el-pagination .el-pager li.is-active {
     background: #c97c5d;
   }
+  .el-pagination .el-pager li.number:hover {
+      color: #c97c5d;
+    }
 }
 </style>

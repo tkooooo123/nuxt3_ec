@@ -259,7 +259,8 @@ const resetForm = () => {
   ruleForm.size = ''
   ruleForm.style = ''
 }
-
+// 分頁相關
+const { currentPage, pageSize, pagedData: pagedProducts } = usePagination<Product>(productList, 10)
 // 取得分類資料
 const fetchCategories = async () => {
   try {
@@ -479,7 +480,7 @@ onMounted(() => {
             新增產品
           </button>
         </div>
-        <el-table :data="productList" class="mt-6">
+        <el-table :data="pagedProducts" class="mt-6">
           <el-table-column label="No" width="60">
             <template #default="scope">
               {{ scope.$index + 1 }}
@@ -598,6 +599,14 @@ onMounted(() => {
             </template>
           </el-table-column>
         </el-table>
+         <!-- 分頁 -->
+         <div class="flex justify-center mt-6">
+          <Pagination
+            :total="productList.length"
+            :page-size="pageSize"
+            v-model:currentPage="currentPage"
+          />
+        </div>
 
         <el-dialog
           :title="`${type === 'edit' ? '編輯' : '新增'}產品`"

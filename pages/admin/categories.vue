@@ -36,6 +36,10 @@ const rules: FormRules<CatrgoryRuleForm> = {
   name: [{ required: true, message: '請輸入分類名稱', trigger: 'blur' }],
   description: [{ required: true, message: '請輸入分類描述', trigger: 'blur' }]
 }
+
+// 分頁相關
+const { currentPage, pageSize, pagedData: pagedCategory } = usePagination<Category>(categoryList, 10)
+
 const getCategories = async () => {
   loadingStore.show()
   try {
@@ -150,8 +154,7 @@ onMounted(() => {
         </div>
         <el-table
           class="mt-8"
-          :data="categoryList"
-          :headerCellStyle="{ background: '#60A5FA', color: 'white' }"
+          :data="pagedCategory"
         >
           <el-table-column label="No" width="60"></el-table-column>
           <el-table-column
@@ -184,6 +187,14 @@ onMounted(() => {
             </template></el-table-column
           >
         </el-table>
+        <!-- 分頁 -->
+        <div class="flex justify-center mt-6">
+          <Pagination
+            :total="categoryList.length"
+            :page-size="pageSize"
+            v-model:currentPage="currentPage"
+          />
+        </div>
       </div>
     </div>
 
@@ -261,4 +272,5 @@ onMounted(() => {
     padding: 24px;
   }
 }
+
 </style>

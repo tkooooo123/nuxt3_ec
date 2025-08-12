@@ -14,6 +14,9 @@ const ordersList = ref<OrderResponse[]>([])
 const deleteDialogVisible = ref<boolean>(false)
 const selectedOrderId = ref<string>('')
 
+// 分頁相關
+const { currentPage, pageSize, pagedData: pagedOrders } = usePagination<OrderResponse>(ordersList, 10)
+
 const getOrders = async () => {
   loadingStore.show()
   try {
@@ -63,7 +66,7 @@ onMounted(() => {
     <div class="w-full">
       <div class="p-6">
         <h1 class="text-8">訂單管理</h1>
-        <el-table :data="ordersList" class="mt-6">
+        <el-table :data="pagedOrders" class="mt-6">
           <el-table-column label="No" width="60">
             <template #default="scope">
               <span>{{ scope.$index + 1 }}</span>
@@ -144,6 +147,15 @@ onMounted(() => {
             </template>
           </el-table-column>
         </el-table>
+
+        <!-- 分頁 -->
+        <div class="flex justify-center mt-6">
+          <Pagination
+            :total="ordersList.length"
+            :page-size="pageSize"
+            v-model:currentPage="currentPage"
+          />
+        </div>
       </div>
       <el-dialog title="刪除訂單" v-model="deleteDialogVisible">
         <div>
