@@ -1,10 +1,15 @@
 {
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "strict": true,           // 開啟 TypeScript 嚴格模式
-    "noImplicitAny": true,    // 不允許隱式的 any 類型
-    "noUnusedLocals": true,   //  如果有宣告但未使用的變數，將會報錯
-    "noUnusedParameters": true, // 如果函式參數未被使用，將會報錯
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@/*": ["./*"]
+    }
   }
 }

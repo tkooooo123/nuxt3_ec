@@ -11,6 +11,7 @@ export default [
     ignores: [
       'node_modules/',
       '.nuxt/',
+      '.nuxt/**/*',
       'dist/',
       '.output/',
       '*.log',
@@ -88,6 +89,27 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off'
+    }
+  },
+  {
+    files: ['.nuxt/**/*.ts'],
+    rules: {
+      'no-unused-vars': 'off'
+    }
+  },
+  {
+    files: ['.nuxt/**/*.mjs'],
+    rules: {
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      'no-useless-escape': 'off'
+    }
+  },
+  {
+    files: ['.nuxt/**/*.d.ts'],
+    rules: {
+      'no-redeclare': 'off',
+      'no-undef': 'off',
     }
   }
 ]

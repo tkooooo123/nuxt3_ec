@@ -67,14 +67,10 @@ const handleSignUp = async () => {
     })
     toast.success(data.message || '註冊成功，請登入')
     await navigateTo('/login')
-  } catch (error: any) {
+  } catch (error: unknown) {
     let msg = '註冊失敗，請稍後再試'
     if (error instanceof FetchError) {
-      msg = error.data?.message || msg
-    } else if (error?.data?.message) {
-      msg = error.data.message
-    } else if (error?.message) {
-      msg = error.message
+      msg = error.data.statusMessage
     }
     toast.error(msg)
   } finally {

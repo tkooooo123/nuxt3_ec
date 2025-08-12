@@ -3,6 +3,7 @@ import { toast } from 'vue3-toastify'
 import adminAuth from '~/middleware/adminAuth'
 import type { ApiResponse } from '~/types/api'
 import type { OrderResponse } from '~/types/order'
+import { FetchError } from 'ofetch'
 
 definePageMeta({
   layout: 'admin',
@@ -15,33 +16,41 @@ const deleteDialogVisible = ref<boolean>(false)
 const selectedOrderId = ref<string>('')
 
 // 分頁相關
-const { currentPage, pageSize, pagedData: pagedOrders } = usePagination<OrderResponse>(ordersList, 10)
+const {
+  currentPage,
+  pageSize,
+  pagedData: pagedOrders
+} = usePagination<OrderResponse>(ordersList, 10)
 
 const getOrders = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<ApiResponse<OrderResponse[]>>('/api/admin/orders', {
-      headers: {
+    const res = await $fetch<ApiResponse<OrderResponse[]>>(
+      '/api/admin/orders',
+      {
+        headers: {
           Authorization: `Bearer ${token.value}`
+        }
       }
-    })
-    if(res.data) {
+    )
+    if (res.data) {
       ordersList.value = res.data
     }
-
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 const handleDelete = async () => {
   loadingStore.show()
   try {
-    const res: any = await $fetch(`/api/admin/order/${selectedOrderId.value}`, {
+    const res = await $fetch<{ message: string }>(`/api/admin/order/${selectedOrderId.value}`, {
       method: 'DELETE',
       headers: {
-          Authorization: `Bearer ${token.value}`
+        Authorization: `Bearer ${token.value}`
       }
     })
 
@@ -49,10 +58,12 @@ const handleDelete = async () => {
 
     await getOrders()
     deleteDialogVisible.value = false
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 

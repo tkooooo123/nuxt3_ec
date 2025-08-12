@@ -4,6 +4,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { toast } from 'vue3-toastify'
 import type { ApiResponse } from '~/types/api'
 import type { User } from '~/types/user'
+import { FetchError } from 'ofetch'
 
 definePageMeta({
   layout: false
@@ -62,7 +63,6 @@ const handleLogin = async () => {
         sameSite: 'strict'
       })
       token.value = res.data.token
-      console.log(res.data)
 
       // 儲存用戶資訊
       const userInfo = useCookie('userInfo', {
@@ -83,9 +83,13 @@ const handleLogin = async () => {
     } else {
       await navigateTo('/')
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    let msg
     // 錯誤處理
-    const msg = error?.data?.message || error?.message || '登入失敗，請稍後再試'
+    if(error instanceof FetchError) {
+        msg = error?.data?.message || error?.message || '登入失敗，請稍後再試'
+    }
+ 
     toast.error(`登入失敗: ${msg}`)
     // 登入失敗時清除認證狀態
     clearAuth()

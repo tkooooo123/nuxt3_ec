@@ -28,8 +28,12 @@ export async function useCloudinaryUpload(file: File): Promise<string> {
     }
 
     return data.secure_url
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if(error instanceof Error) {
     throw new Error(`Cloudinary 上傳失敗: ${error.message || error}`)
+    } else {
+      throw new Error('Cloudinary 上傳失敗')
+    }
   }
 }
 
@@ -75,13 +79,18 @@ export async function useCloudinaryUploadMultiple(
       try {
         const url = await uploadPromises[i]
         results.push(url)
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if(error instanceof Error) 
         throw new Error(`第 ${i + 1} 張圖片上傳失敗: ${error.message}`)
       }
     }
 
     return results
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if(error instanceof Error) {
     throw new Error(`多張圖片上傳失敗: ${error.message || error}`)
+    } else {
+      throw new Error('多張圖片上傳失敗')
+    }
   }
 }

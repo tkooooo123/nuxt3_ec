@@ -1,15 +1,26 @@
 export interface CartResponse {
-  items: CartItem[]
+  items: CartItemResponse[]
   totalItems: number
   totalPrice: number
   itemCount: number
 }
 
-interface CartItem {
+export interface CartItemResponse {
   product: Product
   quantity: number
   price: number
 }
+export interface CartItem {
+  id: string
+  image: string
+  name: string
+  origin_price: number
+  price: number
+  quantity: number
+  stock: number
+  unit: string
+}
+
 interface Product {
   id: string
   name: string

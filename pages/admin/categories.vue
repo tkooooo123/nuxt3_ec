@@ -54,8 +54,10 @@ const getCategories = async () => {
     if (res.data) {
       categoryList.value = res.data
     }
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
       loadingStore.hide()
   }
@@ -81,8 +83,10 @@ const addCategory = async () => {
       ruleform.description = ''
       getCategories()
     }
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  }  catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
       loadingStore.hide()
   }
@@ -105,10 +109,11 @@ const handleDelete = async () => {
 
     // 關閉 dialog 並重置選擇
     await getCategories()
-    console.log(deleteDialogVisible.value)
     deleteDialogVisible.value = false
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  }  catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
       loadingStore.hide()
   }

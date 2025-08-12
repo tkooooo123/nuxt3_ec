@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/api'
 import type { Product, ProductsResponse } from '~/types/product'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
+
 const loadingStore = useLoadingStore()
 
 const products = ref<Product[]>([])
@@ -31,8 +34,9 @@ const getProducts = async () => {
           .imagesUrl
       ]
     }
-  } catch (err: any) {
-    console.error('取得商品失敗:', err)
+  } catch (err: unknown) {
+    if(err instanceof FetchError) 
+    toast.error('取得商品失敗，請稍後再試')
   } finally {
     loadingStore.hide()
   }

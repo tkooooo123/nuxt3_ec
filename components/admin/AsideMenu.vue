@@ -1,8 +1,13 @@
 <script lang="ts" setup>
+interface menu {
+  name: string;
+  path:string;
+}
+
 const { logout } = useAuth()
 const route = useRoute()
 const isExpanded = ref<boolean>(true)
-const menuList = ref<any[]>([
+const menuList = ref<menu[]>([
   {
     name: '分類管理',
     path: '/admin/categories'

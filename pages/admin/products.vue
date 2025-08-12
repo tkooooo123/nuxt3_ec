@@ -6,6 +6,8 @@ import type { Product } from '~/types/product'
 import type { Category } from '~/types/category'
 import adminAuth from '~/middleware/adminAuth'
 import { toast } from 'vue3-toastify'
+import { FetchError } from 'ofetch'
+import type { UploadFile, UploadFiles } from 'element-plus'
 
 definePageMeta({
   layout: 'admin',
@@ -114,24 +116,27 @@ const createDebounce = <T extends (...args: any[]) => any>(
   }
 }
 
-const processMultipleFiles = async (file: any, fileList: any[]) => {
+const processMultipleFiles = async (
+  uploadFile: UploadFile,
+  uploadFiles: UploadFiles
+) => {
   const validFiles: File[] = []
 
-  for (const uploadFile of fileList) {
-    const fileObj = uploadFile.raw || uploadFile
+  for (const fileObj of uploadFiles) {
+    const file = (fileObj as any).raw || fileObj
     const isJPGorPNG =
-      fileObj.type === 'image/jpeg' || fileObj.type === 'image/png'
+      file.type === 'image/jpeg' || file.type === 'image/png'
 
     if (!isJPGorPNG) {
       ElMessage({
-        message: `檔案 ${fileObj.name} 格式不正確，只允許 JPG 或 PNG 格式`,
+        message: `檔案 ${file.name} 格式不正確，只允許 JPG 或 PNG 格式`,
         type: 'error',
         duration: 3000
       })
       return
     }
 
-    validFiles.push(fileObj)
+    validFiles.push(file)
   }
 
   if (validFiles.length > 0) {
@@ -148,7 +153,8 @@ const getImgUrl = async (file: File) => {
     const uploadResult = await useCloudinaryUpload(file)
     ruleForm.image = uploadResult
     loading.value = false
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if(error instanceof Error)
     ElMessage({
       message: error.message || '圖片上傳失敗',
       type: 'error',
@@ -195,7 +201,8 @@ const uploadMultipleImages = async (files: File[]) => {
     )
 
     multipleUploadLoading.value = false
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if(error instanceof Error)
     ElMessage({
       message: error.message || '多張圖片上傳失敗',
       type: 'error',
@@ -264,7 +271,7 @@ const { currentPage, pageSize, pagedData: pagedProducts } = usePagination<Produc
 // 取得分類資料
 const fetchCategories = async () => {
   try {
-    const response = await $fetch<{ message: string; data: any[] }>(
+    const response = await $fetch<ApiResponse<Category[]>>(
       '/api/admin/categories',
       {
         headers: {
@@ -272,9 +279,11 @@ const fetchCategories = async () => {
         }
       }
     )
-    categories.value = response.data
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+    categories.value = response.data || []
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
       loadingStore.hide()
     
@@ -297,8 +306,10 @@ const fetchProducts = async () => {
       productList.value = res.data
     }
    
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
  
       loadingStore.hide()
@@ -309,7 +320,7 @@ const fetchProducts = async () => {
 const addProduct = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<{ message: string; data: any[] }>(
+    const res = await $fetch<{ message: string}>(
       '/api/admin/product',
       {
         method: 'POST',
@@ -348,8 +359,10 @@ const addProduct = async () => {
       // 重新取得產品列表
       await fetchProducts()
     }
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
       loadingStore.hide()
   
@@ -399,8 +412,10 @@ const updateProduct = async () => {
       // 重新取得產品列表
       await fetchProducts()
     }
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
  
       loadingStore.hide()
@@ -434,8 +449,10 @@ const deleteProduct = async () => {
       // 重新取得產品列表
       await fetchProducts()
     }
-  } catch (error: any) {
-    toast.error(`${error.data?.statusMessage}`)
+  } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
   } finally {
 
       loadingStore.hide()

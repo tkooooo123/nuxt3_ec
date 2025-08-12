@@ -2,6 +2,8 @@
 import type { Product, ProductsResponse } from '~/types/product'
 import type { ApiResponse } from '~/types/api'
 import type { User } from '~/types/user'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
 
 const route = useRoute()
 const product = ref<Product | null>(null)
@@ -31,8 +33,10 @@ const getProduct = async () => {
     if (product.value) {
       imgList.value = [product.value.image, ...product.value.imagesUrl]
     }
-  } catch (err: any) {
-    error.value = err.data?.message || '無法載入商品資訊'
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
+      toast.error(`無法載入商品資訊`)
+    }
   } finally {
     loading.value = false
   }
@@ -43,8 +47,10 @@ const getProducts = async () => {
     const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
     hottestList.value =
       res.data && res.data.products.length > 0 ? res.data.products : []
-  } catch (err: any) {
-    error.value = err.data?.message || '無法載入商品資訊'
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
+      toast.error(`無法載入商品資訊`)
+    }
   } finally {
     loading.value = false
   }
@@ -81,27 +87,15 @@ const addToCart = async () => {
 
   try {
     // 使用 useCart composable 的 addToCart 方法
-    const result: any = await addToCartComposable(
-      product.value.id,
-      quantity.value
-    )
+    await addToCartComposable(product.value.id, quantity.value)
 
-    if (result.success) {
-      // 顯示成功訊息
-      alert(`已成功加入購物車：${product.value.name} x ${quantity.value}`)
-
-      // 重置數量為 1
-      quantity.value = 1
-    } else {
-      // 顯示錯誤訊息
-      alert(result.error || '加入購物車失敗，請稍後再試')
+    quantity.value = 1
+  } catch (error: unknown) {
+    let msg = '加入購物車失敗，請稍後再試'
+    if (error instanceof FetchError) {
+      msg = error.data.message
     }
-  } catch (error: any) {
-    console.error('加入購物車失敗:', error)
-
-    // 顯示錯誤訊息
-    const errorMessage = error.data?.message || '加入購物車失敗，請稍後再試'
-    alert(errorMessage)
+    toast.error(msg)
   }
 }
 
@@ -475,7 +469,10 @@ onMounted(async () => {
       >
         熱門商品
       </h2>
-      <FrontProductSwiper class="mt-5" :products="hottestList"></FrontProductSwiper>
+      <FrontProductSwiper
+        class="mt-5"
+        :products="hottestList"
+      ></FrontProductSwiper>
     </div>
   </div>
 </template>

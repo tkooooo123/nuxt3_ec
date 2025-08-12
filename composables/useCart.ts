@@ -1,11 +1,13 @@
 import { toast } from 'vue3-toastify'
 import type { ApiResponse } from '~/types/api'
-import type { CartResponse } from '~/types/cart'
+import type { CartResponse, CartItem, CartItemResponse } from '~/types/cart'
+import { FetchError } from 'ofetch'
+
 
 export const useCart = () => {
   // 使用 useState 確保全局狀態共享
   const cartCount = useState('cartCount', () => 0)
-  const cartItems = useState('cartItems', () => [] as any[])
+  const cartItems = useState('cartItems', () => [] as CartItem[])
   const token = useCookie('token')
 
   const loadingStore = useLoadingStore()
@@ -20,11 +22,12 @@ export const useCart = () => {
           Authorization: `Bearer ${token.value}`
         }
       })
+    
 
       if (data) {
         cartItems.value =
           data.items.length > 0
-            ? data.items.map((item: any) => ({
+            ? data.items.map((item: CartItemResponse) => ({
                 id: item.product.id,
                 quantity: item.quantity,
                 price: item.price,
@@ -37,8 +40,10 @@ export const useCart = () => {
             : []
         cartCount.value = data.itemCount || 0
       }
-    } catch (error: any) {
-      toast.error(`${error.data?.statusMessage}`)
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        toast.error(`${error.data?.statusMessage}`)
+      }
       // 如果未登入，清空購物車狀態
       cartItems.value = []
       cartCount.value = 0
@@ -72,11 +77,9 @@ export const useCart = () => {
         await fetchCart()
         toast.success('已成功加入購物車')
       }
-    } catch (error: any) {
-      toast.error(`${error.data?.statusMessage}`)
-      return {
-        success: false,
-        error: error.data?.statusMessage || '加入購物車失敗'
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        toast.error(`${error.data?.statusMessage}` || '加入購物車失敗')
       }
     } finally {
       loadingStore.hide()
@@ -103,11 +106,9 @@ export const useCart = () => {
 
       // 重新獲取購物車資料
       await fetchCart()
-    } catch (error: any) {
-      toast.error(`${error.data?.statusMessage}`)
-      return {
-        success: false,
-        error: error.data?.statusMessage || '更新數量失敗'
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        toast.error(`${error.data?.statusMessage}` || '更新數量失敗')
       }
     } finally {
       loadingStore.hide()
@@ -131,11 +132,9 @@ export const useCart = () => {
       // 重新獲取購物車資料
       await fetchCart()
       toast.success('移除商品成功')
-    } catch (error: any) {
-      toast.error(`${error.data?.statusMessage}`)
-      return {
-        success: false,
-        error: error.data?.statusMessage || '移除商品失敗'
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        toast.error(`${error.data?.statusMessage}` || '移除商品失敗')
       }
     } finally {
       loadingStore.hide()
@@ -160,8 +159,10 @@ export const useCart = () => {
       })
       await fetchCart()
       toast.success('購物車已清空')
-    } catch (error: any) {
-      toast.error(`${error.data?.statusMessage || '清空購物車失敗'}`)
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        toast.error(`${error.data?.statusMessage || '清空購物車失敗'}`)
+      }
     } finally {
       loadingStore.hide()
     }

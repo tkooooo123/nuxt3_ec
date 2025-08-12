@@ -6,8 +6,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { orderId, amount, description, itemName, page } = body    
     const ecpay = createECPayment()
-    const config = useRuntimeConfig()
-
     const sn = Date.now().toString()
     const order = await Order.findByIdAndUpdate(orderId, { sn })
     if(!order) {

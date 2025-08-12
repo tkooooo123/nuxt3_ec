@@ -3,6 +3,7 @@ import { toast } from 'vue3-toastify'
 import type { ApiResponse } from '~/types/api'
 import type { Product, ProductsResponse } from '~/types/product'
 import type { Category } from '~/types/category'
+import { FetchError } from 'ofetch'
 
 const loadingStore = useLoadingStore()
 const router = useRouter()
@@ -20,8 +21,10 @@ const getProducts = async () => {
    const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
     productsList.value = res.data?.products ?? [];
    filterProducts()
- } catch (error: any) {
-  toast.error(`${error.data?.statusMessage}`)
+ } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
  }
 }
 
@@ -31,8 +34,10 @@ const getCategories = async () => {
    const res = await $fetch<ApiResponse<Category[]>>('/api/category/all')
    categoryList.value = res.data ||[]
    await  getProducts()
- } catch (error: any) {
-  toast.error(`${error.data?.statusMessage}`)
+ } catch (error: unknown) {
+    if(error instanceof FetchError) {
+      toast.error(`${error.data?.statusMessage}`)
+    }
  } finally {
   loadingStore.hide()
  }

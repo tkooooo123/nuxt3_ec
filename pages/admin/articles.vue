@@ -93,7 +93,8 @@ const getImgUrl = async (file: File) => {
     const uploadResult = await useCloudinaryUpload(file)
     ruleForm.imageUrl = uploadResult
     loading.value = false
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if(error instanceof Error)
     ElMessage({
       message: error.message || '圖片上傳失敗',
       type: 'error',
@@ -203,7 +204,7 @@ const editArticle = (item: article) => {
 
 const handleDelete = async () => {
   try {
-    const res = await $fetch(`/api/admin/article`, {
+    const res = await $fetch<{ message: string}>(`/api/admin/article`, {
       method: 'DELETE',
       body: {
         id: selectToDelete.value?.id

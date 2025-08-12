@@ -1,13 +1,12 @@
 import Order from '~/server/models/Order'
 import type { IUser } from '~/server/models/User'
-import type { IOrder } from '~/server/models/Order'
 import { verifyJWTToken } from '~/server/utils/auth'
 import { connectDB } from '~/server/utils/mongoose'
-import mongoose from 'mongoose'
 
-type PopulatedOrder = IOrder & {
-  user: IUser
-}
+
+// type PopulatedOrder = IOrder & {
+//   user: IUser
+// }
 
 export default defineEventHandler(async (event) => {
   try {

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     // 恢復商品庫存
     for (const item of order.items) {
       const product = (await Product.findById(item.product)) as IProduct | null
-      if (product) {
+      if (product?.quantity) {
         product.quantity += item.quantity
         await product.save()
       }

@@ -8,7 +8,6 @@ export default defineEventHandler(async (event: H3Event) => {
 
   try {
     const body = await readBody(event)
-    console.log(body)
     const {
       name,
       price,
@@ -28,7 +27,7 @@ export default defineEventHandler(async (event: H3Event) => {
       size,
       style
     } = body
-    console.log(typeof quantity)
+  
     if (!name) {
       return createError({ statusCode: 400, statusMessage: '請輸入商品名稱' })
     }

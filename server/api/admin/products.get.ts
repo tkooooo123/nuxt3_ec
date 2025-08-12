@@ -1,5 +1,4 @@
 import Product from '~/server/models/Product'
-import Category from '~/server/models/Category'
 import { H3Event } from 'h3'
 import { connectDB } from '~/server/utils/mongoose'
 import { verifyAdminAuth } from '~/server/utils/auth'

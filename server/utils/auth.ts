@@ -29,7 +29,7 @@ export function verifyJWTToken(event: H3Event): JWTPayload {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload
     return decoded
-  } catch (error) {
+  } catch {
     throw createError({
       statusCode: 401,
       statusMessage: '無效的 token'

@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async () => {
   const { isLoggedIn, isAdmin, clearAuth } = useAuth()
 
   try {
@@ -26,7 +26,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       clearAuth()
       return navigateTo('/login')
     }
-  } catch (error) {
+  } catch {
     clearAuth()
     return navigateTo('/login')
   }

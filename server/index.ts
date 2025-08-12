@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 export default async () => {
-  const url = process.env.MONGO_URL|| 'mongodb://localhost:27017/your-db-name'
+  const url = process.env.MONGO_URL|| 'mongodb://localhost:27017/testt'
 
   if (mongoose.connection.readyState === 1) {
     return mongoose
