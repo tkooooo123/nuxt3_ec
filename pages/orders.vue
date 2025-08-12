@@ -16,7 +16,7 @@ const selectedOrder = ref<OrderResponse>()
 // 分頁相關
 const currentPage = ref<number>(1)
 const pageSize = ref<number>(10)
-  const pagedOrders = computed<OrderResponse[]>(() => {
+const pagedOrders = computed<OrderResponse[]>(() => {
   if (!orders.value.length) return []
   const start = (currentPage.value - 1) * pageSize.value
   return orders.value.slice(start, start + pageSize.value)
@@ -35,7 +35,7 @@ const getOrders = async () => {
   } catch (error) {
     console.log(error)
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 
@@ -62,8 +62,7 @@ const submitPayment = async (order: OrderResponse) => {
   } catch (error) {
     console.log(error)
   } finally {
-      loadingStore.hide()
-    
+    loadingStore.hide()
   }
 }
 
@@ -126,11 +125,13 @@ onMounted(() => {
             <template #default="scope">
               <button
                 class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
-              @click="() => {
-                selectedOrder = scope.row
-                orderDialogVisible = true
-              }"
-                >
+                @click="
+                  () => {
+                    selectedOrder = scope.row
+                    orderDialogVisible = true
+                  }
+                "
+              >
                 查看更多
               </button>
             </template>
@@ -184,8 +185,8 @@ onMounted(() => {
             </button>
           </div>
         </div>
-          <!-- 分頁 -->
-          <div class="flex justify-center mt-6">
+        <!-- 分頁 -->
+        <div class="flex justify-center mt-6">
           <el-pagination
             background
             layout="prev, pager, next"
@@ -224,7 +225,11 @@ onMounted(() => {
               </div>
               <div class="flex mt-2">
                 <span class="w-15 mr-2">成立時間</span>
-                <span> {{ selectedOrder?.createdAt.slice(0,19).replace('T', ' ') }}</span>
+                <span>
+                  {{
+                    selectedOrder?.createdAt.slice(0, 19).replace('T', ' ')
+                  }}</span
+                >
               </div>
               <div class="flex mt-2">
                 <span class="w-15 mr-2">付款方式</span>
@@ -321,3 +326,11 @@ onMounted(() => {
     </el-container>
   </div>
 </template>
+
+<style lang="scss" scoped>
+:deep() {
+  .el-pagination .el-pager li.is-active {
+    background: #c97c5d;
+  }
+}
+</style>
