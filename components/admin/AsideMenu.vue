@@ -15,10 +15,10 @@ const menuList = ref<any[]>([
     name: '訂單管理',
     path: '/admin/order'
   },
-  {
-    name: '文章管理',
-    path: '/admin/articles'
-  }
+  // {
+  //   name: '文章管理',
+  //   path: '/admin/articles'
+  // }
 ])
 const selectedMenu = ref<string>('')
 
