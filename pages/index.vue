@@ -136,13 +136,13 @@ onMounted(() => {
       >
         熱門商品
       </h2>
-      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
+      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto">
         <div class="xl:flex xl:gap-4">
           <div class="xl:flex-1">
             <img
               :src="hottestProductImages[selectedHottestImageIndex]"
               alt="newestProduct"
-              class="w-full max-h-408px block rounded-4 object-cover"
+              class="w-full md:h-100 block rounded-4 object-cover"
             />
           </div>
           <HomeImgSwiper
@@ -191,7 +191,7 @@ onMounted(() => {
       >
         最新商品
       </h2>
-      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6">
+      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto">
         <div>
           <h2 class="text-primary my-3 text-7 md:text-10 font-bold">
             {{ newestProduct?.name }}
@@ -231,7 +231,7 @@ onMounted(() => {
             <img
               :src="newestProductImages[selectedNewestImageIndex]"
               alt="newestProduct"
-              class="w-full max-h-408px block rounded-4 object-cover"
+              class="w-full md:h-100 block rounded-4 object-cover"
             />
           </div>
           <HomeImgSwiper
