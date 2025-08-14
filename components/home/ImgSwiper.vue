@@ -55,7 +55,7 @@ const handleImageSelect = (index: number) => {
         <img
           :src="image"
           alt="image"
-          class="block w-full xl:h-full object-cover rounded-2 cursor-pointer"
+          class="block w-full xl:h-full object-cover rounded-2 cursor-pointer aspect-1"
           :class="selectedImageIndex === index ? '' : 'opacity-60'"
         />
       </SwiperSlide>

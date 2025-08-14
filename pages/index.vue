@@ -142,7 +142,7 @@ onMounted(() => {
             <img
               :src="hottestProductImages[selectedHottestImageIndex]"
               alt="newestProduct"
-              class="w-full md:h-100 block rounded-4 object-cover"
+              class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"
             />
           </div>
           <HomeImgSwiper
@@ -231,7 +231,7 @@ onMounted(() => {
             <img
               :src="newestProductImages[selectedNewestImageIndex]"
               alt="newestProduct"
-              class="w-full md:h-100 block rounded-4 object-cover"
+              class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"
             />
           </div>
           <HomeImgSwiper
