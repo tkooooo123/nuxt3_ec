@@ -158,7 +158,7 @@ onMounted(() => {
             {{ hottestProduct?.description }}
           </p>
           <p
-            class="text-3.5 sm:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
+            class="text-3.5 sm:text-4.5 md:text-5 font-500 mt-8 lh-6 md:lh-9"
             v-html="hottestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
@@ -200,7 +200,7 @@ onMounted(() => {
             {{ newestProduct?.description }}
           </p>
           <p
-            class="text-3.5 sm:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
+            class="text-3.5 sm:text-4.5 md:text-5 font-500 mt-8 lh-6 md:lh-9"
             v-html="newestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
