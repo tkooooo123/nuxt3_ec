@@ -151,14 +151,14 @@ onMounted(() => {
           />
         </div>
         <div>
-          <h2 class="text-primary my-3 text-7 md:text-10 font-bold">
+          <h2 class="text-primary my-3 text-7 md:text-8 font-bold">
             {{ hottestProduct?.name }}
           </h2>
-          <p class="text-6 md:text-10 font-600 m-0">
+          <p class="text-6 md:text-8 font-600 m-0">
             {{ hottestProduct?.description }}
           </p>
           <p
-            class="text-3.5 md:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
+            class="text-3.5 sm:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
             v-html="hottestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
@@ -193,14 +193,14 @@ onMounted(() => {
       </h2>
       <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto">
         <div>
-          <h2 class="text-primary my-3 text-7 md:text-10 font-bold">
+          <h2 class="text-primary my-3 text-6 md:text-8 font-bold">
             {{ newestProduct?.name }}
           </h2>
-          <p class="text-6 md:text-10 font-600 m-0">
+          <p class="text-6 md:text-8 font-600 m-0">
             {{ newestProduct?.description }}
           </p>
           <p
-            class="text-3.5 md:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
+            class="text-3.5 sm:text-5 md:text-6 font-500 mt-8 lh-6 md:lh-9"
             v-html="newestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
