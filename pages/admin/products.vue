@@ -120,19 +120,28 @@ const createDebounce = <
 };
 
 const processMultipleFiles = async (
-  uploadFile: UploadFile,
+  _uploadFile: UploadFile,
   uploadFiles: UploadFiles
 ) => {
   const validFiles: File[] = []
 
   for (const fileObj of uploadFiles) {
-    const file = (fileObj as any).raw || fileObj
+    const file = fileObj.raw
+    if (!file) {
+      ElMessage({
+        message: `檔案 ${fileObj.name} 不是有效的檔案`,
+        type: 'error',
+        duration: 3000
+      })
+      continue
+    }
+    
     const isJPGorPNG =
-      file.type === 'image/jpeg' || file.type === 'image/png'
+      file?.type === 'image/jpeg' || file?.type === 'image/png'
 
     if (!isJPGorPNG) {
       ElMessage({
-        message: `檔案 ${file.name} 格式不正確，只允許 JPG 或 PNG 格式`,
+        message: `檔案 ${file?.name} 格式不正確，只允許 JPG 或 PNG 格式`,
         type: 'error',
         duration: 3000
       })
