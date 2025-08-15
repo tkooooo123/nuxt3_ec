@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:currentPage', value: number): void
+  (e: string, value: number): void
 }>()
 
 const handlePageChange = (page: number) => {

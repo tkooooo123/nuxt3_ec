@@ -104,17 +104,20 @@ const checkFileType = async (file: UploadRawFile) => {
 }
 
 // 新增：防抖函數
-const createDebounce = <T extends (...args: any[]) => any>(
-  fn: T,
+const createDebounce = <
+  TArgs extends unknown[],
+  TReturn extends void
+>(
+  fn: (..._args: TArgs) => TReturn,
   delay: number
-): ((...args: Parameters<T>) => void) => {
-  let timer: ReturnType<typeof setTimeout> | null = null
+) => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
-  return (...args: Parameters<T>) => {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
-  }
-}
+  return (...args: TArgs): void => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
 
 const processMultipleFiles = async (
   uploadFile: UploadFile,
