@@ -9,7 +9,8 @@ export default defineNuxtConfig({
      '@element-plus/nuxt',
      '@nuxtjs/ngrok',
      '@pinia/nuxt',
-     '@nuxtjs/sitemap'
+     '@nuxtjs/sitemap',
+     '@radya/nuxt-dompurify'
    ],
    app: {
     head: {

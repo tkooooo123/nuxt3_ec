@@ -427,13 +427,13 @@ onMounted(async () => {
       </div>
       <div class="max-w-none" v-if="detailType === 'content'">
         <div
-          v-html="product.content"
+        v-sanitize-html="product.content"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>
       <div class="max-w-none" v-if="detailType === 'notice'">
         <div
-          v-html="product.notice"
+        v-sanitize-html="product.notice"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>

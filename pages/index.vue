@@ -159,7 +159,7 @@ onMounted(() => {
           </p>
           <p
             class="text-3.5 sm:text-4.5 md:text-5 font-500 mt-8 lh-6 md:lh-9"
-            v-html="hottestProduct?.content"
+            v-sanitize-html="hottestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
             <button
@@ -201,7 +201,7 @@ onMounted(() => {
           </p>
           <p
             class="text-3.5 sm:text-4.5 md:text-5 font-500 mt-8 lh-6 md:lh-9"
-            v-html="newestProduct?.content"
+            v-sanitize-html="newestProduct?.content"
           ></p>
           <div class="mt-6 flex justify-end">
             <button
