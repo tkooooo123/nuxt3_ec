@@ -28,11 +28,13 @@ export default defineEventHandler(async (event: H3Event) => {
         items: []
       }
     }
-  } catch (error: any) {
-    console.error('清空購物車錯誤:', error)
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    // 如果 error 是物件且有 statusCode 屬性，就直接拋出
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
+  
+    // 其他狀況，拋出通用錯誤
     throw createError({
       statusCode: 500,
       statusMessage: '清空購物車失敗，請稍後再試'

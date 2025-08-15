@@ -2,6 +2,7 @@ import Product from '~/server/models/Product'
 import { H3Event } from 'h3'
 import { connectDB } from '~/server/utils/mongoose'
 import { verifyAdminAuth } from '~/server/utils/auth'
+import { ICategory } from '~/server/models/Category'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
@@ -11,10 +12,11 @@ export default defineEventHandler(async (event: H3Event) => {
     await connectDB()
     // 取得所有商品，並帶出分類資訊，依建立時間倒序排列
     const products = await Product.find()
-      .populate('category')
+      .populate<{category : ICategory}>('category')
       .sort({ createdAt: -1 })
+      .lean()
 
-    const data = products.map((item: any) => ({
+    const data = products.map((item) => ({
       id: item._id.toString(),
       name: item.name,
       image: item.image,
@@ -51,10 +53,16 @@ export default defineEventHandler(async (event: H3Event) => {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '無法取得商品'
+      statusMessage: '伺服器錯誤'
     })
   }
 })

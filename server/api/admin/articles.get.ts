@@ -8,9 +8,9 @@ export default defineEventHandler(async (event: H3Event) => {
     // 驗證管理員權限
     await verifyAdminAuth(event)
     await connectDB()
-    const articles = await Article.find().sort({ date: -1 }) // 依公告日期倒序排列
+    const articles = await Article.find().sort({ date: -1 }).lean() // 依公告日期倒序排列
 
-    const data = articles.map((item: any) => ({
+    const data = articles.map((item) => ({
       id: item._id.toString(),
       title: item.title,
       author: item.author,
@@ -30,10 +30,16 @@ export default defineEventHandler(async (event: H3Event) => {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '無法取得文章'
+      statusMessage: '伺服器錯誤'
     })
   }
 })

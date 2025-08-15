@@ -2,6 +2,7 @@ import Order from '~/server/models/Order'
 import { connectDB } from '~/server/utils/mongoose'
 import type { IUser } from '~/server/models/User'
 import { verifyAdminAuth } from '~/server/utils/auth'
+import { IProduct } from '~/server/models/Product'
 
 export default defineEventHandler(async (event) => {
   // 驗證管理員權限
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // 查詢訂單，並帶出 user 詳細資料
     const order = await Order.findById(id)
       .populate<{ user: IUser }>('user')
-      .populate('items.product')
+      .populate<{product:IProduct}>('items.product')
       .lean()
     if (!order) {
       throw createError({
@@ -37,16 +38,19 @@ export default defineEventHandler(async (event) => {
         name: order.user.name,
         email: order.user.email
       },
-      items: order.items.map((item: any) => ({
-        id: item.product._id,
-        name: item.product.name,
-        image: item.product.image,
-        quantity: item.quantity,
-        price: item.price,
-        origin_price: item.product.origin_price,
-        stock: item.product.quantity,
-        unit: item.product.unit
-      })),
+      items: order.items.map((item) => {
+        const product = item.product as unknown as IProduct;
+        return ({
+          id: product._id,
+          name: product.name,
+          image: product.image,
+          quantity: item.quantity,
+          price: item.price,
+          origin_price: product.origin_price,
+          stock: product.quantity,
+          unit: product.unit
+        })
+      }),
       total: order.total,
       shipping: order.shipping,
       status: order.status,
@@ -58,10 +62,13 @@ export default defineEventHandler(async (event) => {
       message: '取得成功!',
       data: result
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '伺服器錯誤'
+      statusMessage: '伺服器錯誤，請稍後再試'
     })
   }
 })

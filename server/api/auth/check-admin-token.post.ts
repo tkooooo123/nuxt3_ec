@@ -34,16 +34,16 @@ export default defineEventHandler(async (event: H3Event) => {
         role: user.role
       }
     }
-  } catch (error: any) {
-    // 如果是已知的錯誤，直接拋出
-    if (error.statusCode) {
-      throw error
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
     }
-
-    // 其他錯誤
     throw createError({
       statusCode: 500,
-      statusMessage: '伺服器內部錯誤'
+      statusMessage: '伺服器錯誤'
     })
   }
 })

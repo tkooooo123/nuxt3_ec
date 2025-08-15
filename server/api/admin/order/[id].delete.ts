@@ -34,10 +34,13 @@ export default defineEventHandler(async (event) => {
     return {
       message: '刪除成功!'
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '伺服器錯誤'
+      statusMessage: '伺服器錯誤，請稍後再試'
     })
   }
 })

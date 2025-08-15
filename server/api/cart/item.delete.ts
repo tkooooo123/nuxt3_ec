@@ -1,6 +1,7 @@
 import Cart from '~/server/models/Cart'
 import { verifyJWTToken } from '~/server/utils/auth'
 import { H3Event } from 'h3'
+import { IProduct } from '~/server/models/Product'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
@@ -42,14 +43,14 @@ export default defineEventHandler(async (event: H3Event) => {
     await cart.save()
 
     // 回傳更新後的購物車（包含商品詳情）
-    const updatedCart = await Cart.findById(cart._id).populate({
+    const updatedCart = await Cart.findById(cart._id).populate<{ product: IProduct}>({
       path: 'items.product',
       select: 'name image price origin_price quantity unit isEnabled'
     })
 
     // 轉換 _id 為 id
     const transformedItems = updatedCart?.items.map(item => {
-      const prod = item.product as any
+      const prod = item.product as unknown as IProduct
       return {
         product: {
           id: prod._id,
@@ -72,11 +73,11 @@ export default defineEventHandler(async (event: H3Event) => {
         items: transformedItems
       }
     }
-  } catch (error: any) {
-    console.error('刪除購物車商品錯誤:', error)
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
+    
     throw createError({
       statusCode: 500,
       statusMessage: '刪除購物車商品失敗，請稍後再試'

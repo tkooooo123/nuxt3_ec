@@ -1,4 +1,5 @@
 import Order from '~/server/models/Order'
+import { IProduct } from '~/server/models/Product'
 import type { IUser } from '~/server/models/User'
 import { verifyJWTToken } from '~/server/utils/auth'
 import { connectDB } from '~/server/utils/mongoose'
@@ -12,14 +13,10 @@ export default defineEventHandler(async (event) => {
   try {
     await connectDB()
     const { userId } = verifyJWTToken(event)
+    if(!userId) return;
+    
 
-    const filter: any = {}
-    if (userId) {
-      filter.user = userId
-    }
-
-    // 查詢訂單
-    const orders = await Order.find(filter)
+    const orders = await Order.find()
     .sort({ createdAt: -1})
     .populate<{ user: IUser }>('user')
     .populate('items.product')
@@ -32,14 +29,17 @@ export default defineEventHandler(async (event) => {
         name: order.user.name,
         email: order.user.email
       },
-      items: order.items.map((item: any) => ({
-        id: item.product?._id,
-        name: item.product?.name,
-        image: item.product?.image,
-        quantity: item.quantity,
-        price: item.price,
-        unit: item.product?.unit
-      })),
+      items: order.items.map((item) => {
+        const product = item.product as unknown as IProduct
+        return ({
+          id: item.product?._id,
+          name: product?.name,
+          image: product?.image,
+          quantity: item.quantity,
+          price: item.price,
+          unit: product?.unit
+        })
+      }),
       total: order.total,
       shipping: order.shipping,
       status: order.status,
@@ -52,10 +52,13 @@ export default defineEventHandler(async (event) => {
       message: '取得成功!',
       data
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '伺服器錯誤'
+      statusMessage: '伺服器錯誤，請稍後再試'
     })
   }
 })

@@ -104,11 +104,8 @@ export default defineEventHandler(async (event) => {
       data: updatedCart
     }
 
-  } catch (error: any) {
-    console.error('加入購物車錯誤:', error)
-    
-    // 如果是已知錯誤，直接拋出
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
 

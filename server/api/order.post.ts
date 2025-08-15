@@ -1,6 +1,7 @@
 import Order from '~/server/models/Order'
 import Cart from '~/server/models/Cart'
 import { verifyJWTToken } from '~/server/utils/auth'
+import { IProduct } from '~/server/models/Product'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 取得購物車
-    const cart = await Cart.findOne({ user: userId }).populate({
+    const cart = await Cart.findOne({ user: userId }).populate<{ product: IProduct}>({
       path: 'items.product',
       select: 'price isEnabled quantity name'
     })
@@ -44,7 +45,7 @@ export default defineEventHandler(async (event) => {
     // 檢查商品狀態與庫存，並計算總金額
     let total = 0
     const orderItems = cart.items.map((item) => {
-      const product = item.product as any
+      const product = item.product as unknown as IProduct
       if (!product.isEnabled) {
         throw createError({
           statusCode: 400,
@@ -94,14 +95,16 @@ export default defineEventHandler(async (event) => {
         orderId: order._id
       }
     }
-  } catch (error: any) {
-    console.error('建立訂單錯誤:', error)
-    if (error.statusCode) {
-      throw error
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
     }
     throw createError({
       statusCode: 500,
-      statusMessage: '建立訂單失敗，請稍後再試'
+      statusMessage: '伺服器錯誤'
     })
   }
 })

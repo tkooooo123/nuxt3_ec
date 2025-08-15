@@ -86,13 +86,6 @@ export default [
     }
   },
   {
-    files: ['server/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      'no-console': 'off'
-    }
-  },
-  {
     files: ['.nuxt/**/*.ts'],
     rules: {
       'no-unused-vars': 'off'

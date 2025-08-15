@@ -1,4 +1,5 @@
 import Cart from '~/server/models/Cart'
+import { IProduct } from '~/server/models/Product'
 import { verifyJWTToken } from '~/server/utils/auth'
 import { connectDB } from '~/server/utils/mongoose'
 
@@ -8,10 +9,10 @@ export default defineEventHandler(async (event) => {
     // 驗證用戶登入狀態並取得 userId
     const { userId } = verifyJWTToken(event)
     // 查找用戶的購物車
-    const cart = await Cart.findOne({ user: userId }).populate({
+    const cart = await Cart.findOne({ user: userId }).populate<{ product: IProduct}>({
       path: 'items.product',
       select: 'name image price origin_price quantity unit isEnabled'
-    })
+    }).lean()
 
     // 如果購物車不存在，回傳空的購物車
     if (!cart) {
@@ -27,11 +28,14 @@ export default defineEventHandler(async (event) => {
 
     // 計算購物車統計資訊
     const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0)
-    const totalPrice = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    const totalPrice = cart.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
 
     // 檢查商品是否仍然有效（啟用且有庫存）
-    const validItems = cart.items.filter(item => {
-      const product = item.product as any
+    const validItems = cart.items.filter((item) => {
+      const product = item.product as unknown as IProduct
       return product && product.isEnabled && product.quantity > 0
     })
 
@@ -42,8 +46,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // 轉換 _id 為 id
-    const transformedItems = validItems.map(item => {
-      const product = item.product as any
+    const transformedItems = validItems.map((item) => {
+      const product = item.product as unknown as IProduct
       return {
         product: {
           id: product._id,
@@ -69,19 +73,14 @@ export default defineEventHandler(async (event) => {
         itemCount: transformedItems.length
       }
     }
-
-  } catch (error: any) {
-    console.error('獲取購物車錯誤:', error)
-    
-    // 如果是已知錯誤，直接拋出
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
-
-    // 其他錯誤
+    
     throw createError({
       statusCode: 500,
       statusMessage: '獲取購物車失敗，請稍後再試'
     })
   }
-}) 
+})

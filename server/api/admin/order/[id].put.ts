@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: '缺少訂單 ID'
       })
     }
+    
     const body = await readBody(event)
     // 可更新欄位：shipping, status, items, total, payment
     const updateData: any = {}
@@ -77,10 +78,13 @@ export default defineEventHandler(async (event) => {
     return {
       message: '更新成功!'
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '伺服器錯誤'
+      statusMessage: '伺服器錯誤，請稍後再試'
     })
   }
 })

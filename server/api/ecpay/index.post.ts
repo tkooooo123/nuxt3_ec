@@ -2,6 +2,7 @@ import { createECPayment } from '../../utils/ecpay'
 import Order from '~/server/models/Order'
 
 export default defineEventHandler(async (event) => {
+  const logger = event.context.logger
   try {
     const body = await readBody(event)
     const { orderId, amount, description, itemName, page } = body    
@@ -42,11 +43,17 @@ export default defineEventHandler(async (event) => {
     // 設定 Content-Type，回傳原始 HTML
   event.node.res.setHeader('Content-Type', 'text/html; charset=utf-8')
   return html
-  } catch (error: any) {
-    console.error('ECPay payment creation error:', error)
+  } catch (error: unknown) {
+    // 如果是 Error 物件，就取 message
+    const message =
+      error instanceof Error ? error.message : 'ECPay payment creation failed'
+  
+    // 使用 Nuxt 3 全域 logger 取代 console
+    logger.error('ECPay payment creation error:', error)
+  
     return {
       success: false,
-      error: error.message
+      error: message
     }
   }
 })

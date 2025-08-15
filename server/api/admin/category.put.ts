@@ -39,10 +39,16 @@ export default defineEventHandler(async (event: H3Event) => {
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || "伺服器錯誤",
-    });
+      statusMessage: '伺服器錯誤'
+    })
   }
 });

@@ -7,73 +7,10 @@ import { connectDB } from '~/server/utils/mongoose'
 export default defineEventHandler(async (event: H3Event) => {
   try {
     await connectDB()
-    // 從 query 參數取得篩選條件
-    const query = getQuery(event)
-    const {
-      page = 1,
-      limit = 12,
-      search = '',
-      category = '',
-      sort = 'createdAt',
-      order = 'desc',
-      is_hottest,
-      is_newest,
-      minPrice,
-      maxPrice
-    } = query
-
-    // 建立查詢條件
-    const filter: any = { isEnabled: true }
-
-    // 搜尋條件
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } }
-      ]
-    }
-
-    // 分類篩選
-    if (category) {
-      filter.category = category
-    }
-
-    // 熱門商品篩選
-    if (is_hottest === 'true') {
-      filter.is_hottest = true
-    }
-
-    // 最新商品篩選
-    if (is_newest === 'true') {
-      filter.is_newest = true
-    }
-
-    // 價格範圍篩選
-    if (minPrice || maxPrice) {
-      filter.price = {}
-      if (minPrice) filter.price.$gte = Number(minPrice)
-      if (maxPrice) filter.price.$lte = Number(maxPrice)
-    }
-
-    // 排序條件
-    const sortOptions: any = {}
-    sortOptions[sort as string] = order === 'desc' ? -1 : 1
-
-    // 計算分頁
-    const pageNum = Number(page)
-    const limitNum = Number(limit)
-    const skip = (pageNum - 1) * limitNum
-
-    // 查詢商品總數
-    const total = await Product.countDocuments(filter)
 
     // 查詢商品列表並帶出分類資訊
-    const products = await Product.find(filter)
-      .populate('category')
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limitNum) as (IProduct & { category: ICategory })[]
+    const products = await Product.find()
+      .populate('category') as (IProduct & { category: ICategory })[]
 
     // 格式化回傳資料
     const data = products.map(product => ({
@@ -103,40 +40,26 @@ export default defineEventHandler(async (event: H3Event) => {
       createdAt: product.createdAt
     }))
 
-    // 計算分頁資訊
-    const totalPages = Math.ceil(total / limitNum)
-    const hasNextPage = pageNum < totalPages
-    const hasPrevPage = pageNum > 1
-
     return event.respondWith(
       new Response(
         JSON.stringify({
           message: '取得成功!',
           data: {
             products: data,
-            pagination: {
-              currentPage: pageNum,
-              totalPages,
-              totalItems: total,
-              itemsPerPage: limitNum,
-              hasNextPage,
-              hasPrevPage
-            }
           }
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     )
-  } catch (error: any) {
-    // 如果是已知的錯誤，直接拋出
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
 
     // 其他錯誤
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '無法取得商品列表'
+      statusMessage: '無法取得商品列表，請稍後再試'
     })
   }
 })

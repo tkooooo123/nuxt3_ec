@@ -48,10 +48,16 @@ export default defineEventHandler(async (event: H3Event) => {
       message: '更新成功！',
       data: updated
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message
+      })
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '伺服器錯誤'
+      statusMessage: '伺服器錯誤'
     })
   }
 })

@@ -1,8 +1,11 @@
 import Order from '~/server/models/Order'
 
+
 export default defineEventHandler(async (event) => {
+  const logger = event.context.logger
   try {
     const body = await readBody(event)
+
 
     const { RtnCode, MerchantTradeNo } = body
 
@@ -14,14 +17,14 @@ export default defineEventHandler(async (event) => {
         order.status = 'paid'
         await order.save()
       } else {
-        console.warn(`⚠️ 找不到對應訂單：${MerchantTradeNo}`)
+        logger.warn(`⚠️ 找不到對應訂單：${MerchantTradeNo}`)
       }
     }
 
     // 綠界要求回傳字串 "1|OK"
     return '1|OK'
-  } catch (err) {
-    console.error('❌ 處理綠界付款回傳時發生錯誤：', err)
+  } catch {
+    logger.error('❌ 處理綠界付款回傳時發生錯誤：')
     return '0|Error'
   }
 })

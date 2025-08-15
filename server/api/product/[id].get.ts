@@ -82,16 +82,15 @@ export default defineEventHandler(async (event: H3Event) => {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     )
-  } catch (error: any) {
-    // 如果是已知的錯誤，直接拋出
-    if (error.statusCode) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
 
     // 其他錯誤
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || '無法取得商品資訊'
+      statusMessage: '無法取得商品資訊，請稍後再試'
     })
   }
 })
