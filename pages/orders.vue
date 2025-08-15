@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/api'
 import type { OrderResponse, OrderItem } from '~/types/order'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
+
 const loadingStore = useLoadingStore()
 // 使用 useAuth 檢查登入狀態
 const { isLoggedIn } = useAuth()
@@ -26,8 +29,9 @@ const getOrders = async () => {
       }
     })
     orders.value = res.data || []
-  } catch (error) {
-    console.log(error)
+  } catch (error: unknown) {
+    if(error instanceof FetchError)
+    toast.error(`${error.message}`)
   } finally {
     loadingStore.hide()
   }
@@ -53,8 +57,9 @@ const submitPayment = async (order: OrderResponse) => {
     div.innerHTML = res
     document.body.appendChild(div)
     div.querySelector('form')?.submit()
-  } catch (error) {
-    console.log(error)
+  } catch (error: unknown) {
+    if(error instanceof FetchError)
+    toast.error(`${error.message}`)
   } finally {
     loadingStore.hide()
   }

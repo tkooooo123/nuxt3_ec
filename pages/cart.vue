@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { FormInstance, FormRules } from 'element-plus'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
 
 // 使用 useAuth 檢查登入狀態
 const { isLoggedIn } = useAuth()
@@ -63,8 +65,9 @@ const postOrder = async () => {
       await fetchCart()
       router.push(`/createOrderSuccess/${res.data.orderId}`)
     }
-  } catch (error) {
-    console.log(error)
+  } catch (error: unknown) {
+    if(error instanceof FetchError)
+    toast.error(`${error.message}`)
   }
 }
 </script>

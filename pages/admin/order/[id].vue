@@ -2,6 +2,8 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import type { ApiResponse } from '~/types/api'
 import type { AdminOrder } from '~/types/order'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
   layout: 'admin'
@@ -61,8 +63,8 @@ const getOrder = async () => {
       ruleForm.value = { ...res.data.shipping }
       recalculateTotal()
     }
-  } catch (error) {
-    console.error('取得訂單失敗', error)
+  } catch (error: unknown) {
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
 const editOrder = async () => {
@@ -73,17 +75,22 @@ const editOrder = async () => {
     total: order.value[0].total
   }
   try {
-    const res = await $fetch(`/api/admin/order/${route.params.id}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: data
-    })
-    console.log(res)
-    // 你可以根據 res 做提示或跳轉
-  } catch (error) {
-    console.error('更新訂單失敗', error)
+    const res = await $fetch<{ message: string }>(
+      `/api/admin/order/${route.params.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        },
+        body: data
+      }
+    )
+    if (res) {
+      toast.success(`${res.message}`)
+      getOrder()
+    }
+  } catch (error: unknown) {
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
 const handleSave = async () => {

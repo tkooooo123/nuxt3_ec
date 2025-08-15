@@ -2,6 +2,8 @@
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadRawFile, FormInstance, FormRules } from 'element-plus'
 import adminAuth from '~/middleware/adminAuth'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
   layout: 'admin',
@@ -94,12 +96,12 @@ const getImgUrl = async (file: File) => {
     ruleForm.imageUrl = uploadResult
     loading.value = false
   } catch (error: unknown) {
-    if(error instanceof Error)
-    ElMessage({
-      message: error.message || '圖片上傳失敗',
-      type: 'error',
-      duration: 3000
-    })
+    if (error instanceof Error)
+      ElMessage({
+        message: error.message || '圖片上傳失敗',
+        type: 'error',
+        duration: 3000
+      })
     loading.value = false
   }
 }
@@ -147,14 +149,14 @@ const getArticles = async () => {
   try {
     const { data } = await $fetch<{ data: article[] }>('/api/admin/articles', {
       headers: {
-          Authorization: `Bearer ${token.value}`
+        Authorization: `Bearer ${token.value}`
       }
     })
     if (data) {
       articleList.value = data
     }
-  } catch (error) {
-    console.log(error)
+  } catch (error: unknown) {
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
 const createArticle = async () => {
@@ -179,8 +181,8 @@ const createArticle = async () => {
     })
     getArticles()
     articleDialogVisible.value = false
-  } catch (error) {
-    console.log(error)
+  } catch (error: unknown) {
+    if (error instanceof FetchError) toast.error(`${error.message}`)
     articleDialogVisible.value = false
   }
 }
@@ -204,7 +206,7 @@ const editArticle = (item: article) => {
 
 const handleDelete = async () => {
   try {
-    const res = await $fetch<{ message: string}>(`/api/admin/article`, {
+    const res = await $fetch<{ message: string }>(`/api/admin/article`, {
       method: 'DELETE',
       body: {
         id: selectToDelete.value?.id
@@ -217,8 +219,8 @@ const handleDelete = async () => {
     await getArticles()
 
     deleteDialogVisible.value = false
-  } catch (error) {
-    console.log(error)
+  }  catch (error: unknown) {
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
 
