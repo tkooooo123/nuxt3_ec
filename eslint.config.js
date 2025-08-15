@@ -46,18 +46,19 @@ export default [
       vue: vue
     },
     rules: {
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' }
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
-      'vue/multi-word-component-names': 'off',
+      //'vue/multi-word-component-names': 'off', //要求元件名稱必須多個單字
       'vue/no-v-html': 'warn',
-      'vue/require-default-prop': 'off',
-      'vue/require-prop-types': 'off',
-      'vue/no-unused-vars': 'off',
-      'no-console': 'off',
-      'no-debugger': 'off',
+      'vue/require-default-prop': 'off', //要求元件 prop 必須有預設值
+      'vue/require-prop-types': 'off',  //要求元件 prop 必須定義型別
+      'vue/no-unused-vars': 'warn', 
+      'no-console': 'warn',
+      //'no-debugger': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
       'no-undef': 'off'
