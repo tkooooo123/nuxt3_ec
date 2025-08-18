@@ -97,6 +97,7 @@ const handleLogout = async () => {
       </ul>
       <RouterLink
         to="/cart"
+          aria-label="前往購物車"
         class="flex items-center ml-4 hover:scale-120 transition duration-300 relative"
       >
         <svg
