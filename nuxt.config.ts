@@ -95,7 +95,7 @@ export default defineNuxtConfig({
         ],
         'font-src': ["'self'", 'data:'],
         'frame-ancestors': ["'self'"],
-        'form-action': ["'self'"]
+        'form-action': ["'self'", "https://payment-stage.ecpay.com.tw"],
       }
     }
   },
