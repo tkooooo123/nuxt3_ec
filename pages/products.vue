@@ -233,7 +233,7 @@ onMounted(() => {
           >
             <div class="overflow-hidden">
               <img
-                class="product-card-image w-full object-cover block"
+                class="product-card-image w-full  object-cover aspect-1 block"
                 :src="product.image"
                 alt="商品圖片"
               />
