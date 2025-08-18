@@ -173,13 +173,13 @@ onMounted(() => {
           <p>訂單「{{ selectedOrderId }}」刪除後將無法復原，你確定要刪除嗎？</p>
           <div class="flex justify-end">
             <button
-              class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+              class="rounded-4 cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
               @click="deleteDialogVisible = false"
             >
               取消
             </button>
             <button
-              class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+              class="bg-red text-white rounded-4 hover:brightness-90 h-10 px-4 cursor-pointer transition duration-200"
               @click="handleDelete"
             >
               確定

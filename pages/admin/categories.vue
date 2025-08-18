@@ -167,7 +167,11 @@ onMounted(() => {
             prop="name"
             width="160"
           ></el-table-column>
-          <el-table-column label="描述" prop="description"></el-table-column>
+          <el-table-column label="描述" >
+            <template #default="scope">
+              <span class="truncate">{{ scope.row.description }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="動作" width="170">
             <template #default="scope">
               <div class="flex">
@@ -228,13 +232,13 @@ onMounted(() => {
         </el-form>
         <div class="flex justify-end">
           <button
-            class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+            class="rounded-4 cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
             @click="createDialogVisible = false"
           >
             取消
           </button>
           <button
-            class="bg-blue text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+            class="h-10 px-4 rounded-4 cursor-pointer bg-blue-light hover:bg-blue-dark text-white transition duration-200"
             @click="handleSubmit"
           >
             確定
@@ -250,13 +254,13 @@ onMounted(() => {
         </p>
         <div class="flex justify-end">
           <button
-            class="border border-1 border-solid border-black rounded-2 h-10 px-4 bg-white cursor-pointer"
+            class="rounded-4 cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
             @click="deleteDialogVisible = false"
           >
             取消
           </button>
           <button
-            class="bg-red text-white rounded-2 h-10 px-4 ml-4 cursor-pointer"
+            class="bg-red text-white rounded-4 hover:brightness-90 h-10 px-4 cursor-pointer transition duration-200"
             @click="handleDelete"
           >
             確定
