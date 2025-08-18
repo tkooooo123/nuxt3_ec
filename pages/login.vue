@@ -63,6 +63,7 @@ const handleLogin = async () => {
         sameSite: 'strict'
       })
       token.value = res.data.token
+      localStorage.setItem('token', res.data.token)
 
       // 儲存用戶資訊
       const userInfo = useCookie('userInfo', {

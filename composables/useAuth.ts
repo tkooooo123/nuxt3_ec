@@ -5,6 +5,9 @@ export const useAuth = () => {
   // 獲取 token
   const getToken = () => {
     const token = useCookie<string | null>('token')
+    if (import.meta.client) {
+      return token.value || localStorage.getItem('token')
+    }
     return token.value
   }
 
@@ -34,6 +37,7 @@ export const useAuth = () => {
 
       token.value = null
       userInfo.value = null
+      localStorage.removeItem('token')
 
       // 重定向到登入頁面
       await navigateTo('/login')
