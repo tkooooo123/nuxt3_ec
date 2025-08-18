@@ -284,6 +284,7 @@ const {
 } = usePagination<Product>(productList, 10)
 // 取得分類資料
 const fetchCategories = async () => {
+  loadingStore.show()
   try {
     const response = await $fetch<ApiResponse<Category[]>>(
       '/api/admin/categories',
@@ -468,9 +469,9 @@ const handleSubmit = () => {
 }
 
 // 頁面載入時取得分類資料
-onMounted(() => {
-  fetchCategories()
-  fetchProducts()
+onMounted(async() => {
+  await fetchCategories()
+  await fetchProducts()
 })
 </script>
 
