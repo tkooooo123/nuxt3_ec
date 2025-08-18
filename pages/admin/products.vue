@@ -65,7 +65,11 @@ const rules: FormRules<Product> = {
   content: [{ required: true, message: '請輸入內容', trigger: 'blur' }],
   quantity: [{ required: true, message: '請輸入數量', trigger: 'blur' }],
   image: [{ required: true, message: '請上傳圖片', trigger: 'blur' }],
-  imagesUrl: [{ required: true, message: '請上傳圖片', trigger: 'blur' }]
+  imagesUrl: [{ required: true, message: '請上傳圖片', trigger: 'blur' }],
+  material: [{ required: true, message: '請輸入原料', trigger: 'blur' }],
+  size: [{ required: true, message: '請輸入尺寸', trigger: 'blur' }],
+  notice:[{ required: true, message: '請輸入注意事項', trigger: 'blur' }],
+  style: [{ required: true, message: '請輸入風格', trigger: 'blur' }],
 }
 const ruleForm = reactive<Product>({
   id: '',
@@ -175,6 +179,7 @@ const getImgUrl = async (file: File) => {
     loading.value = false
   }
 }
+
 
 // 上傳多張圖片
 const uploadMultipleImages = async (files: File[]) => {
@@ -869,6 +874,7 @@ onMounted(() => {
                 </el-form-item>
                 <el-form-item
                   label="注意事項"
+                  prop="notice"
                   class="flex flex-col items-start col-span-2"
                 >
                   <el-input
@@ -879,19 +885,19 @@ onMounted(() => {
                     v-model="ruleForm.notice"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="材質" class="flex flex-col items-start">
+                <el-form-item label="原料" prop="material" class="flex flex-col items-start">
                   <el-input
                     v-model="ruleForm.material"
-                    placeholder="請輸入材質"
+                    placeholder="請輸入原料"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="尺寸" class="flex flex-col items-start">
+                <el-form-item label="尺寸" prop="size" class="flex flex-col items-start">
                   <el-input
                     v-model="ruleForm.size"
                     placeholder="請輸入尺寸"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="風格" class="flex flex-col items-start">
+                <el-form-item label="風格" prop="style" class="flex flex-col items-start">
                   <el-input
                     v-model="ruleForm.style"
                     placeholder="請輸入風格"
@@ -901,13 +907,13 @@ onMounted(() => {
             </el-form>
             <div class="flex justify-end mt-4">
               <button
-                class="h-10 px-4 cursor-pointer"
+                class="rounded-16px cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
                 @click="productDialogVisible = false"
               >
                 取消
               </button>
               <button
-                class="h-10 px-4 ml-2 cursor-pointer"
+                class="h-10 px-4 rounded-4 cursor-pointer bg-blue-light hover:bg-blue-dark text-white transition duration-200"
                 @click="handleSubmit"
               >
                 確定
@@ -930,16 +936,16 @@ onMounted(() => {
           <template #footer>
             <div class="flex justify-end">
               <button
-                class="h-10 px-4 cursor-pointer"
+                class="rounded-4 cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
                 @click="deleteDialogVisible = false"
               >
                 取消
               </button>
               <button
-                class="h-10 px-4 ml-2 bg-red text-white font-600 cursor-pointer"
+                class="bg-red text-white rounded-4 hover:brightness-90 h-10 px-4 cursor-pointer transition duration-200"
                 @click="deleteProduct"
               >
-                確定刪除
+                確定
               </button>
             </div>
           </template>
