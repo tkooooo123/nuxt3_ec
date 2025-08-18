@@ -9,6 +9,7 @@ definePageMeta({
   layout: 'admin'
 })
 
+const loadingStore = useLoadingStore()
 const token = useCookie('token')
 const route = useRoute()
 const order = ref<AdminOrder[]>([])
@@ -46,6 +47,7 @@ const recalculateTotal = () => {
 }
 
 const getOrder = async () => {
+  loadingStore.show()
   try {
     const res = await $fetch<ApiResponse<AdminOrder>>(
       `/api/admin/order/${route.params.id}`,
@@ -65,6 +67,8 @@ const getOrder = async () => {
     }
   } catch (error: unknown) {
     if (error instanceof FetchError) toast.error(`${error.message}`)
+  } finally {
+    loadingStore.hide()
   }
 }
 const editOrder = async () => {
@@ -87,7 +91,7 @@ const editOrder = async () => {
     )
     if (res) {
       toast.success(`${res.message}`)
-      getOrder()
+      await getOrder()
     }
   } catch (error: unknown) {
     if (error instanceof FetchError) toast.error(`${error.message}`)
