@@ -20,10 +20,6 @@ useSeoMeta({
   ogUrl: canonicalUrl,
 })
 
-useHead({
-  link: [{ rel: 'canonical', href: canonicalUrl }],
-  meta: [{ name: 'robots', content: 'index, follow' }]
-})
 
 const websiteJsonLd = {
   '@context': 'https://schema.org',
@@ -38,6 +34,8 @@ const websiteJsonLd = {
 }
 
 useHead({
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+  meta: [{ name: 'robots', content: 'index, follow' }],
   script: [
     { type: 'application/ld+json', innerHTML: JSON.stringify(websiteJsonLd) }
   ]
