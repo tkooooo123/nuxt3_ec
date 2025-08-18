@@ -10,7 +10,8 @@ export default defineNuxtConfig({
      '@nuxtjs/ngrok',
      '@pinia/nuxt',
      '@nuxtjs/sitemap',
-     '@radya/nuxt-dompurify'
+     '@radya/nuxt-dompurify',
+     '@nuxt/image'
    ],
    app: {
     head: {
@@ -28,6 +29,11 @@ export default defineNuxtConfig({
     '@/assets/scss/all.scss',
     'vue3-toastify/dist/index.css'
   ],
+  image: {
+    cloudinary: {
+      baseURL: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/`
+    }
+  },
    vite: {
     plugins: [
       AutoImport({

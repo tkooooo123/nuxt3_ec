@@ -35,8 +35,7 @@ const getProducts = async () => {
       ]
     }
   } catch (err: unknown) {
-    if(err instanceof FetchError) 
-    toast.error('取得商品失敗，請稍後再試')
+    if (err instanceof FetchError) toast.error('取得商品失敗，請稍後再試')
   } finally {
     loadingStore.hide()
   }
@@ -63,11 +62,14 @@ onMounted(() => {
 <template>
   <div class="pt-17">
     <div class="banner relative">
-      <img
-        class="w-full h-150 block object-cover"
-        src="/images/home_banner.jpg"
-        alt="banner"
-      />
+      <NuxtImg
+  src="/images/home_banner.jpg"
+  alt="banner"
+  width="100%"     
+  height="600"
+  format="webp"     
+  class="w-full h-150 block object-cover"
+/>
       <!-- Banner 文案內容 -->
       <div
         class="absolute inset-0 bg-black bg-opacity-15 flex items-center justify-center"
@@ -136,10 +138,14 @@ onMounted(() => {
       >
         熱門商品
       </h2>
-      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto">
+      <div
+        class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto"
+      >
         <div class="xl:flex xl:gap-4">
           <div class="xl:flex-1">
-            <img
+            <NuxtImg
+              provider="cloudinary"
+              format="webp"
               :src="hottestProductImages[selectedHottestImageIndex]"
               alt="newestProduct"
               class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"
@@ -191,7 +197,9 @@ onMounted(() => {
       >
         最新商品
       </h2>
-      <div class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto">
+      <div
+        class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto"
+      >
         <div>
           <h2 class="text-primary my-3 text-6 md:text-8 font-bold">
             {{ newestProduct?.name }}
@@ -228,7 +236,9 @@ onMounted(() => {
         </div>
         <div class="xl:flex xl:gap-4">
           <div class="xl:flex-1">
-            <img
+            <NuxtImg
+              provider="cloudinary"
+              format="webp"
               :src="newestProductImages[selectedNewestImageIndex]"
               alt="newestProduct"
               class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"

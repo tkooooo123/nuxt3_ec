@@ -219,7 +219,7 @@ const handleDelete = async () => {
     await getArticles()
 
     deleteDialogVisible.value = false
-  }  catch (error: unknown) {
+  } catch (error: unknown) {
     if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
@@ -354,7 +354,9 @@ onMounted(() => {
                   </div>
                 </el-upload>
                 <div v-else v-loading="loading" class="flex flex-col">
-                  <img
+                  <NuxtImg
+                    provider="cloudinary"
+                    format="webp"
                     class="max-w-full block"
                     :src="ruleForm.imageUrl"
                     alt="文章圖片"

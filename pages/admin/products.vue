@@ -14,8 +14,6 @@ definePageMeta({
   middleware: adminAuth
 })
 
-
-
 const token = useCookie('token')
 const loadingStore = useLoadingStore()
 const productDialogVisible = ref<boolean>(false)
@@ -68,8 +66,8 @@ const rules: FormRules<Product> = {
   imagesUrl: [{ required: true, message: '請上傳圖片', trigger: 'blur' }],
   material: [{ required: true, message: '請輸入原料', trigger: 'blur' }],
   size: [{ required: true, message: '請輸入尺寸', trigger: 'blur' }],
-  notice:[{ required: true, message: '請輸入注意事項', trigger: 'blur' }],
-  style: [{ required: true, message: '請輸入風格', trigger: 'blur' }],
+  notice: [{ required: true, message: '請輸入注意事項', trigger: 'blur' }],
+  style: [{ required: true, message: '請輸入風格', trigger: 'blur' }]
 }
 const ruleForm = reactive<Product>({
   id: '',
@@ -89,7 +87,7 @@ const ruleForm = reactive<Product>({
   notice: '',
   material: '',
   size: '',
-  style: '',
+  style: ''
 })
 
 const checkFileType = async (file: UploadRawFile) => {
@@ -108,20 +106,17 @@ const checkFileType = async (file: UploadRawFile) => {
 }
 
 // 新增：防抖函數
-const createDebounce = <
-  TArgs extends unknown[],
-  TReturn extends void
->(
+const createDebounce = <TArgs extends unknown[], TReturn extends void>(
   fn: (..._args: TArgs) => TReturn,
   delay: number
 ) => {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null
 
   return (...args: TArgs): void => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-};
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
 
 const processMultipleFiles = async (
   _uploadFile: UploadFile,
@@ -139,9 +134,8 @@ const processMultipleFiles = async (
       })
       continue
     }
-    
-    const isJPGorPNG =
-      file?.type === 'image/jpeg' || file?.type === 'image/png'
+
+    const isJPGorPNG = file?.type === 'image/jpeg' || file?.type === 'image/png'
 
     if (!isJPGorPNG) {
       ElMessage({
@@ -170,16 +164,15 @@ const getImgUrl = async (file: File) => {
     ruleForm.image = uploadResult
     loading.value = false
   } catch (error: unknown) {
-    if(error instanceof Error)
-    ElMessage({
-      message: error.message || '圖片上傳失敗',
-      type: 'error',
-      duration: 3000
-    })
+    if (error instanceof Error)
+      ElMessage({
+        message: error.message || '圖片上傳失敗',
+        type: 'error',
+        duration: 3000
+      })
     loading.value = false
   }
 }
-
 
 // 上傳多張圖片
 const uploadMultipleImages = async (files: File[]) => {
@@ -219,12 +212,12 @@ const uploadMultipleImages = async (files: File[]) => {
 
     multipleUploadLoading.value = false
   } catch (error: unknown) {
-    if(error instanceof Error)
-    ElMessage({
-      message: error.message || '多張圖片上傳失敗',
-      type: 'error',
-      duration: 3000
-    })
+    if (error instanceof Error)
+      ElMessage({
+        message: error.message || '多張圖片上傳失敗',
+        type: 'error',
+        duration: 3000
+      })
     multipleUploadLoading.value = false
   }
 }
@@ -284,7 +277,11 @@ const resetForm = () => {
   ruleForm.style = ''
 }
 // 分頁相關
-const { currentPage, pageSize, pagedData: pagedProducts } = usePagination<Product>(productList, 10)
+const {
+  currentPage,
+  pageSize,
+  pagedData: pagedProducts
+} = usePagination<Product>(productList, 10)
 // 取得分類資料
 const fetchCategories = async () => {
   try {
@@ -298,12 +295,11 @@ const fetchCategories = async () => {
     )
     categories.value = response.data || []
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-      loadingStore.hide()
-    
+    loadingStore.hide()
   }
 }
 
@@ -311,60 +307,51 @@ const fetchCategories = async () => {
 const fetchProducts = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<ApiResponse<Product[]>>(
-      '/api/admin/products',
-      {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+    const res = await $fetch<ApiResponse<Product[]>>('/api/admin/products', {
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
-    )
-    if(res.data) {
+    })
+    if (res.data) {
       productList.value = res.data
     }
-   
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
- 
-      loadingStore.hide()
-   
+    loadingStore.hide()
   }
 }
 
 const addProduct = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<{ message: string}>(
-      '/api/admin/product',
-      {
-        method: 'POST',
-        body: {
-          name: ruleForm.name,
-          description: ruleForm.description,
-          image: ruleForm.image,
-          imagesUrl: ruleForm.imagesUrl,
-          quantity: ruleForm.quantity,
-          price: ruleForm.price,
-          origin_price: ruleForm.origin_price,
-          category: ruleForm.category,
-          unit: ruleForm.unit,
-          isEnabled: ruleForm.isEnabled,
-          content: ruleForm.content,
-          is_hottest: ruleForm.is_hottest,
-          is_newest: ruleForm.is_newest,
-          notice: ruleForm.notice,
-          material: ruleForm.material,
-          size: ruleForm.size,
-          style: ruleForm.style
-        },
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+    const res = await $fetch<{ message: string }>('/api/admin/product', {
+      method: 'POST',
+      body: {
+        name: ruleForm.name,
+        description: ruleForm.description,
+        image: ruleForm.image,
+        imagesUrl: ruleForm.imagesUrl,
+        quantity: ruleForm.quantity,
+        price: ruleForm.price,
+        origin_price: ruleForm.origin_price,
+        category: ruleForm.category,
+        unit: ruleForm.unit,
+        isEnabled: ruleForm.isEnabled,
+        content: ruleForm.content,
+        is_hottest: ruleForm.is_hottest,
+        is_newest: ruleForm.is_newest,
+        notice: ruleForm.notice,
+        material: ruleForm.material,
+        size: ruleForm.size,
+        style: ruleForm.style
+      },
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
-    )
+    })
     if (res) {
       productDialogVisible.value = false
       resetForm()
@@ -377,47 +364,43 @@ const addProduct = async () => {
       await fetchProducts()
     }
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-      loadingStore.hide()
-  
+    loadingStore.hide()
   }
 }
 
 const updateProduct = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<ApiResponse<Product>>(
-      '/api/admin/product',
-      {
-        method: 'PUT',
-        body: {
-          id: selectedProductId.value,
-          name: ruleForm.name,
-          description: ruleForm.description,
-          image: ruleForm.image,
-          imagesUrl: ruleForm.imagesUrl,
-          quantity: ruleForm.quantity,
-          price: ruleForm.price,
-          origin_price: ruleForm.origin_price,
-          category: ruleForm.category,
-          unit: ruleForm.unit,
-          isEnabled: ruleForm.isEnabled,
-          content: ruleForm.content,
-          is_hottest: ruleForm.is_hottest,
-          is_newest: ruleForm.is_newest,
-          notice: ruleForm.notice,
-          material: ruleForm.material,
-          size: ruleForm.size,
-          style: ruleForm.style
-        },
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+    const res = await $fetch<ApiResponse<Product>>('/api/admin/product', {
+      method: 'PUT',
+      body: {
+        id: selectedProductId.value,
+        name: ruleForm.name,
+        description: ruleForm.description,
+        image: ruleForm.image,
+        imagesUrl: ruleForm.imagesUrl,
+        quantity: ruleForm.quantity,
+        price: ruleForm.price,
+        origin_price: ruleForm.origin_price,
+        category: ruleForm.category,
+        unit: ruleForm.unit,
+        isEnabled: ruleForm.isEnabled,
+        content: ruleForm.content,
+        is_hottest: ruleForm.is_hottest,
+        is_newest: ruleForm.is_newest,
+        notice: ruleForm.notice,
+        material: ruleForm.material,
+        size: ruleForm.size,
+        style: ruleForm.style
+      },
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
-    )
+    })
     if (res) {
       productDialogVisible.value = false
       resetForm()
@@ -430,13 +413,11 @@ const updateProduct = async () => {
       await fetchProducts()
     }
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
- 
-      loadingStore.hide()
-   
+    loadingStore.hide()
   }
 }
 
@@ -467,13 +448,11 @@ const deleteProduct = async () => {
       await fetchProducts()
     }
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-
-      loadingStore.hide()
-  
+    loadingStore.hide()
   }
 }
 const handleSubmit = () => {
@@ -522,7 +501,9 @@ onMounted(() => {
           </el-table-column>
           <el-table-column label="主圖" width="105">
             <template #default="scope">
-              <img
+              <NuxtImg
+                provider="cloudinary"
+                format="webp"
                 :src="scope.row.image"
                 alt="商品圖片"
                 class="w-20 h-20 object-cover"
@@ -633,8 +614,8 @@ onMounted(() => {
             </template>
           </el-table-column>
         </el-table>
-         <!-- 分頁 -->
-         <div class="flex justify-center mt-6">
+        <!-- 分頁 -->
+        <div class="flex justify-center mt-6">
           <Pagination
             :total="productList.length"
             :page-size="pageSize"
@@ -678,7 +659,9 @@ onMounted(() => {
                     </div>
                   </el-upload>
                   <div v-else v-loading="loading" class="flex flex-col">
-                    <img
+                    <NuxtImg
+                      provider="cloudinary"
+                      format="webp"
                       class="max-w-full block"
                       :src="ruleForm.image"
                       alt="產品圖片"
@@ -722,7 +705,9 @@ onMounted(() => {
                           :key="index"
                           class="relative group"
                         >
-                          <img
+                          <NuxtImg
+                            provider="cloudinary"
+                            format="webp"
                             :src="imageUrl"
                             :alt="`產品圖片 ${index + 1}`"
                             class="w-full h-32 object-cover rounded-lg border border-gray-200"
@@ -885,19 +870,31 @@ onMounted(() => {
                     v-model="ruleForm.notice"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="原料" prop="material" class="flex flex-col items-start">
+                <el-form-item
+                  label="原料"
+                  prop="material"
+                  class="flex flex-col items-start"
+                >
                   <el-input
                     v-model="ruleForm.material"
                     placeholder="請輸入原料"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="尺寸" prop="size" class="flex flex-col items-start">
+                <el-form-item
+                  label="尺寸"
+                  prop="size"
+                  class="flex flex-col items-start"
+                >
                   <el-input
                     v-model="ruleForm.size"
                     placeholder="請輸入尺寸"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="風格" prop="style" class="flex flex-col items-start">
+                <el-form-item
+                  label="風格"
+                  prop="style"
+                  class="flex flex-col items-start"
+                >
                   <el-input
                     v-model="ruleForm.style"
                     placeholder="請輸入風格"

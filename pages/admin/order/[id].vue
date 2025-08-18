@@ -214,7 +214,9 @@ onMounted(() => {
           <el-table :data="order[0]?.items">
             <el-table-column label="圖示" width="100">
               <template #default="scope">
-                <img
+                <NuxtImg
+                  provider="cloudinary"
+                  format="webp"
                   class="w-20 rounded-3 object-cover block"
                   :src="scope.row.image"
                   :alt="scope.row.name"

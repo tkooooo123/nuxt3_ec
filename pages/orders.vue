@@ -17,7 +17,11 @@ const orderDialogVisible = ref<boolean>(false)
 const selectedOrder = ref<OrderResponse>()
 
 // 分頁相關
-const { currentPage, pageSize, pagedData: pagedOrders } = usePagination<OrderResponse>(orders, 10)
+const {
+  currentPage,
+  pageSize,
+  pagedData: pagedOrders
+} = usePagination<OrderResponse>(orders, 10)
 
 const getOrders = async () => {
   loadingStore.show()
@@ -30,8 +34,7 @@ const getOrders = async () => {
     })
     orders.value = res.data || []
   } catch (error: unknown) {
-    if(error instanceof FetchError)
-    toast.error(`${error.message}`)
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   } finally {
     loadingStore.hide()
   }
@@ -58,8 +61,7 @@ const submitPayment = async (order: OrderResponse) => {
     document.body.appendChild(div)
     div.querySelector('form')?.submit()
   } catch (error: unknown) {
-    if(error instanceof FetchError)
-    toast.error(`${error.message}`)
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   } finally {
     loadingStore.hide()
   }
@@ -299,7 +301,9 @@ onMounted(() => {
               :key="item.id"
               class="mt-4 flex items-center"
             >
-              <img
+              <NuxtImg
+                provider="cloudinary"
+                format="webp"
                 class="w-20 h-20 block object-cover"
                 :src="item.image"
                 :alt="item.name"
@@ -330,7 +334,7 @@ onMounted(() => {
     background: #c97c5d;
   }
   .el-pagination .el-pager li.number:hover {
-      color: #c97c5d;
-    }
+    color: #c97c5d;
+  }
 }
 </style>

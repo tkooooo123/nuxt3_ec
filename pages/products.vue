@@ -17,30 +17,30 @@ const keyword = ref<string>('') //搜尋關鍵字
 const { addToCart } = useCart()
 
 const getProducts = async () => {
- try {
-   const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
-    productsList.value = res.data?.products ?? [];
-   filterProducts()
- } catch (error: unknown) {
-    if(error instanceof FetchError) {
+  try {
+    const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
+    productsList.value = res.data?.products ?? []
+    filterProducts()
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
- }
+  }
 }
 
 const getCategories = async () => {
   loadingStore.show()
- try {
-   const res = await $fetch<ApiResponse<Category[]>>('/api/category/all')
-   categoryList.value = res.data ||[]
-   await  getProducts()
- } catch (error: unknown) {
-    if(error instanceof FetchError) {
+  try {
+    const res = await $fetch<ApiResponse<Category[]>>('/api/category/all')
+    categoryList.value = res.data || []
+    await getProducts()
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
- } finally {
-  loadingStore.hide()
- }
+  } finally {
+    loadingStore.hide()
+  }
 }
 
 // 過濾產品函數
@@ -50,7 +50,9 @@ const filterProducts = () => {
     selectedCategoryId.value === 'all'
       ? productsList.value
       : productsList.value.filter(
-          (product) => typeof product.category === 'object'&& product.category?.id === selectedCategoryId.value
+          (product) =>
+            typeof product.category === 'object' &&
+            product.category?.id === selectedCategoryId.value
         )
 
   // 再依主題過濾（且邏輯）
@@ -232,8 +234,10 @@ onMounted(() => {
             class="product-card border border-solid border-gray-200 rounded-md overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer relative"
           >
             <div class="overflow-hidden">
-              <img
-                class="product-card-image w-full  object-cover aspect-1 block"
+              <NuxtImg
+                provider="cloudinary"
+                format="webp"
+                class="product-card-image w-full object-cover aspect-1 block"
                 :src="product.image"
                 alt="商品圖片"
               />

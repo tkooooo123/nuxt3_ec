@@ -52,11 +52,13 @@ const handleImageSelect = (index: number) => {
         @click="handleImageSelect(index)"
         class="xl:h-full"
       >
-        <img
+        <NuxtImg
           :src="image"
           alt="image"
           class="block w-full xl:h-full object-cover rounded-2 cursor-pointer aspect-1"
           :class="selectedImageIndex === index ? '' : 'opacity-60'"
+          provider="cloudinary"
+              format="webp"
         />
       </SwiperSlide>
     </Swiper>

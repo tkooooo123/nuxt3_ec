@@ -7,8 +7,13 @@ import { toast } from 'vue3-toastify'
 const { isLoggedIn } = useAuth()
 
 //使用 useCart 獲取購物車資料
-const { cartItems, removeFromCart, updateCartItemQuantity, clearCart, fetchCart } =
-  useCart()
+const {
+  cartItems,
+  removeFromCart,
+  updateCartItemQuantity,
+  clearCart,
+  fetchCart
+} = useCart()
 
 // 如果未登入，重定向到登入頁面
 if (!isLoggedIn()) {
@@ -66,8 +71,7 @@ const postOrder = async () => {
       router.push(`/createOrderSuccess/${res.data.orderId}`)
     }
   } catch (error: unknown) {
-    if(error instanceof FetchError)
-    toast.error(`${error.message}`)
+    if (error instanceof FetchError) toast.error(`${error.message}`)
   }
 }
 </script>
@@ -117,7 +121,9 @@ const postOrder = async () => {
       <el-table :data="cartItems" class="mt-6 hidden md:block" width="100%">
         <el-table-column label="圖示" width="100">
           <template #default="scope">
-            <img
+            <NuxtImg
+              provider="cloudinary"
+              format="webp"
               :src="scope.row.image"
               alt="商品圖片"
               class="w-full h-full object-cover"
@@ -223,7 +229,9 @@ const postOrder = async () => {
           <div
             class="flex justify-between items-center p-2 border-b-2 border-b-solid border-#fafafa"
           >
-            <img
+            <NuxtImg
+              provider="cloudinary"
+              format="webp"
               :src="item.image"
               class="w-20 h-20 object-cover rounded-3"
               alt=""
@@ -413,15 +421,23 @@ const postOrder = async () => {
           </svg>
           <p class="text-5 font-600">確定要清空購物車嗎？</p>
           <div class="flex">
-            <button class="rounded-16px cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
-            @click="deleteDialogVisible = false"
-            >取消</button>
-            <button class="rounded-16px bg-red-600 text-white px-4 py-2 cursor-pointer"
-            @click="() => {
-              clearCart()
-              deleteDialogVisible = false
-            }"
-            >確定</button>
+            <button
+              class="rounded-16px cursor-pointer px-4 py-2 mr-3 hover:brightness-90 transition duration-200"
+              @click="deleteDialogVisible = false"
+            >
+              取消
+            </button>
+            <button
+              class="rounded-16px bg-red-600 text-white px-4 py-2 cursor-pointer"
+              @click="
+                () => {
+                  clearCart()
+                  deleteDialogVisible = false
+                }
+              "
+            >
+              確定
+            </button>
           </div>
         </div>
       </div>

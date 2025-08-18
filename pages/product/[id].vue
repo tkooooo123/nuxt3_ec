@@ -175,7 +175,9 @@ onMounted(async () => {
       <div class="space-y-4">
         <!-- 主要圖片 -->
         <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-          <img
+          <NuxtImg
+            provider="cloudinary"
+            format="webp"
             :src="
               product.imagesUrl && product.imagesUrl.length > 0
                 ? imgList[selectedImageIndex]
@@ -202,7 +204,9 @@ onMounted(async () => {
                 : 'border-transparent'
             "
           >
-            <img
+            <NuxtImg
+             provider="cloudinary"
+                format="webp"
               :src="image"
               :alt="`${product.name} - 圖片 ${index + 1}`"
               class="w-full h-full object-cover"
@@ -427,13 +431,13 @@ onMounted(async () => {
       </div>
       <div class="max-w-none" v-if="detailType === 'content'">
         <div
-        v-sanitize-html="product.content"
+          v-sanitize-html="product.content"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>
       <div class="max-w-none" v-if="detailType === 'notice'">
         <div
-        v-sanitize-html="product.notice"
+          v-sanitize-html="product.notice"
           class="text-gray-700 leading-relaxed px-4 py-6 bg-white rounded-2"
         ></div>
       </div>

@@ -75,11 +75,14 @@ const handleLogout = async () => {
     </div>
 
     <div class="max-w-25">
-      <img
+      <NuxtImg
         @click="navigateTo('/')"
         src="/images/logo.png"
         alt="logo"
-        class="w-full block cursor-pointer"
+        class="w-full h-full block cursor-pointer"
+        width="100%"
+        height="100%"
+        format="webp"
       />
     </div>
     <div class="flex">
@@ -97,7 +100,7 @@ const handleLogout = async () => {
       </ul>
       <RouterLink
         to="/cart"
-          aria-label="前往購物車"
+        aria-label="前往購物車"
         class="flex items-center ml-4 hover:scale-120 transition duration-300 relative"
       >
         <svg
