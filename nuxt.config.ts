@@ -85,7 +85,6 @@ export default defineNuxtConfig({
           "'self'",
           "'unsafe-inline'",
           "'unsafe-eval'",
-          "'strict-dynamic'", 
           ...(isDev ? ['https://*.ngrok-free.app'] : []) // 只在開發環境添加
         ],
         'script-src-attr': ["'unsafe-inline'"],
