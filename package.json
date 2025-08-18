@@ -45,6 +45,7 @@
     "eslint-plugin-nuxt": "^4.0.0",
     "eslint-plugin-vue": "^10.4.0",
     "jsonwebtoken": "^9.0.2",
+    "nuxt-security": "^2.3.0",
     "sass": "^1.89.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
