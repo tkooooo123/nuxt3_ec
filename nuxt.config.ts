@@ -46,11 +46,15 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: ['.ngrok-free.app'] // 允許所有 ngrok 子網域
     },
+    build: {
+      minify: 'esbuild', // JS/CSS 自動壓縮
+    }
   },
    nitro: {
     plugins: [
       '@/server/index'
-    ]
+    ],
+    compressPublicAssets: true
   },
   runtimeConfig: {
     public: {
