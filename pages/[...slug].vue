@@ -3,12 +3,7 @@ definePageMeta({
   layout: false
 })
 const route = useRoute()
-if (import.meta.server) {
-  const event = useRequestEvent()
-  if (event) {
-    setResponseStatus(event, 404)
-  }
-}
+
 const slugParam = route.params.slug
 const page = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 const seconds = ref<number>(3)
