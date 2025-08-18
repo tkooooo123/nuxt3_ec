@@ -72,6 +72,7 @@ const getOrder = async () => {
   }
 }
 const editOrder = async () => {
+  loadingStore.show()
   const data = {
     shipping: ruleForm.value,
     status: order.value[0].status,
