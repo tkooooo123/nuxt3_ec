@@ -298,7 +298,7 @@ onMounted(async () => {
           <!-- 加入購物車按鈕 -->
           <button
             @click="addToCart"
-            class="w-full bg-primary text-white py-3 px-6 rounded-md hover:bg-primary/90 transition-colors font-semibold flex items-center justify-center space-x-2"
+            class="w-full bg-primary text-white py-3 px-6 rounded-md hover:bg-primary/90 transition-colors font-semibold flex items-center justify-center space-x-2 cursor-pointer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
