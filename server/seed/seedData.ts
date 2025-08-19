@@ -60,7 +60,6 @@ export const seedProduct = async () => {
         description: 'test'
       })
     }
-    console.log(category)
     const productData = [
       {
         name: '奶油泡芙',
