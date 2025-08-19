@@ -9,11 +9,9 @@ const loadingStore = useLoadingStore()
 const route = useRoute()
 const product = ref<Product | null>(null)
 const imgList = ref<string[]>([])
-const selectedImageIndex = ref(0)
 const quantity = ref(1)
 const detailType = ref<'content' | 'specification' | 'notice'>('content')
 const hottestList = ref<Product[]>([])
-
 const userCookie = useCookie('userInfo')
 const userInfo = userCookie.value as User | null
 const userId = userInfo?.user_id
@@ -55,10 +53,6 @@ const getProducts = async () => {
   }
 }
 
-// 選擇圖片
-const selectImage = (index: number) => {
-  selectedImageIndex.value = index
-}
 
 // 增加數量
 const increaseQuantity = () => {

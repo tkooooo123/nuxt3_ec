@@ -5,14 +5,11 @@ import { FetchError } from 'ofetch'
 import { toast } from 'vue3-toastify'
 
 const loadingStore = useLoadingStore()
-
 const products = ref<Product[]>([])
 const newestProduct = ref<Product>()
 const hottestProduct = ref<Product>()
 const newestProductImages = ref<string[]>([])
 const hottestProductImages = ref<string[]>([])
-const selectedNewestImageIndex = ref(0)
-const selectedHottestImageIndex = ref(0)
 
 const getProducts = async () => {
   loadingStore.show()
