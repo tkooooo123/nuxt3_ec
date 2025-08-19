@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import type { Swiper as SwiperClass } from 'swiper'
-import { Navigation } from 'swiper/modules'
+import { Autoplay  } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import type { Product } from '~/types/product'
@@ -14,38 +14,40 @@ const swiperRef = ref<SwiperClass>()
 const onSwiper = (swiper: SwiperClass) => {
   swiperRef.value = swiper
 }
-
-const nextBtnVisible = ref<boolean>(true)
-const prevBtnVisible = ref<boolean>(false)
-const onSlideChange = () => {
-  const swiper = swiperRef.value
-  if (swiper) {
-    const isAtStart = swiper.isBeginning
-    const isAtEnd = swiper.isEnd
-    // 按鈕顯示
-    nextBtnVisible.value = !isAtEnd
-    prevBtnVisible.value = !isAtStart
-  }
-}
-const goToNext = () => {
-  swiperRef.value?.slideNext()
-  setTimeout(onSlideChange, 200)
-}
-const goToPrev = () => {
-  swiperRef.value?.slidePrev()
-  setTimeout(onSlideChange, 200)
-}
 </script>
 
 <template>
   <Swiper
     @swiper="onSwiper"
-    @slideChange="onSlideChange"
-    :modules="[Navigation]"
+    :modules="[Autoplay]"
+    :autoplay="{
+      delay: 3000,     // 每張停留 3 秒
+      disableOnInteraction: false // 使用者滑動後仍會繼續自動播放
+    }"
     :breakpoints="{
       0: {
+        slidesPerView: 1.2,
+        spaceBetween: 20
+      },
+      500: {
         slidesPerView: 1.6,
-        spaceBetween: 16
+        spaceBetween: 20
+      },
+      640: {
+        slidesPerView: 2,
+        spaceBetween: 20
+      },
+      768: {
+        slidesPerView: 2.4,
+        spaceBetween: 20
+      },
+      900: {
+        slidesPerView: 3,
+        spaceBetween: 20
+      },
+      1280: {
+        slidesPerView: 4,
+        spaceBetween: 20
       }
     }"
     class="relative"
@@ -144,45 +146,5 @@ const goToPrev = () => {
         </button>
       </div>
     </SwiperSlide>
-    <button
-      v-show="prevBtnVisible"
-      @click="goToPrev"
-      class="bg-primary dark:bg-white w-[clamp(24px,7vw,48px)] h-[clamp(24px,7vw,48px)] rounded-50% flex justify-center items-center absolute top-50% transform-translate-y--50% left-0 z-3 cursor-pointer"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6 text-#ECECEC dark:text-black"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M15.75 19.5 8.25 12l7.5-7.5"
-        />
-      </svg>
-    </button>
-    <button
-      v-show="nextBtnVisible"
-      @click="goToNext"
-      class="bg-primary dark:bg-white w-[clamp(24px,7vw,48px)] h-[clamp(24px,7vw,48px)] md:h-12 md:w-12 rounded-50% flex justify-center items-center absolute top-50% transform-translate-y--50% right-0 z-5 cursor-pointer"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6 text-white dark:text-black"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-        />
-      </svg>
-    </button>
   </Swiper>
 </template>
