@@ -247,19 +247,19 @@ onMounted(async () => {
         <div v-if="product.quantity > 0" class="space-y-4">
           <div class="flex items-center space-x-4">
             <span class="font-semibold">數量：</span>
-            <div class="flex items-center border border-gray-300 rounded-md">
+            <div class="flex items-center">
               <button
-                @click="decreaseQuantity"
                 :disabled="quantity <= 1"
-                class="px-3 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                @click="decreaseQuantity"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-l-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke-width="1.5"
+                  stroke-width="2.5"
                   stroke="currentColor"
-                  class="size-4"
+                  class="size-4 align-middle"
                 >
                   <path
                     stroke-linecap="round"
@@ -268,21 +268,22 @@ onMounted(async () => {
                   />
                 </svg>
               </button>
-              <span class="px-4 py-2 min-w-[60px] text-center">{{
-                quantity
-              }}</span>
+              <span
+                class="bg-white h-8 w-8 text-center flex items-center justify-center box-border border-t border-b border-l-0 border-r-0 border-solid border-primary"
+                >{{ quantity }}</span
+              >
               <button
-                @click="increaseQuantity"
+               @click="increaseQuantity"
                 :disabled="quantity >= product.quantity"
-                class="px-3 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="h-8 w-8 hover:bg-primary hover:text-white bg-white border border-solid border-primary text-primary rounded-r-[50%] cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke-width="1.5"
+                  stroke-width="2.5"
                   stroke="currentColor"
-                  class="size-4"
+                  class="size-4 align-middle"
                 >
                   <path
                     stroke-linecap="round"
