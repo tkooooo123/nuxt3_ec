@@ -5,6 +5,7 @@ import type { User } from '~/types/user'
 import { FetchError } from 'ofetch'
 import { toast } from 'vue3-toastify'
 
+const loadingStore = useLoadingStore()
 const route = useRoute()
 const product = ref<Product | null>(null)
 const loading = ref(true)
@@ -24,6 +25,7 @@ const { addToCart: addToCartComposable } = useCart()
 
 // 獲取商品詳情
 const getProduct = async () => {
+  loadingStore.show()
   try {
     loading.value = true
     const res = await $fetch<ApiResponse<Product>>(
@@ -38,12 +40,12 @@ const getProduct = async () => {
       toast.error(`無法載入商品資訊`)
     }
   } finally {
-    loading.value = false
+    loadingStore.hide()
   }
 }
 const getProducts = async () => {
+  loadingStore.show()
   try {
-    loading.value = true
     const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
     hottestList.value =
       res.data && res.data.products.length > 0 ? res.data.products : []
@@ -52,7 +54,7 @@ const getProducts = async () => {
       toast.error(`無法載入商品資訊`)
     }
   } finally {
-    loading.value = false
+    loadingStore.hide()
   }
 }
 
