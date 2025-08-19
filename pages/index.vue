@@ -67,7 +67,7 @@ onMounted(() => {
   alt="banner"
   width="100%"     
   height="600"
-  format="webp"     
+  format="webp"    
   class="w-full h-150 block object-cover"
 />
       <!-- Banner 文案內容 -->
@@ -142,18 +142,8 @@ onMounted(() => {
         class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto"
       >
         <div class="xl:flex xl:gap-4">
-          <div class="xl:flex-1">
-            <NuxtImg
-              provider="cloudinary"
-              format="webp"
-              :src="hottestProductImages[selectedHottestImageIndex]"
-              alt="newestProduct"
-              class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"
-            />
-          </div>
-          <HomeImgSwiper
+          <ImgSwiper
             :images="hottestProductImages"
-            v-model:selectedImageIndex="selectedHottestImageIndex"
           />
         </div>
         <div>
@@ -235,18 +225,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="xl:flex xl:gap-4">
-          <div class="xl:flex-1">
-            <NuxtImg
-              provider="cloudinary"
-              format="webp"
-              :src="newestProductImages[selectedNewestImageIndex]"
-              alt="newestProduct"
-              class="w-full md:h-100 block rounded-4 object-cover max-md:aspect-1"
-            />
-          </div>
-          <HomeImgSwiper
+          <ImgSwiper
             :images="newestProductImages"
-            v-model:selectedImageIndex="selectedNewestImageIndex"
           />
         </div>
       </div>

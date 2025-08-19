@@ -9,7 +9,6 @@ const loadingStore = useLoadingStore()
 const route = useRoute()
 const product = ref<Product | null>(null)
 const imgList = ref<string[]>([])
-const error = ref<string | null>(null)
 const selectedImageIndex = ref(0)
 const quantity = ref(1)
 const detailType = ref<'content' | 'specification' | 'notice'>('content')
@@ -26,7 +25,6 @@ const { addToCart: addToCartComposable } = useCart()
 const getProduct = async () => {
   loadingStore.show()
   try {
- 
     const res = await $fetch<ApiResponse<Product>>(
       `/api/product/${route.params.id}`
     )
@@ -112,7 +110,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="py-17 px-3 sm:px-12">
+  <div class="py-17 px-10 sm:px-15">
     <!-- 麵包屑導航 -->
     <div class="flex items-center mt-6 mb-8 text-sm text-gray-600">
       <NuxtLink to="/" class="hover:text-primary transition-colors"
@@ -152,53 +150,18 @@ onMounted(async () => {
       <span v-if="product" class="text-gray-900">{{ product.name }}</span>
     </div>
 
-   
+    
 
     <!-- 商品詳情 -->
-    <div v-if="product" class="grid lg:grid-cols-2 gap-12">
-      <!-- 商品圖片區域 -->
-      <div class="space-y-4">
-        <!-- 主要圖片 -->
-        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-          <NuxtImg
-            provider="cloudinary"
-            format="webp"
-            :src="
-              product.imagesUrl && product.imagesUrl.length > 0
-                ? imgList[selectedImageIndex]
-                : product.image
-            "
-            :alt="product.name"
-            class="w-full h-full object-cover"
-          />
-        </div>
-
-        <!-- 縮圖列表 -->
-        <div
-          v-if="product.imagesUrl && product.imagesUrl.length > 0"
-          class="flex gap-2 overflow-x-auto"
-        >
-          <div
-            v-for="(image, index) in imgList"
-            :key="index"
-            @click="selectImage(index)"
-            class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden cursor-pointer border-2 transition-colors"
-            :class="
-              selectedImageIndex === index
-                ? 'border-primary'
-                : 'border-transparent'
-            "
-          >
-            <NuxtImg
-             provider="cloudinary"
-                format="webp"
-              :src="image"
-              :alt="`${product.name} - 圖片 ${index + 1}`"
-              class="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      </div>
+    <div
+      v-if="product"
+      class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-150 lg:max-w-full mx-auto"
+    >
+    <div>
+      <ImgSwiper :images="imgList" />
+    </div>
+      
+     
 
       <!-- 商品資訊區域 -->
       <div class="space-y-6">
