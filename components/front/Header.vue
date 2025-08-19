@@ -9,6 +9,7 @@ const { isLoggedIn, logout } = useAuth()
 const { cartCount, fetchCart } = useCart()
 const isToggled = ref<boolean>(false)
 const arrowToggled = ref<boolean>(false)
+const alertDialogVisible = ref<boolean>(false)
 const navList = ref<navItem[]>([
   {
     id: 1,
@@ -98,10 +99,18 @@ const handleLogout = async () => {
           >
         </li>
       </ul>
-      <RouterLink
-        to="/cart"
+      <button
+        @click="
+          () => {
+            if (isLoggedIn()) {
+              navigateTo('/cart')
+            } else {
+              alertDialogVisible = true
+            }
+          }
+        "
         aria-label="前往購物車"
-        class="flex items-center ml-4 hover:scale-120 transition duration-300 relative"
+        class="flex items-center ml-4 hover:scale-120 bg-transparent cursor-pointer transition duration-300 relative"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +133,7 @@ const handleLogout = async () => {
         >
           {{ cartCount }}
         </span>
-      </RouterLink>
+      </button>
       <RouterLink
         v-if="!isLoggedIn()"
         to="/login"
@@ -217,6 +226,17 @@ const handleLogout = async () => {
       </li>
     </ul>
   </div>
+  <el-dialog v-model="alertDialogVisible" width="350">
+    <p class="font-500 text-5 text-center">請先登入以查看購物車內容！</p>
+    <div class="flex justify-center">
+      <button
+      @click="navigateTo('/login')"
+        class="h-10 bg-primary hover:brightness-90 text-white px-4 rounded-2 border-0 cursor-pointer transition-all duration-200"
+      >
+        登入
+      </button>
+    </div>
+  </el-dialog>
 </template>
 <style lang="scss" scoped>
 .arrow-down {
