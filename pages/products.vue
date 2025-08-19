@@ -239,7 +239,7 @@ onMounted(() => {
                 format="webp"
                 class="product-card-image w-full object-cover aspect-1 block"
                 :src="product.image"
-                alt="商品圖片"
+                :alt="product.name"
               />
             </div>
             <div class="flex flex-col p-4">

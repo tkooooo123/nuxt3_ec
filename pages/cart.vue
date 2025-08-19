@@ -125,7 +125,7 @@ const postOrder = async () => {
               provider="cloudinary"
               format="webp"
               :src="scope.row.image"
-              alt="商品圖片"
+              :alt="scope.row.name"
               class="w-full h-full object-cover"
             />
           </template>
@@ -234,7 +234,7 @@ const postOrder = async () => {
               format="webp"
               :src="item.image"
               class="w-20 h-20 object-cover rounded-3"
-              alt=""
+              :alt="item.name"
             />
             <button
               @click="removeFromCart(item.id)"

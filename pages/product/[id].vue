@@ -151,7 +151,7 @@ onMounted(async () => {
       class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-150 lg:max-w-full mx-auto"
     >
     <div>
-      <ImgSwiper :images="imgList" />
+      <ImgSwiper :images="imgList" :name="product.name" />
     </div>
       
      

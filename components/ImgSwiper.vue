@@ -8,6 +8,7 @@ import 'swiper/css/free-mode'
 import 'swiper/css/thumbs'
 const props = defineProps<{
   images: string[]
+  name: string
 }>()
 
 // 縮圖 swiper 實例
@@ -17,9 +18,18 @@ const selectedImageIndex = ref(0)
 
 <template>
   <!-- 主圖 -->
-  <Swiper :modules="[Thumbs]" :thumbs="{ swiper: thumbsSwiper }" space-between="20" class="mb-4">
+  <Swiper
+    :modules="[Thumbs]"
+    :thumbs="{ swiper: thumbsSwiper }"
+    space-between="20"
+    class="mb-4"
+  >
     <SwiperSlide v-for="(img, i) in props.images" :key="i">
-      <img :src="img" class="w-full rounded-xl aspect-1 object-cover" />
+      <img
+        :src="img"
+        class="w-full rounded-xl aspect-1 object-cover"
+        :alt="`${props.name} 圖片 ${i + 1}`"
+      />
     </SwiperSlide>
   </Swiper>
 
@@ -43,6 +53,7 @@ const selectedImageIndex = ref(0)
         :src="img"
         class="rounded-lg w-full aspect-1 object-cover"
         :class="selectedImageIndex === i ? '' : 'opacity-60'"
+        :alt="`${props.name} 縮圖 ${i + 1}`"
       />
     </SwiperSlide>
   </Swiper>

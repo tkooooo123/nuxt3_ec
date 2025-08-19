@@ -140,7 +140,7 @@ onMounted(() => {
         class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto"
       >
         <div class="xl:flex xl:gap-4">
-          <ImgSwiper :images="hottestProductImages" />
+          <ImgSwiper :images="hottestProductImages" :name="hottestProduct?.name || ''" />
         </div>
         <div>
           <h2 class="text-primary my-3 text-7 md:text-8 font-bold">
@@ -221,7 +221,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="xl:flex xl:gap-4">
-          <ImgSwiper :images="newestProductImages" />
+          <ImgSwiper :images="newestProductImages" :name="newestProduct?.name || ''"/>
         </div>
       </div>
     </div>

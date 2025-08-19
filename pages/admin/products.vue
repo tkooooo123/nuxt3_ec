@@ -506,7 +506,7 @@ onMounted(async() => {
                 provider="cloudinary"
                 format="webp"
                 :src="scope.row.image"
-                alt="商品圖片"
+                :alt="scope.row.name"
                 class="w-20 h-20 object-cover"
               />
             </template>
