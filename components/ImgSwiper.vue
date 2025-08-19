@@ -19,7 +19,7 @@ const selectedImageIndex = ref(0)
   <!-- 主圖 -->
   <Swiper :modules="[Thumbs]" :thumbs="{ swiper: thumbsSwiper }" space-between="20" class="mb-4">
     <SwiperSlide v-for="(img, i) in props.images" :key="i">
-      <img :src="img" class="w-full rounded-xl" />
+      <img :src="img" class="w-full rounded-xl aspect-1 object-cover" />
     </SwiperSlide>
   </Swiper>
 
