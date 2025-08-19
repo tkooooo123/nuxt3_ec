@@ -8,7 +8,6 @@ import { toast } from 'vue3-toastify'
 const loadingStore = useLoadingStore()
 const route = useRoute()
 const product = ref<Product | null>(null)
-const loading = ref(true)
 const imgList = ref<string[]>([])
 const error = ref<string | null>(null)
 const selectedImageIndex = ref(0)
@@ -27,7 +26,7 @@ const { addToCart: addToCartComposable } = useCart()
 const getProduct = async () => {
   loadingStore.show()
   try {
-    loading.value = true
+ 
     const res = await $fetch<ApiResponse<Product>>(
       `/api/product/${route.params.id}`
     )
@@ -153,26 +152,10 @@ onMounted(async () => {
       <span v-if="product" class="text-gray-900">{{ product.name }}</span>
     </div>
 
-    <!-- 載入中 -->
-    <div v-if="loading" class="flex justify-center items-center py-20">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
-      ></div>
-    </div>
-
-    <!-- 錯誤訊息 -->
-    <div v-else-if="error" class="text-center py-20">
-      <div class="text-red-500 text-lg mb-4">{{ error }}</div>
-      <button
-        @click="getProduct"
-        class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-      >
-        重新載入
-      </button>
-    </div>
+   
 
     <!-- 商品詳情 -->
-    <div v-else-if="product" class="grid lg:grid-cols-2 gap-12">
+    <div v-if="product" class="grid lg:grid-cols-2 gap-12">
       <!-- 商品圖片區域 -->
       <div class="space-y-4">
         <!-- 主要圖片 -->
