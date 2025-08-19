@@ -146,9 +146,9 @@ const handleLogout = async () => {
         class="hidden md:flex items-center ml-4 relative"
         @click="arrowToggled = !arrowToggled"
       >
-        <img
+        <NuxtImg
           class="rounded-50% block h-12 w-12"
-          src="https://i.imgur.com/ZgnOsNJ.png"
+          src="https://res.cloudinary.com/dbfvtcjog/image/upload/v1754895868/lameszo0x4kd1f6wvksk.png"
           alt="avatar"
         />
         <div class="arrow-down" :class="{ rotated: arrowToggled }"></div>
