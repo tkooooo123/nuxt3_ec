@@ -9,11 +9,12 @@ export default defineEventHandler(async (event: H3Event) => {
     await connectDB()
 
     // 查詢商品列表並帶出分類資訊
-    const products = await Product.find()
-      .populate('category') as (IProduct & { category: ICategory })[]
+    const products = (await Product.find()
+      .sort({ createdAt: -1 })
+      .populate('category')) as (IProduct & { category: ICategory })[]
 
     // 格式化回傳資料
-    const data = products.map(product => ({
+    const data = products.map((product) => ({
       id: product._id,
       name: product.name,
       image: product.image,
@@ -45,7 +46,7 @@ export default defineEventHandler(async (event: H3Event) => {
         JSON.stringify({
           message: '取得成功!',
           data: {
-            products: data,
+            products: data
           }
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
