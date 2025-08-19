@@ -17,18 +17,19 @@ const getProducts = async () => {
     const res = await $fetch<ApiResponse<ProductsResponse>>('/api/product/all')
     if (res.data) {
       products.value = res.data.products
-      newestProduct.value = res.data.products[0]
+      newestProduct.value = res.data.products.filter(
+        (product) => product.is_newest
+      )[0]
       hottestProduct.value = res.data.products.filter(
         (product) => product.is_hottest
       )[0]
       newestProductImages.value = [
-        res.data.products[0].image,
-        ...res.data.products[0].imagesUrl
+        newestProduct.value.image,
+        ...newestProduct.value.imagesUrl
       ]
       hottestProductImages.value = [
-        res.data.products.filter((product) => product.is_hottest)[0].image,
-        ...res.data.products.filter((product) => product.is_hottest)[0]
-          .imagesUrl
+        hottestProduct.value.image,
+        ...hottestProduct.value.imagesUrl
       ]
     }
   } catch (err: unknown) {
@@ -60,13 +61,13 @@ onMounted(() => {
   <div class="pt-17">
     <div class="banner relative">
       <NuxtImg
-  src="/images/home_banner.jpg"
-  alt="banner"
-  width="100%"     
-  height="600"
-  format="webp"    
-  class="w-full h-150 block object-cover"
-/>
+        src="/images/home_banner.jpg"
+        alt="banner"
+        width="100%"
+        height="600"
+        format="webp"
+        class="w-full h-150 block object-cover"
+      />
       <!-- Banner 文案內容 -->
       <div
         class="absolute inset-0 bg-black bg-opacity-15 flex items-center justify-center"
@@ -139,9 +140,7 @@ onMounted(() => {
         class="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 max-w-516px md:max-w-full mx-auto"
       >
         <div class="xl:flex xl:gap-4">
-          <ImgSwiper
-            :images="hottestProductImages"
-          />
+          <ImgSwiper :images="hottestProductImages" />
         </div>
         <div>
           <h2 class="text-primary my-3 text-7 md:text-8 font-bold">
@@ -222,9 +221,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="xl:flex xl:gap-4">
-          <ImgSwiper
-            :images="newestProductImages"
-          />
+          <ImgSwiper :images="newestProductImages" />
         </div>
       </div>
     </div>
