@@ -71,8 +71,7 @@ const decreaseQuantity = () => {
 // 加入購物車
 const addToCart = async () => {
   if (!userId) {
-    // 如果用戶未登入，導向登入頁面
-    await navigateTo('/login')
+    toast.error('請先登入')
     return
   }
 
