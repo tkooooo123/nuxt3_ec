@@ -1,12 +1,32 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/api'
 import type { OrderResponse, OrderItem } from '~/types/order'
+import { FetchError } from 'ofetch'
+import { toast } from 'vue3-toastify'
+
+// 使用 useAuth 檢查登入狀態
+const { isLoggedIn } = useAuth()
+// 如果未登入，重定向到登入頁面
+if (!isLoggedIn()) {
+  await navigateTo('/login')
+}
+const loadingStore = useLoadingStore()
 const route = useRoute()
 const orderId = route.params.id
-const order = ref<OrderResponse>()
+const order = ref<OrderResponse | null>(null)
 const getOrder = async () => {
-  const res = await $fetch<ApiResponse<OrderResponse>>(`/api/order/${orderId}`)
-  order.value = res.data
+  loadingStore.show()
+  try {
+    const res = await $fetch<ApiResponse<OrderResponse>>(`/api/order/${orderId}`)
+    order.value = res.data || null
+  } catch (error : unknown) { 
+    if (error instanceof FetchError) {
+      toast.error(`無法取得訂單資訊，請稍後再試`)
+    }
+  } finally {
+    loadingStore.hide()
+  }
+ 
 }
 const submitPayment = async () => {
   if (!order.value) return
