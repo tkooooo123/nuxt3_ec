@@ -89,13 +89,13 @@ const handleLogout = async () => {
     <div class="flex">
       <ul class="hidden md:flex">
         <li class="mx-1" v-for="item in navList" :key="item.id">
-          <RouterLink
-            :to="`${item.link}`"
+          <NuxtLink
+            :to="`/${item.link}`"
             class="relative after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-full hover:after:left-0 py-1"
             ><span
               class="px-2 hover:text-primary transition-all duration-200"
               >{{ item.name }}</span
-            ></RouterLink
+            ></NuxtLink
           >
         </li>
       </ul>
@@ -134,13 +134,13 @@ const handleLogout = async () => {
           {{ cartCount }}
         </span>
       </button>
-      <RouterLink
+      <NuxtLink
         v-if="!isLoggedIn()"
         to="/login"
         class="hidden md:flex items-center ml-4 hover:scale-120 transition duration-300"
       >
         <span>登入</span>
-      </RouterLink>
+      </NuxtLink>
       <div
         v-else
         class="hidden md:flex items-center ml-4 relative"
@@ -193,35 +193,35 @@ const handleLogout = async () => {
   >
     <ul class="px-5">
       <li v-if="isLoggedIn()">
-        <RouterLink
+        <NuxtLink
           to="/orders"
           @click="isToggled = !isToggled"
           class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
-          ><span class="text-center">訂單</span></RouterLink
+          ><span class="text-center">訂單</span></NuxtLink
         >
       </li>
       <li v-if="isLoggedIn()">
-        <RouterLink
+        <NuxtLink
           to=""
           @click="handleLogout"
           class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
-          ><span class="text-center">登出</span></RouterLink
+          ><span class="text-center">登出</span></NuxtLink
         >
       </li>
       <li v-else>
-        <RouterLink
+        <NuxtLink
           to="/login"
           class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
-          ><span class="text-center">登入</span></RouterLink
+          ><span class="text-center">登入</span></NuxtLink
         >
       </li>
       <hr class="my-4" />
       <li class="mx-1" v-for="item in navList" :key="item.id">
-        <RouterLink
+        <NuxtLink
           :to="item.link"
           @click="isToggled = !isToggled"
           class="relative flex justify-center mt-4 hover:scale-110 transition-all duration-300 after:content-[''] after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:origin-center hover:after:w-20 hover:after:left-50% hover:after:transform-translate-x--50% py-1 hover:text-primary"
-          ><span class="text-center">{{ item.name }}</span></RouterLink
+          ><span class="text-center">{{ item.name }}</span></NuxtLink
         >
       </li>
     </ul>

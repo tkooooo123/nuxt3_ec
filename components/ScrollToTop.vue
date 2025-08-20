@@ -33,7 +33,7 @@ export default {
 </script>
 
 <template>
-  <RouterLink class="to-top bg-primary p-0 " to="" @click="scrollToTop" :class="toggleClass">
+  <NuxtLink class="to-top bg-primary p-0 " to="" @click="scrollToTop" :class="toggleClass">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
@@ -46,7 +46,7 @@ export default {
         clip-rule="evenodd"
       />
     </svg>
-  </RouterLink>
+  </NuxtLink>
 </template>
 
 <style lang="scss">
