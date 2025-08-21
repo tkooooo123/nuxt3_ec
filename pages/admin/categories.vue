@@ -38,28 +38,29 @@ const rules: FormRules<CatrgoryRuleForm> = {
 }
 
 // 分頁相關
-const { currentPage, pageSize, pagedData: pagedCategory } = usePagination<Category>(categoryList, 10)
+const {
+  currentPage,
+  pageSize,
+  pagedData: pagedCategory
+} = usePagination<Category>(categoryList, 10)
 
 const getCategories = async () => {
   loadingStore.show()
   try {
-    const res = await $fetch<ApiResponse<Category[]>>(
-      '/api/admin/categories',
-      {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+    const res = await $fetch<ApiResponse<Category[]>>('/api/admin/categories', {
+      headers: {
+        Authorization: `Bearer ${token.value}`
       }
-    )
+    })
     if (res.data) {
       categoryList.value = res.data
     }
   } catch (error: unknown) {
-    if(error instanceof FetchError) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 
@@ -83,12 +84,12 @@ const addCategory = async () => {
       ruleform.description = ''
       getCategories()
     }
-  }  catch (error: unknown) {
-    if(error instanceof FetchError) {
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 
@@ -105,17 +106,17 @@ const handleDelete = async () => {
       }
     })
 
-    ElMessage.success(res.message || '刪除成功')
+    toast.success(res.message || '刪除成功')
 
     // 關閉 dialog 並重置選擇
     await getCategories()
     deleteDialogVisible.value = false
-  }  catch (error: unknown) {
-    if(error instanceof FetchError) {
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
       toast.error(`${error.data?.statusMessage}`)
     }
   } finally {
-      loadingStore.hide()
+    loadingStore.hide()
   }
 }
 
@@ -134,15 +135,32 @@ const handleEdit = (item: Category) => {
   ruleform.description = item.description
   selectedCategoryId.value = item.id
 }
+// 根據視窗大小動態調整
+const dialogWidth = ref('500px')
+
+const updateWidth = () => {
+  if (window.innerWidth < 600) {
+    dialogWidth.value = '80vw' // 手機
+  } else {
+    dialogWidth.value = '500px' // 桌機
+  }
+}
 onMounted(() => {
+  updateWidth() // 初始化
+  window.addEventListener('resize', updateWidth)
+
   getCategories()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateWidth)
 })
 </script>
 
 <template>
-  <el-container>
-    <div class="w-full bg-white m-4 rounded-3">
-      <div class="px-8 py-6">
+  <el-container class="bg-white m-4 rounded-3">
+    <div class="w-full">
+      <div class="p-6">
         <h1 class="text-8">分類管理</h1>
         <div class="flex justify-end">
           <button
@@ -151,23 +169,26 @@ onMounted(() => {
               () => {
                 createDialogVisible = true
                 type = 'create'
+                ruleform.name = ''
+                ruleform.description = ''
               }
             "
           >
             新增分類
           </button>
         </div>
-        <el-table
-          class="mt-8"
-          :data="pagedCategory"
-        >
-          <el-table-column label="No" width="60"></el-table-column>
+        <el-table class="mt-8 hidden sm:block" :data="pagedCategory">
+          <el-table-column label="No" width="60">
+            <template #default="scope">
+              <span>{{ scope.$index + 1 }}</span>
+            </template>
+          </el-table-column>
           <el-table-column
             label="名稱"
             prop="name"
-            width="160"
+            width="120"
           ></el-table-column>
-          <el-table-column label="描述" >
+          <el-table-column label="描述">
             <template #default="scope">
               <span class="truncate">{{ scope.row.description }}</span>
             </template>
@@ -196,6 +217,38 @@ onMounted(() => {
             </template></el-table-column
           >
         </el-table>
+        <!-- Mobile -->
+        <div class="sm:hidden mt-4">
+          <div
+            v-for="(item, i) in pagedCategory"
+            :key="item.id"
+            class="p-6 mb-4 border border-#E7e7e7 border-solid rounded-4"
+          >
+            <p>No： {{ (currentPage - 1) * pageSize + i + 1 }}</p>
+            <p class="break-all">名稱： {{ item.name }}</p>
+            <p class="break-all">描述： {{ item.description }}</p>
+            <div class="flex items-center">
+              <span>動作：</span
+              ><button
+                class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
+                @click="handleEdit(item)"
+              >
+                編輯
+              </button>
+              <button
+                class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
+                @click="
+                  () => {
+                    deleteDialogVisible = true
+                    selectToDelete = item
+                  }
+                "
+              >
+                刪除
+              </button>
+            </div>
+          </div>
+        </div>
         <!-- 分頁 -->
         <div class="flex justify-center mt-6">
           <Pagination
@@ -211,7 +264,7 @@ onMounted(() => {
     <el-dialog
       :title="`${type === 'edit' ? '編輯' : '新增'}分類`"
       v-model="createDialogVisible"
-      width="600"
+      :width="dialogWidth"
     >
       <div>
         <el-form ref="formRef" :model="ruleform" :rules="rules">
@@ -247,7 +300,7 @@ onMounted(() => {
       </div>
     </el-dialog>
     <!--刪除彈窗-->
-    <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" width="500">
+    <el-dialog v-model="deleteDialogVisible" :title="'刪除分類'" :width="dialogWidth">
       <div>
         <p v-if="selectToDelete">
           分類「{{ selectToDelete.name }}」刪除後將無法復原，你確定要刪除嗎？
@@ -281,5 +334,4 @@ onMounted(() => {
     padding: 24px;
   }
 }
-
 </style>

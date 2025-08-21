@@ -36,7 +36,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-w-250px">
+  <div class="min-w-250px hidden sm:block">
     <div
       class="fixed top-0 bg-white bottom-0 transition-property-all transition-ease-linear transition-duration-300 transform-origin-l overflow-hidden w-250px flex flex-col justify-between"
       :style="
