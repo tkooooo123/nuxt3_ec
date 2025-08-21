@@ -473,7 +473,6 @@ const dialogWidth = ref('700px')
 const deleteDialogWidth = ref('450px')
 
 const updateWidth = () => {
-  
   if (window.innerWidth < 480) {
     deleteDialogWidth.value = '80vw'
     dialogWidth.value = '90vw'
@@ -767,7 +766,7 @@ onBeforeUnmount(() => {
                 <el-form-item
                   label="主要圖片"
                   prop="image"
-                  class="flex flex-col items-start col-span-2  md:col-span-1"
+                  class="flex flex-col items-start col-span-2 md:col-span-1"
                 >
                   <el-upload
                     v-loading="loading"
@@ -811,7 +810,7 @@ onBeforeUnmount(() => {
                 <el-form-item
                   label="其他圖片"
                   prop="imagesUrl"
-                  class="flex flex-col items-start col-span-2  md:col-span-1"
+                  class="flex flex-col items-start col-span-2 md:col-span-1"
                 >
                   <div class="w-full">
                     <!-- 已上傳的圖片列表 -->
@@ -852,12 +851,26 @@ onBeforeUnmount(() => {
                           </div>
                         </div>
                       </div>
-                      <button
-                        @click.prevent=""
-                        class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer"
+                      <el-upload
+                        class="w-full"
+                        multiple
+                        :before-upload="
+                          () => {
+                            multipleUploadLoading = true
+                            return false
+                          }
+                        "
+                        :on-change="checkMultipleFileType"
+                        action="#"
+                        :show-file-list="false"
                       >
-                        上傳更多圖片
-                      </button>
+                        <button
+                          @click.prevent=""
+                          class="bg-blue h-10 px-4 text-white rounded-2 font-600 cursor-pointer mt-4"
+                        >
+                          上傳更多圖片
+                        </button>
+                      </el-upload>
                     </div>
 
                     <!-- 多張圖片上傳區域 -->
@@ -883,18 +896,14 @@ onBeforeUnmount(() => {
                       <div class="el-upload__text">
                         將多張圖片拖曳到此處，<em>或點擊以上傳</em>
                       </div>
-                      <template #tip>
-                        <div class="el-upload__tip">
-                          支援 JPG/PNG 格式，可同時選擇多張圖片
-                        </div>
-                      </template>
+                      
                     </el-upload>
                   </div>
                 </el-form-item>
                 <el-form-item
                   label="分類"
                   prop="category"
-                  class="flex flex-col items-start col-span-2 "
+                  class="flex flex-col items-start col-span-2"
                 >
                   <el-select
                     v-model="ruleForm.category"
@@ -911,7 +920,7 @@ onBeforeUnmount(() => {
                 <el-form-item
                   label="單位"
                   prop="unit"
-                  class="flex flex-col items-start col-span-2 "
+                  class="flex flex-col items-start col-span-2"
                 >
                   <el-input v-model="ruleForm.unit"></el-input>
                 </el-form-item>
