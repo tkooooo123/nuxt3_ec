@@ -468,10 +468,34 @@ const handleSubmit = () => {
   })
 }
 
+// 根據視窗大小動態調整
+const dialogWidth = ref('700px')
+const deleteDialogWidth = ref('450px')
+
+const updateWidth = () => {
+  
+  if (window.innerWidth < 480) {
+    deleteDialogWidth.value = '80vw'
+    dialogWidth.value = '90vw'
+  } else if (window.innerWidth < 768) {
+    deleteDialogWidth.value = '450px'
+    dialogWidth.value = '90vw' // 平板 / 小螢幕
+  } else {
+    deleteDialogWidth.value = '450px'
+    dialogWidth.value = '700px' // 桌機
+  }
+}
+
 // 頁面載入時取得分類資料
-onMounted(async() => {
+onMounted(async () => {
+  updateWidth() // 初始化
+  window.addEventListener('resize', updateWidth)
   await fetchCategories()
   await fetchProducts()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateWidth)
 })
 </script>
 
@@ -494,7 +518,7 @@ onMounted(async() => {
             新增產品
           </button>
         </div>
-        <el-table :data="pagedProducts" class="mt-6">
+        <el-table :data="pagedProducts" class="mt-6 hidden md:block">
           <el-table-column label="No" width="60">
             <template #default="scope">
               {{ scope.$index + 1 }}
@@ -615,6 +639,106 @@ onMounted(async() => {
             </template>
           </el-table-column>
         </el-table>
+        <!-- Mobile -->
+        <div class="md:hidden mt-4">
+          <div
+            v-for="(item, i) in pagedProducts"
+            :key="item.id"
+            class="p-6 mb-4 border border-#E7e7e7 border-solid rounded-4"
+          >
+            <div class="flex justify-between">
+              <div class="flex flex-col mr-4">
+                <p class="m-0">
+                  No： {{ (currentPage - 1) * pageSize + i + 1 }}
+                </p>
+                <p class="break-all">{{ item.name }}</p>
+                <div class="flex gap-2">
+                  <span
+                    v-if="item.is_newest"
+                    class="bg-#F7eee9 flex text-primary py-1.5 px-2 rounded-7.5"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                      />
+                    </svg>
+                    新品
+                  </span>
+                  <span
+                    v-if="item.is_hottest"
+                    class="bg-primary flex text-#F7eee9 py-1.5 px-2 rounded-7.5"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                      />
+                    </svg>
+
+                    TOP
+                  </span>
+                </div>
+              </div>
+              <NuxtImg
+                provider="cloudinary"
+                format="webp"
+                :src="item.image"
+                :alt="item.name"
+                class="w-26 h-26 object-cover block"
+              />
+            </div>
+            <div class="flex justify-between w-full mt-4">
+              <span>原價：$ {{ item.origin_price }}</span>
+              <span>售價：$ {{ item.price }}</span>
+            </div>
+            <div class="flex justify-between w-full mt-4">
+              <span>數量： {{ item.quantity }}</span>
+              <el-tag v-if="item.isEnabled" type="success">已啟用</el-tag>
+              <el-tag v-else type="danger">未啟用</el-tag>
+            </div>
+            <div class="flex mt-4">
+              <button
+                class="hover:bg-blue-light bg-white text-blue-light border border-blue-light border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200 mr-2"
+                @click="editProduct(item)"
+              >
+                編輯
+              </button>
+              <button
+                class="hover:bg-alert bg-white text-alert border border-alert border-solid hover:text-white rounded-2 w-16 h-10 cursor-pointer transition-all duration-200"
+                @click="
+                  () => {
+                    deleteDialogVisible = true
+                    selectToDelete = item
+                  }
+                "
+              >
+                刪除
+              </button>
+            </div>
+          </div>
+        </div>
         <!-- 分頁 -->
         <div class="flex justify-center mt-6">
           <Pagination
@@ -627,12 +751,12 @@ onMounted(async() => {
         <el-dialog
           :title="`${type === 'edit' ? '編輯' : '新增'}產品`"
           v-model="productDialogVisible"
-          width="700"
+          :width="dialogWidth"
           :modal="false"
         >
           <div>
             <el-form ref="formRef" :model="ruleForm" :rules="rules">
-              <div class="grid md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-2 md:gap-x-4">
                 <el-form-item
                   label="品名"
                   prop="name"
@@ -643,7 +767,7 @@ onMounted(async() => {
                 <el-form-item
                   label="主要圖片"
                   prop="image"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2  md:col-span-1"
                 >
                   <el-upload
                     v-loading="loading"
@@ -687,7 +811,7 @@ onMounted(async() => {
                 <el-form-item
                   label="其他圖片"
                   prop="imagesUrl"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2  md:col-span-1"
                 >
                   <div class="w-full">
                     <!-- 已上傳的圖片列表 -->
@@ -770,7 +894,7 @@ onMounted(async() => {
                 <el-form-item
                   label="分類"
                   prop="category"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2 "
                 >
                   <el-select
                     v-model="ruleForm.category"
@@ -787,7 +911,7 @@ onMounted(async() => {
                 <el-form-item
                   label="單位"
                   prop="unit"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2 "
                 >
                   <el-input v-model="ruleForm.unit"></el-input>
                 </el-form-item>
@@ -874,7 +998,7 @@ onMounted(async() => {
                 <el-form-item
                   label="原料"
                   prop="material"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2 md:col-span-1"
                 >
                   <el-input
                     v-model="ruleForm.material"
@@ -884,7 +1008,7 @@ onMounted(async() => {
                 <el-form-item
                   label="尺寸"
                   prop="size"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2 md:col-span-1"
                 >
                   <el-input
                     v-model="ruleForm.size"
@@ -894,7 +1018,7 @@ onMounted(async() => {
                 <el-form-item
                   label="風格"
                   prop="style"
-                  class="flex flex-col items-start"
+                  class="flex flex-col items-start col-span-2 md:col-span-1"
                 >
                   <el-input
                     v-model="ruleForm.style"
@@ -924,7 +1048,7 @@ onMounted(async() => {
         <el-dialog
           title="確認刪除"
           v-model="deleteDialogVisible"
-          width="400"
+          :width="deleteDialogWidth"
           :modal="false"
         >
           <div>
