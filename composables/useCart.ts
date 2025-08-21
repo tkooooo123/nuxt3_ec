@@ -3,13 +3,12 @@ import type { ApiResponse } from '~/types/api'
 import type { CartResponse, CartItem, CartItemResponse } from '~/types/cart'
 import { FetchError } from 'ofetch'
 
-
 export const useCart = () => {
   // 使用 useState 確保全局狀態共享
   const cartCount = useState('cartCount', () => 0)
   const cartItems = useState('cartItems', () => [] as CartItem[])
   const token = useCookie('token')
-
+  const { logout } = useAuth()
   const loadingStore = useLoadingStore()
 
   // 獲取購物車資料
@@ -22,7 +21,6 @@ export const useCart = () => {
           Authorization: `Bearer ${token.value}`
         }
       })
-    
 
       if (data) {
         cartItems.value =
@@ -43,6 +41,11 @@ export const useCart = () => {
     } catch (error: unknown) {
       if (error instanceof FetchError) {
         toast.error(`${error.data?.statusMessage}`)
+        if (error.statusCode === 401) {
+          // 沒有 token 權限，執行登出
+
+          await logout()
+        }
       }
       // 如果未登入，清空購物車狀態
       cartItems.value = []
@@ -80,6 +83,11 @@ export const useCart = () => {
     } catch (error: unknown) {
       if (error instanceof FetchError) {
         toast.error(`${error.data?.statusMessage}` || '加入購物車失敗')
+        if (error.statusCode === 401) {
+          // 沒有 token 權限，執行登出
+
+          await logout()
+        }
       }
     } finally {
       loadingStore.hide()
@@ -109,6 +117,11 @@ export const useCart = () => {
     } catch (error: unknown) {
       if (error instanceof FetchError) {
         toast.error(`${error.data?.statusMessage}` || '更新數量失敗')
+        if (error.statusCode === 401) {
+          // 沒有 token 權限，執行登出
+
+          await logout()
+        }
       }
     } finally {
       loadingStore.hide()
@@ -135,6 +148,11 @@ export const useCart = () => {
     } catch (error: unknown) {
       if (error instanceof FetchError) {
         toast.error(`${error.data?.statusMessage}` || '移除商品失敗')
+        if (error.statusCode === 401) {
+          // 沒有 token 權限，執行登出
+          const { logout } = useAuth()
+          await logout()
+        }
       }
     } finally {
       loadingStore.hide()
@@ -162,6 +180,11 @@ export const useCart = () => {
     } catch (error: unknown) {
       if (error instanceof FetchError) {
         toast.error(`${error.data?.statusMessage || '清空購物車失敗'}`)
+        if (error.statusCode === 401) {
+          // 沒有 token 權限，執行登出
+
+          await logout()
+        }
       }
     } finally {
       loadingStore.hide()
