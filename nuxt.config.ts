@@ -91,11 +91,13 @@ export default defineNuxtConfig({
         'style-src': ["'self'", "'unsafe-inline'"],
         'connect-src': [
           "'self'",
+          'https://api.cloudinary.com', 
           ...(isDev ? ['https://*.ngrok-free.app'] : []) // 只在開發環境添加
         ],
         'font-src': ["'self'", 'data:'],
         'frame-ancestors': ["'self'"],
         'form-action': ["'self'", "https://payment-stage.ecpay.com.tw"],
+        
       }
     }
   },
