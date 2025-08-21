@@ -51,6 +51,7 @@ export const useAuth = () => {
 
     token.value = null
     userInfo.value = null
+    localStorage.removeItem('token')
   }
 
   return {
