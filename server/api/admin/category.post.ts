@@ -11,11 +11,15 @@ export default defineEventHandler(async (event: H3Event) => {
     const { name, description } = body;
 
     if (!name) {
-      return createError({ statusCode: 400, statusMessage: '請輸入分類名稱' });
+      throw createError({ statusCode: 400, statusMessage: '請輸入分類名稱' });
     }
 
     if (!description) {
-      return  createError({ statusCode: 400, statusMessage: '請輸入分類描述' });
+      throw  createError({ statusCode: 400, statusMessage: '請輸入分類描述' });
+    }
+    const found = await Category.findOne({name})
+    if(found) {
+      throw createError({ statusCode: 400, statusMessage: '分類名稱已存在，請重新輸入' });
     }
 
     const category = await Category.create({
