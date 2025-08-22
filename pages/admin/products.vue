@@ -615,7 +615,7 @@ onBeforeUnmount(() => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="170">
+          <el-table-column label="操作">
             <template #default="scope">
               <div class="flex">
                 <button
