@@ -605,7 +605,7 @@ onBeforeUnmount(() => {
             prop="quantity"
             width="60"
           ></el-table-column>
-          <el-table-column label="是否啟用">
+          <el-table-column label="是否啟用" width="85">
             <template #default="scope">
               <div class="flex flex-col gap-1">
                 <el-tag v-if="scope.row.isEnabled" type="success"
