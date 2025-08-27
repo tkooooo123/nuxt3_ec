@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   try {
     await connectDB()
     // 取得所有訂單，並帶出 user 詳細資料
-    const orders = await Order.find().populate('user').populate<{ product: IProduct }>('items.product').lean()
+    const orders = await Order.find().populate('user').populate<{ product: IProduct }>('items.product').sort({ createdAt: -1 }).lean()
 
     const data = orders.map((order) => ({
       id: order._id.toString(),
@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
       total: order.total,
       status: order.status,
       shipping: order.shipping,
-      payment: order.payment
+      payment: order.payment,
+      createdAt: order.createdAt
     }))
     return event.respondWith(
       new Response(
