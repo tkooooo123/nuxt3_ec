@@ -92,6 +92,11 @@ onMounted(() => {
             </template>
           </el-table-column>
           <el-table-column label="訂單編號" prop="id" />
+          <el-table-column label="訂購日期">
+            <template #default="scope">
+              <span>{{ scope.row.createdAt.slice(0, 10) }}</span>
+            </template>
+          </el-table-column>
 
           <el-table-column>
             <template #header>
@@ -171,6 +176,7 @@ onMounted(() => {
           >
           <span>No： {{ (currentPage - 1) * pageSize + i + 1 }}</span>
           <span class="mt-2">訂單編號：{{ order.id }}</span>
+          <span class="mt-2">訂購日期：{{ order.createdAt.slice(0, 10) }}</span>
           <span class="mt-2">訂購人： {{ order.shipping.name }}</span>
           <span class="mt-2">Email： {{ order.shipping.email }}</span>
           <div class="flex mt-2">
