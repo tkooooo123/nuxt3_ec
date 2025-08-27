@@ -111,7 +111,7 @@ const handleLogin = async () => {
           prop="email"
           class="flex flex-col items-start"
         >
-          <el-input class="mt-2" v-model="ruleform.email"></el-input>
+          <el-input class="mt-2" v-model="ruleform.email" placeholder="請輸入帳號"></el-input>
         </el-form-item>
         <el-form-item
           label="密碼"
@@ -123,6 +123,7 @@ const handleLogin = async () => {
               class="password"
               :type="isShow ? 'text' : 'password'"
               v-model="ruleform.password"
+              placeholder="請輸入密碼"
             >
             </el-input>
             <svg

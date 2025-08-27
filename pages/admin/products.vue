@@ -263,8 +263,8 @@ const resetForm = () => {
   ruleForm.image = ''
   ruleForm.imagesUrl = []
   ruleForm.quantity = 1
-  ruleForm.price = 1
-  ruleForm.origin_price = 0
+  ruleForm.price = 10
+  ruleForm.origin_price = 50
   ruleForm.category = ''
   ruleForm.unit = ''
   ruleForm.isEnabled = true
@@ -761,7 +761,7 @@ onBeforeUnmount(() => {
                   prop="name"
                   class="col-span-2 flex flex-col items-start"
                 >
-                  <el-input v-model="ruleForm.name"></el-input>
+                  <el-input v-model="ruleForm.name" placeholder="請輸入商品名稱"></el-input>
                 </el-form-item>
                 <el-form-item
                   label="主要圖片"
@@ -922,7 +922,7 @@ onBeforeUnmount(() => {
                   prop="unit"
                   class="flex flex-col items-start col-span-2"
                 >
-                  <el-input v-model="ruleForm.unit"></el-input>
+                  <el-input v-model="ruleForm.unit" placeholder="請輸入單位"></el-input>
                 </el-form-item>
                 <el-form-item label="原價" class="flex flex-col items-start">
                   <el-input-number
@@ -1109,6 +1109,9 @@ onBeforeUnmount(() => {
   }
   .el-upload-list__item {
     display: none;
+  }
+  .el-select__wrapper {
+    height: 50px;
   }
 }
 </style>

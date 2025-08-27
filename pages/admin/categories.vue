@@ -273,14 +273,14 @@ onBeforeUnmount(() => {
             prop="name"
             class="flex flex-col items-start"
           >
-            <el-input v-model="ruleform.name"></el-input>
+            <el-input v-model="ruleform.name" placeholder="請輸入名稱"></el-input>
           </el-form-item>
           <el-form-item
             label="描述"
             prop="description"
             class="flex flex-col items-start"
           >
-            <el-input type="textarea" v-model="ruleform.description"></el-input>
+            <el-input type="textarea" v-model="ruleform.description" placeholder="請輸入描述"></el-input>
           </el-form-item>
         </el-form>
         <div class="flex justify-end">

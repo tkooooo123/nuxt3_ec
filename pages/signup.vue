@@ -90,14 +90,14 @@ const handleSignUp = async () => {
           prop="name"
           class="flex flex-col items-start"
         >
-          <el-input class="mt-2" v-model="ruleform.name"></el-input>
+          <el-input class="mt-2" v-model="ruleform.name" placeholder="請輸入姓名"></el-input>
         </el-form-item>
         <el-form-item
           label="帳號"
           prop="email"
           class="flex flex-col items-start"
         >
-          <el-input class="mt-2" v-model="ruleform.email"></el-input>
+          <el-input class="mt-2" v-model="ruleform.email" placeholder="請輸入帳號"></el-input>
         </el-form-item>
         <el-form-item
           label="密碼"
@@ -109,6 +109,7 @@ const handleSignUp = async () => {
               :type="passwordShow ? 'text' : 'password'"
               class="mt-2 password"
               v-model="ruleform.password"
+              placeholder="請輸入密碼"
             ></el-input>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -159,6 +160,7 @@ const handleSignUp = async () => {
               :type="confirmPasswordShow ? 'text' : 'password'"
               class="mt-2 password"
               v-model="ruleform.confirmPassword"
+              placeholder="請再次輸入密碼"
             ></el-input>
 
             <svg
