@@ -26,7 +26,8 @@ export default defineEventHandler(async (event) => {
       }),
       total: order.total,
       status: order.status,
-      shipping: order.shipping
+      shipping: order.shipping,
+      payment: order.payment
     }))
     return event.respondWith(
       new Response(
