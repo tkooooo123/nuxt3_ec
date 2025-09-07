@@ -75,8 +75,7 @@ onMounted(() => {
 <template>
   <div class="py-17 px-10">
     <h1
-      class="mt-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2"
-    >
+      class="mt-10 text-center relative after:content-[''] after:absolute after:z-[0] after:bottom-[-6px] after:left-0 after:w-36 after:h-3 after:bg-yellow-200 after:rounded-full after:left-1/2 after:-translate-x-1/2">
       我的訂單
     </h1>
     <el-container class="max-w-180 mx-auto mt-10">
@@ -102,23 +101,20 @@ onMounted(() => {
           </el-table-column>
           <el-table-column label="處理狀態" width="100">
             <template #default="scope">
-              <span
-                v-if="
-                  scope.row.status === 'pending' &&
-                  scope.row.payment === 'credit_card'
-                "
-              >
-                <button
-                  @click="submitPayment(scope.row)"
-                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
-                >
+              <span v-if="
+                scope.row.status === 'pending' &&
+                scope.row.payment === 'credit_card'
+              ">
+                <button @click="submitPayment(scope.row)"
+                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200">
                   前往付款
                 </button>
               </span>
               <span v-else-if="scope.row.status === 'pending'">待付款</span>
               <span v-else-if="scope.row.status === 'paid'">已付款</span>
-              <span v-else-if="scope.row.status === 'shipped'">已出貨</span>
-              <span v-else-if="scope.row.status === 'delivered'">已到貨</span>
+              <span v-else-if="scope.row.status === 'shipping'">配送中</span>
+              <span v-else-if="scope.row.status === 'shipped'">已送達</span>
+              <span v-else-if="scope.row.status === 'completed'">已完成</span>
               <span v-else-if="scope.row.status === 'cancelled'">已取消</span>
             </template>
           </el-table-column>
@@ -131,89 +127,60 @@ onMounted(() => {
                     selectedOrder = scope.row
                     orderDialogVisible = true
                   }
-                "
-              >
+                ">
                 查看更多
               </button>
             </template>
           </el-table-column>
         </el-table>
-        <div
-          v-for="order in pagedOrders"
-          :key="order?.id"
-          class="flex flex-col p-6 bg-white mb-4 rounded-2 md:hidden"
-        >
+        <div v-for="order in pagedOrders" :key="order?.id" class="flex flex-col p-6 bg-white mb-4 rounded-2 md:hidden">
           <span>訂單編號：{{ order.id }}</span>
-          <span class="mt-1"
-            >建立時間： {{ order.createdAt.slice(0, 10) }}</span
-          >
+          <span class="mt-1">建立時間： {{ order.createdAt.slice(0, 10) }}</span>
           <span class="mt-1">總金額： $ {{ order.total }}</span>
-          <span class="mt-1"
-            >付款方式：
-            {{ order.payment === 'credit_card' ? '信用卡' : '貨到付款' }}</span
-          >
+          <span class="mt-1">付款方式：
+            {{ order.payment === 'credit_card' ? '信用卡' : '貨到付款' }}</span>
           <div class="flex justify-between mt-2">
             <div class="flex items-center">
               <span>處理狀態：</span>
-              <span
-                v-if="
-                  order.status === 'pending' && order.payment === 'credit_card'
-                "
-              >
-                <button
-                  @click="submitPayment(order)"
-                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
-                >
+              <span v-if="
+                order.status === 'pending' && order.payment === 'credit_card'
+              ">
+                <button @click="submitPayment(order)"
+                  class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200">
                   前往付款
                 </button>
               </span>
               <span v-else-if="order.status === 'pending'">待付款</span>
               <span v-else-if="order.status === 'paid'">已付款</span>
-              <span v-else-if="order.status === 'shipped'">已出貨</span>
-              <span v-else-if="order.status === 'delivered'">已到貨</span>
+              <span v-else-if="order.status === 'shipping'">配送中</span>
+              <span v-else-if="order.status === 'shipped'">已送達</span>
+              <span v-else-if="order.status === 'completed'">已完成</span>
               <span v-else-if="order.status === 'cancelled'">已取消</span>
             </div>
-            <button
-              @click="
-                () => {
-                  orderDialogVisible = true
-                  selectedOrder = order
-                }
-              "
-              class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200"
-            >
+            <button @click="
+              () => {
+                orderDialogVisible = true
+                selectedOrder = order
+              }
+            "
+              class="hover:bg-primary bg-white text-primary hover:text-white border border-primary border-solid text-3.5 rounded-2 w-18 h-10 cursor-pointer transition-all duration-200">
               查看更多
             </button>
           </div>
         </div>
         <!-- 分頁 -->
         <div class="flex justify-center mt-6">
-          <Pagination
-            :total="orders.length"
-            :page-size="pageSize"
-            v-model:currentPage="currentPage"
-          />
+          <Pagination :total="orders.length" :page-size="pageSize" v-model:currentPage="currentPage" />
         </div>
       </div>
 
-      <div
-        v-else
-        class="flex flex-col items-center justify-center w-full text-gray-500"
-      >
+      <div v-else class="flex flex-col items-center justify-center w-full text-gray-500">
         <span class="text-2xl font-500">您目前沒有訂單建立</span>
-        <button
-          class="mt-4 bg-primary text-white px-4 py-2 rounded-md cursor-pointer"
-          @click="navigateTo('/products')"
-        >
+        <button class="mt-4 bg-primary text-white px-4 py-2 rounded-md cursor-pointer" @click="navigateTo('/products')">
           前往購物
         </button>
       </div>
-      <el-dialog
-        title="訂單明細"
-        v-model="orderDialogVisible"
-        width="90%"
-        class="max-w-200"
-      >
+      <el-dialog title="訂單明細" v-model="orderDialogVisible" width="90%" class="max-w-200">
         <div class="md:grid md:grid-cols-2">
           <div>
             <div>
@@ -227,8 +194,7 @@ onMounted(() => {
                 <span>
                   {{
                     selectedOrder?.createdAt.slice(0, 19).replace('T', ' ')
-                  }}</span
-                >
+                  }}</span>
               </div>
               <div class="flex mt-2">
                 <span class="w-15 mr-2">付款方式</span>
@@ -237,37 +203,25 @@ onMounted(() => {
                     selectedOrder?.payment === 'credit_card'
                       ? '信用卡'
                       : '貨到付款'
-                  }}</span
-                >
+                  }}</span>
               </div>
               <div class="flex mt-2">
                 <span class="w-15 mr-2">處理狀態</span>
-                <span
-                  v-if="
-                    selectedOrder?.status === 'pending' &&
-                    selectedOrder?.payment === 'credit_card'
-                  "
-                >
-                  <button
-                    @click="submitPayment(selectedOrder)"
-                    class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 cursor-pointer transition-all duration-200"
-                  >
+                <span v-if="
+                  selectedOrder?.status === 'pending' &&
+                  selectedOrder?.payment === 'credit_card'
+                ">
+                  <button @click="submitPayment(selectedOrder)"
+                    class="hover:bg-white bg-#44AAE9 text-white hover:text-#44AAE9 border border-#44AAE9 border-solid text-3.5 rounded-2 w-18 cursor-pointer transition-all duration-200">
                     前往付款
                   </button>
                 </span>
-                <span v-else-if="selectedOrder?.status === 'pending'"
-                  >待付款</span
-                >
+                <span v-else-if="selectedOrder?.status === 'pending'">待付款</span>
                 <span v-else-if="selectedOrder?.status === 'paid'">已付款</span>
-                <span v-else-if="selectedOrder?.status === 'shipped'"
-                  >已出貨</span
-                >
-                <span v-else-if="selectedOrder?.status === 'delivered'"
-                  >已到貨</span
-                >
-                <span v-else-if="selectedOrder?.status === 'cancelled'"
-                  >已取消</span
-                >
+                <span v-else-if="selectedOrder?.status === 'shipping'">配送中</span>
+                <span v-else-if="selectedOrder?.status === 'shipped'">已送達</span>
+                <span v-else-if="selectedOrder?.status === 'completed'">已完成</span>
+                <span v-else-if="selectedOrder?.status === 'cancelled'">已取消</span>
               </div>
             </div>
             <div class="mt-6">
@@ -296,18 +250,9 @@ onMounted(() => {
           </div>
           <div class="mt-6 md:mt-0">
             <span class="text-4.5 font-600 text-primary">購買商品</span>
-            <div
-              v-for="item in selectedOrder?.items"
-              :key="item.id"
-              class="mt-4 flex items-center"
-            >
-              <NuxtImg
-                provider="cloudinary"
-                format="webp"
-                class="w-20 h-20 block object-cover"
-                :src="item.image"
-                :alt="item.name"
-              />
+            <div v-for="item in selectedOrder?.items" :key="item.id" class="mt-4 flex items-center">
+              <NuxtImg provider="cloudinary" format="webp" class="w-20 h-20 block object-cover" :src="item.image"
+                :alt="item.name" />
               <div class="flex justify-between items-center w-full">
                 <div class="flex flex-col ml-4 justify-center">
                   <span>{{ item.name }}</span>
@@ -333,6 +278,7 @@ onMounted(() => {
   .el-pagination .el-pager li.is-active {
     background: #c97c5d;
   }
+
   .el-pagination .el-pager li.number:hover {
     color: #c97c5d;
   }
