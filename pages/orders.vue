@@ -139,7 +139,7 @@ onMounted(() => {
           <span class="mt-1">總金額： $ {{ order.total }}</span>
           <span class="mt-1">付款方式：
             {{ order.payment === 'credit_card' ? '信用卡' : '貨到付款' }}</span>
-          <div class="flex justify-between mt-2">
+          <div class="flex justify-between">
             <div class="flex items-center">
               <span>處理狀態：</span>
               <span v-if="
