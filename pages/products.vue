@@ -107,7 +107,7 @@ onMounted(() => {
 <template>
   <div class="py-17 px-12">
     <div class="flex mt-6 mb-12">
-      <span>首頁</span>
+      <NuxtLink to="/" class="hover:text-primary transition-colors">首頁</NuxtLink>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -123,7 +123,7 @@ onMounted(() => {
         />
       </svg>
 
-      <span>產品</span>
+      <NuxtLink to="/products" class="hover:text-primary transition-colors">產品</NuxtLink>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
