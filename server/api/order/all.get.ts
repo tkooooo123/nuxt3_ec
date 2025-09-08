@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     if(!userId) return;
     
 
-    const orders = await Order.find()
+    const orders = await Order.find({user: userId})
     .sort({ createdAt: -1})
     .populate<{ user: IUser }>('user')
     .populate('items.product')
